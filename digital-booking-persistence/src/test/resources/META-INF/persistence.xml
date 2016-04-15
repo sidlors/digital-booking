@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+  <persistence-unit name="DigitalBookingMSSQLTest" transaction-type="RESOURCE_LOCAL">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <class>mx.com.cinepolis.digital.booking.model.StateDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EventTypeLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CountryLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CategoryDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EventMovieDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingWeekDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingWeekScreenDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingWeekScreenShowDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.LanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.NewsFeedDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TerritoryLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EmailDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.StateLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.DistributorDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.RoleDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.RegionDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.IncomeSettingsDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.IncomeSettingsTypeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.IncomeSettingsTypeLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingStatusDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EventDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.SpecialEventDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.PersonDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CityLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CityDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TheaterDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.UserDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CategoryLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.ObservationDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingStatusLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.SystemMenuDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.SystemMenuLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.RegionLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EventTypeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CategoryTypeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.MovieImageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CategoryTypeLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.ScreenDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TheaterLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TerritoryDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.WeekDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CountryDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.ConfigurationDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.MovieFormatDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingSpecialEventDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingSpecialEventScreenDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingSpecialEventScreenShowDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingTypeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingTypeLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.SpecialEventWeekDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingIncomeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.PresaleDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TrailerDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TrailerStatusDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TrailerStatusLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.OperationDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.OperationLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.ProcessDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.ProcessLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.SystemLogDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EmailTypeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EmailTemplateDO</class>
+    
+    <properties>
+      <property name="javax.persistence.jdbc.url" value="jdbc:jtds:sqlserver://192.168.0.25:1433;DatabaseName=DIGITAL_BOOKING_SP2" />
+      <property name="javax.persistence.jdbc.user" value="cinepolis" />
+      <property name="javax.persistence.jdbc.password" value="56789" />
+      <property name="javax.persistence.jdbc.driver" value="net.sourceforge.jtds.jdbc.Driver" />
+
+      <property name="eclipselink.logging.level" value="SEVERE" />
+    </properties>
+  </persistence-unit>
+
+  <persistence-unit name="DigitalBookingHSQLDBTest" transaction-type="RESOURCE_LOCAL">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <mapping-file>orm-hsql.xml</mapping-file>
+    <mapping-file>native-queries.xml</mapping-file>
+    <class>mx.com.cinepolis.digital.booking.model.StateDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EventTypeLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CountryLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CategoryDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EventMovieDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingWeekDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingWeekScreenDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingWeekScreenShowDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.LanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.NewsFeedDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TerritoryLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EmailDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.StateLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.DistributorDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.RoleDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.RegionDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.IncomeSettingsDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.IncomeSettingsTypeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.IncomeSettingsTypeLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingStatusDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EventDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.SpecialEventDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.PersonDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CityLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CityDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TheaterDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.UserDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CategoryLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.ObservationDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingStatusLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.SystemMenuDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.SystemMenuLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.RegionLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EventTypeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CategoryTypeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.MovieImageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CategoryTypeLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.ScreenDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TheaterLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TerritoryDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.WeekDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CountryDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.ConfigurationDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.MovieFormatDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingSpecialEventDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingSpecialEventScreenDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingSpecialEventScreenShowDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingTypeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingTypeLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.SpecialEventWeekDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingIncomeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.PresaleDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TrailerDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TrailerStatusDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TrailerStatusLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.OperationDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.OperationLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.ProcessDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.ProcessLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.SystemLogDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EmailTypeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EmailTemplateDO</class>
+    <properties>
+      <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
+      <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:testdb" />
+      <property name="javax.persistence.jdbc.user" value="sa" />
+      <property name="javax.persistence.jdbc.password" value="" />
+      <!-- <property name="eclipselink.allow-zero-id" value="true"/> -->
+      <property name="eclipselink.ddl-generation" value="create-tables" />
+      <property name="eclipselink.ddl-generation.output-mode" value="database" />
+      <!-- Puede ser SEVERE / WARNING / INFO / CONFIG / FINE / FINER / FINEST -->
+      <property name="eclipselink.logging.level" value="FINE" />
+    </properties>
+  </persistence-unit>
+
+
+<!--   <persistence-unit name="IncomePUTest" transaction-type="RESOURCE_LOCAL"> -->
+<!--     <mapping-file>orm-sybase.xml</mapping-file> -->
+<!--     <class>mx.com.cinepolis.digital.booking.model.IncomeViewDO</class> -->
+<!--     <properties> -->
+<!--      <property name="javax.persistence.jdbc.driver" value="com.sybase.jdbc3.jdbc.SybDriver" /> -->
+<!--       <property name="javax.persistence.jdbc.url" value="jdbc:sybase:Tds:10.2.90.99:2639/DWHPROD" /> -->
+<!--       <property name="javax.persistence.jdbc.user" value="user_progra" /> -->
+<!--       <property name="javax.persistence.jdbc.password" value="u_p1ctur3$" /> -->
+<!--       <property name="eclipselink.allow-zero-id" value="true"/> -->
+<!--       <property name="eclipselink.logging.level" value="FINE" /> -->
+<!--     </properties> -->
+<!--   </persistence-unit> -->
+  
+  <persistence-unit name="IncomePUTest" transaction-type="RESOURCE_LOCAL">
+    <mapping-file>orm-sybase.xml</mapping-file>
+    <class>mx.com.cinepolis.digital.booking.model.IncomeViewDO</class>
+    <properties>
+      <property name="javax.persistence.jdbc.url" value="jdbc:jtds:sqlserver://192.168.0.25:1433;databaseName=DIGITAL_BOOKING_SP2" />
+      <property name="javax.persistence.jdbc.user" value="cinepolis" />
+      <property name="javax.persistence.jdbc.password" value="56789" />
+      <property name="javax.persistence.jdbc.driver" value="net.sourceforge.jtds.jdbc.Driver" />
+      <property name="eclipselink.allow-zero-id" value="true"/>
+      <property name="eclipselink.logging.level" value="FINE" />
+    </properties>
+  </persistence-unit>
+
+
+</persistence>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:p="http://primefaces.org/ui" xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+
+  <ui:define name="content_title">#{msg['digitalbooking.config.systemlog.systemLogTitle']}</ui:define>
+  <ui:define name="content">
+    <cdb:waitingDialog components=":form:searchButton, :form:resetButton" />
+
+    <h:form id="form" style="width:100%">
+      <p:messages id="modifyMsgs" autoUpdate="true" closable="true" />
+      <p:focus />
+
+      <h:panelGrid columns="1" id="filterPanelGrid" styleClass="panel-background" width="100%">
+
+        <p:panelGrid id="filterPanelGridPart1" width="100%" style="width: 100%;" styleClass="ui-panelgrid-without-background">
+          <p:row>
+            <p:column style="border-style:none;">
+
+              <p:outputLabel for="firstNameFilter" value="#{msg['digitalbooking.config.systemlog.firstNameFilterLabel']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:inputText id="firstNameFilter" value="#{systemLogBean.firstNameFilter}" maxlength="160" style="width: 180px;" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="lastNameFilter" value="#{msg['digitalbooking.config.systemlog.lastNameFilterLabel']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:inputText id="lastNameFilter" value="#{systemLogBean.lastNameFilter}" maxlength="160" style="width: 180px;" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="userNameFilter" value="#{msg['digitalbooking.config.systemlog.userNameFilterLabel']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:inputText id="userNameFilter" value="#{systemLogBean.userNameFilter}" maxlength="160" style="width: 180px;" />
+            </p:column>
+            <p:column colspan="2" style="border-style:none;">&nbsp;</p:column>
+          </p:row>
+
+          <p:row>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="operationFilter" value="#{msg['digitalbooking.config.systemlog.operationFilterLabel']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:selectOneMenu id="operationFilter" widgetVar="operationFilter" value="#{systemLogBean.operationFilter}"
+                style="width: 190px;" panelStyle="width:180px;">
+                <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOneMenu']}" itemValue="" />
+                <f:selectItems value="#{systemLogBean.operationsList}" var="operation" itemLabel="#{operation.name}"
+                  itemValue="#{operation.id}" />
+              </p:selectOneMenu>
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="processFilter" value="#{msg['digitalbooking.config.systemlog.processFilterLabel']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:selectOneMenu id="processFilter" widgetVar="processFilter" value="#{systemLogBean.processFilter}"
+                style="width: 190px;" panelStyle="width:150px;">
+                <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOneMenu']}" itemValue="" />
+                <f:selectItems value="#{systemLogBean.processList}" var="process" itemLabel="#{process.name}"
+                  itemValue="#{process.id}" />
+              </p:selectOneMenu>
+            </p:column>
+            <p:column colspan="4" style="border-style:none;">&nbsp;</p:column>
+          </p:row>
+
+          <p:row>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="startDateFilter" value="#{msg['digitalbooking.config.systemlog.startDateFilterLabel']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:calendar id="startDateFilter" widgetVar="startDateFilter" value="#{systemLogBean.startDateFilter}"
+                showOn="button" pattern="dd/MM/yyyy" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="startTimeFilter" value="#{msg['digitalbooking.config.systemlog.startTimeFilterLabel']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:calendar id="startTimeFilter" widgetVar="startTimeFilter" value="#{systemLogBean.startTimeFilter}"
+                timeOnly="true" pattern="HH:mm:ss" size="24"/>
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="finalDateFilter" value="#{msg['digitalbooking.config.systemlog.finalDateFilterLabel']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:calendar id="finalDateFilter" widgetVar="finalDateFilter" value="#{systemLogBean.finalDateFilter}"
+                showOn="button" pattern="dd/MM/yyyy" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="finalTimeFilter" value="#{msg['digitalbooking.config.systemlog.finalTimeFilterLabel']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:calendar id="finalTimeFilter" widgetVar="finalTimeFilter" value="#{systemLogBean.finalTimeFilter}"
+                timeOnly="true" pattern="HH:mm:ss" size="24"/>
+            </p:column>
+          </p:row>
+        </p:panelGrid>
+
+        <p:panelGrid id="filterPanelGridPart3" width="100%" style="text-align:right; width: 100%;"
+          styleClass="ui-panelgrid-without-background">
+          <p:row>
+            <p:column style="border-style:none;text-align:right;">
+              <p:commandButton id="resetButton" value="#{msg['digitalbooking.common.resetBtnText']}" style="margin-right: 5px;"
+                icon="ui-icon-arrowrefresh-1-s" update=":form:filterPanelGrid, systemLogList" action="#{systemLogBean.resetFilters}"
+                resetValues="true" />
+              <p:commandButton id="searchButton" value="#{msg['digitalbooking.common.searchBtnText']}" icon="ui-icon-search"
+                update="systemLogList" action="#{systemLogBean.setFilters}" />
+            </p:column>
+          </p:row>
+        </p:panelGrid>
+      </h:panelGrid>
+
+      <p:dataTable id="systemLogList" widgetVar="systemLogList" var="systemLog" value="#{systemLogBean.systemLogTOList}"
+        lazy="true" paginator="true" rows="10" style="margin-top: 10px;"
+        paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+        rowsPerPageTemplate="10,50,100" paginatorPosition="bottom" scrollable="false" scrollHeight="255"
+        rowKey="#{trailer.idTrailer}">
+
+        <p:column headerText="#{msg['digitalbooking.config.systemlog.nameTableHeader']}" style="width:20%;">
+            #{systemLog.userTO.personTO.fullName}
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.config.systemlog.userTableHeader']}" style="width:10%;">
+            #{systemLog.userTO.name}
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.config.systemlog.dateTableHeader']}" style="width:15%;">
+          <h:outputText value="#{systemLog.dtOperation}">
+            <f:convertDateTime pattern="dd/MM/yyyy" />
+          </h:outputText>
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.config.systemlog.timeTableHeader']}" style="width:15%;">
+          <h:outputText value="#{systemLog.dtOperation}">
+            <f:convertDateTime pattern="HH:mm:ss" type="time" />
+          </h:outputText>
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.config.systemlog.operationTableHeader']}"
+          style="width:20%; text-align:center;">
+          #{systemLog.operationTO.name}
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.config.systemlog.processTableHeader']}" style="width:20%; text-align:center;">
+            #{systemLog.processTO.name}
+        </p:column>
+      </p:dataTable>
+    </h:form>
+
+    <p:dialog modal="true" widgetVar="statusDialog" header="#{msg['digitalbooking.common.waitingText']}" draggable="false"
+      closable="false" resizable="false">
+      <p:graphicImage value="/images/ajaxloadingbar.gif" />
+    </p:dialog>
+
+    <script>
+                    jQuery(document).ready(function() {
+                        var resetBtn = document.getElementById('form:filterPanelGridPart3:resetButton');
+                        console.log(resetBtn);
+                        if (resetBtn) {
+                            resetBtn.click();
+                        }
+                    });
+                    function start() {
+                        PF('statusDialog').show();
+                    }
+                    function stop() {
+                        PF('statusDialog').hide();
+                    }
+                </script>
+  </ui:define>
+</ui:composition>

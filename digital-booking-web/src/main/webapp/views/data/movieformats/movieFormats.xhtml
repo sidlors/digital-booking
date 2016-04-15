@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+  xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+  <ui:define name="content_title">#{msg['digitalbooking.movieformats.administration.movieFormatsTitle']}</ui:define>
+  <ui:define name="content">
+    <cdb:waitingDialog components=":addForm:saveBtn, :editForm:saveBtnModify, :confirmDialogform:deleteOkBtn" />
+    <h:form id="movieFormatListForm" style="width:100%; ">
+      <p:dataTable id="movieFormatTable" var="movieFormat" value="#{movieFormatsBean.movieFormatsList}" lazy="true"
+        paginator="true" rows="10"
+        paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+        rowsPerPageTemplate="10,50,100" paginatorPosition="bottom" scrollable="true" scrollHeight="255"
+        rowKey="#{movieFormat.id}" selection="#{movieFormatsBean.selectedMovieFormat}" selectionMode="single">
+        <p:ajax event="rowSelect" update=":editForm:editMovieFormatPanel" />
+        <p:ajax event="rowUnselect" update=":editForm:editMovieFormatPanel" />
+        <p:ajax event="rowDblselect" update=":editForm:editMovieFormatPanel" oncomplete="editMovieFormat.show()" />
+        <f:facet name="header">
+          <p:commandButton id="addButton" value="Add" icon="ui-icon-plus" onclick="PF('addMovieFormat').show()" />
+          <p:commandButton id="modifyButton" value="Modify" icon="ui-icon-pencil"
+            action="#{movieFormatsBean.validateSelection}"
+            oncomplete="if(!args.fail){PF('editMovieFormat').show()} else {PF('validationErrorDialog').show()}" />
+          <p:commandButton id="removeButton" value="Remove" icon="ui-icon-close"
+            action="#{movieFormatsBean.validateSelection}"
+            oncomplete="if(!args.fail){PF('confirmDelete').show()} else {PF('validationErrorDialog').show()}" />
+        </f:facet>
+        <p:column headerText="#{msg['digitalbooking.movieformats.administration.idHeaderTable']}" style="width:10%;">
+					            #{movieFormat.id}  
+				</p:column>
+        <p:column headerText="#{msg['digitalbooking.movieformats.administration.nameHeaderTable']}" style="width:30%;">
+					            #{movieFormat.name}  
+				</p:column>
+      </p:dataTable>
+    </h:form>
+    <h:form id="addForm">
+      <p:dialog id="addMovieFormatDialog"
+        header="#{msg['digitalbooking.movieformats.administration.addMovieFormatWindowTitle']}" modal="true"
+        widgetVar="addMovieFormat" resizable="false" width="500">
+        <p:ajax event="close" listener="#{movieFormatsBean.handleClose}" update="addMovieFormatPanel"
+          resetValues="true" immediate="true" />
+        <p:panel id="movieFormatPanelAdd">
+          <p:messages id="msgs" autoUpdate="true" closable="true" />
+          <h:panelGrid id="addMovieFormatPanel" columns="2" styleClass="components-dialog">
+            <p:outputLabel for="name" style="color:#000000;"
+              value="#{msg['digitalbooking.movieformats.add.nameOutputText']}" cellpadding="4" />
+            <p:inputText id="name" value="#{movieFormatsBean.addedName}" required="true"
+              label="#{msg['digitalbooking.movieformats.administration.nameHeaderTable']}" maxlength="12"
+              styleClass="components-dialog" />
+          </h:panelGrid>
+          <h:panelGrid styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+          <p:panelGrid>
+            <p:row>
+              <p:column colspan="2"
+                style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <cdb:commandButton id="saveBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+                  action="#{movieFormatsBean.saveMovieFormat}" style="float: right"
+                  oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) {addMovieFormat.hide()}"
+                  update=":movieFormatListForm:movieFormatTable, addMovieFormatPanel, movieFormatPanelAdd">
+                  <cdb:success />
+                </cdb:commandButton>
+              </p:column>
+              <p:column colspan="1"
+                style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <p:commandButton id="closeBtn" value="#{msg['digitalbooking.common.closeBtnText']}"
+                  oncomplete="PF('addMovieFormat').hide()" style="float: right" process="@this">
+                  <p:ajax update="movieFormatPanelAdd" resetValues="true" immediate="true" />
+                  <p:resetInput target="movieFormatPanelAdd" />
+                </p:commandButton>
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+    <h:form id="editForm">
+      <p:dialog id="editMovieFormatDialog"
+        header="#{msg['digitalbooking.movieformats.administration.modifyMovieFormatWindowTitle']}"
+        widgetVar="editMovieFormat" resizable="false" width="500" modal="true">
+        <p:ajax event="close" listener="#{movieFormatsBean.handleClose}" update="movieFormatPanelModify"
+          resetValues="true" immediate="true" />
+        <p:panel id="movieFormatPanelModify">
+          <p:messages id="modifyMsgs" autoUpdate="true" closable="true" />
+          <h:panelGrid id="editMovieFormatPanel" columns="2" styleClass="components-dialog">
+            <p:outputLabel for="addedName" style="color:#000000;"
+              value="#{msg['digitalbooking.movieformats.add.nameOutputText']}" cellpadding="4" />
+            <p:inputText id="addedName" value="#{movieFormatsBean.selectedMovieFormat.name}" required="true"
+              label="#{msg['digitalbooking.movieformats.administration.nameHeaderTable']}" maxlength="12"
+              styleClass="components-dialog" />
+          </h:panelGrid>
+          <h:panelGrid styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+          <p:panelGrid>
+            <p:row>
+              <p:column colspan="2"
+                style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <cdb:commandButton id="saveBtnModify" value="#{msg['digitalbooking.common.saveBtnText']}"
+                  action="#{movieFormatsBean.updateMovieFormat}" style="float: right"
+                  oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) {editMovieFormat.hide();}"
+                  update=":movieFormatListForm:movieFormatTable, movieFormatPanelModify">
+                  <cdb:success />
+                </cdb:commandButton>
+              </p:column>
+              <p:column colspan="1"
+                style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <p:commandButton id="closeBtnModify" value="#{msg['digitalbooking.common.closeBtnText']}"
+                  oncomplete="PF('editMovieFormat').hide()" style="float: right" resetValues="true" immediate="true"
+                  process="@this">
+                  <p:ajax update="movieFormatPanelModify" resetValues="true" immediate="true" />
+                  <p:resetInput target="movieFormatPanelModify" />
+                </p:commandButton>
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+    <h:form id="confirmDialogform">
+      <p:confirmDialog id="confirmDialog" message="#{msg['digitalbooking.common.removeMsgConfirmationText']}"
+        header="#{msg['digitalbooking.common.removeRecordTitle']}" severity="alert" widgetVar="confirmDelete"
+        modal="true">
+        <cdb:commandButton id="deleteOkBtn" value="#{msg['digitalbooking.common.yesBtnText']}"
+          action="#{movieFormatsBean.deleteMovieFormat}"
+          update=":movieFormatListForm:movieFormatTable, :editForm:editMovieFormatPanel"
+          oncomplete="confirmDelete.hide();">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmDelete.hide();" type="button" />
+      </p:confirmDialog>
+    </h:form>
+    <h:form id="validationDialogForm">
+      <p:dialog id="validationErrorDialog" header="#{msg['digitalbooking.common.validationErrorTitle']}"
+        widgetVar="validationErrorDialog" modal="true" resizable="false">
+        <h:panelGrid id="validationErrorPanel" columns="1" style="text-align:center">
+          <h:panelGrid columns="2" style="text-align:center">
+            <span class="ui-dialog-message ui-messages-error-icon" />
+            <h:outputText value="#{msg['digitalbooking.common.validationErrorText']}" />
+          </h:panelGrid>
+          <p:commandButton id="acceptBtn" value="#{msg['digitalbooking.common.acceptBtnText']}"
+            oncomplete="validationErrorDialog.hide();" />
+        </h:panelGrid>
+      </p:dialog>
+    </h:form>
+  </ui:define>
+</ui:composition>

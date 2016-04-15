@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+  xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+  <ui:define name="content_title">#{msg['digitalbooking.reports.distributorsReport.distributorsReportTitle']}</ui:define>
+  <ui:define name="content">
+    <h:form id="form" styleClass="ui-widget">
+      <p:panelGrid id="filterPanelGrid" style="width: 100%; border-style: none;" bgcolor="#FFFFFF"
+        headerClass="ui-widget-header" styleClass="ui-widget-content" footerClass="ui-widget-header">
+
+        <f:facet name="header">
+          <p:row>
+            <p:column colspan="2">#{msg['digitalbooking.reports.distributorsReport.distributorReportText']}</p:column>
+          </p:row>
+        </f:facet>
+        <p:row>
+          <p:column style="border-style:none; width:15%;">
+            <p:outputLabel for="weekMenu" style="color:#000000;"
+              value="#{msg['digitalbooking.reports.distributorsReport.weekOutputLabel']}" />
+          </p:column>
+          <p:column style="border-style:none;width:85%;">
+            <p:selectOneMenu id="weekMenu" widgetVar="weekMenu" value="#{distributorsReportBean.idWeek}"
+              onchange="if(PF('weekMenu').getSelectedValue() &gt; 0 &amp;&amp; PF('distributorMenu').getSelectedValue() &gt;= 0 &amp;&amp; PF('regionMenu').getSelectedValue() &gt;= 0){ PF('downloadButton').enable() } else { PF('downloadButton').disable() }"
+              style="width:160px;" panelStyle="width:140px;">
+              <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOneMenu']}" itemValue="-1" />
+              <f:selectItems value="#{distributorsReportBean.weeks}" var="weekTO" itemLabel="#{weekTO.weekDescription}"
+                itemValue="#{weekTO.idWeek}" />
+            </p:selectOneMenu>
+          </p:column>
+        </p:row>
+        <p:row>
+          <p:column style="border-style:none;">
+            <p:outputLabel for="distributorMenu" style="color:#000000;"
+              value="#{msg['digitalbooking.reports.distributorsReport.distributorOutputLabel']}" />
+          </p:column>
+          <p:column style="border-style:none;">
+            <p:selectOneMenu id="distributorMenu" widgetVar="distributorMenu"
+              onchange="if(PF('weekMenu').getSelectedValue() &gt; 0 &amp;&amp; PF('distributorMenu').getSelectedValue() &gt;= 0 &amp;&amp; PF('regionMenu').getSelectedValue() &gt;= 0){ PF('downloadButton').enable() } else { PF('downloadButton').disable() }"
+              value="#{distributorsReportBean.idDistributor}" style="width:35%;" panelStyle="width:30%;">
+              <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOneMenu']}" itemValue="-1" />
+              <f:selectItem itemLabel="#{msg['digitalbooking.reports.distributorsReport.allDistributorsLabel']}"
+                itemValue="0" />
+              <f:selectItems value="#{distributorsReportBean.distributors}" var="distributor"
+                itemLabel="#{distributor.shortName}" itemValue="#{distributor.id}" />
+            </p:selectOneMenu>
+          </p:column>
+        </p:row>
+        <p:row>
+          <p:column style="border-style:none;">
+            <p:outputLabel for="regionMenu" style="color:#000000;"
+              value="#{msg['digitalbooking.reports.distributorsReport.regionOutputLabel']}" />
+          </p:column>
+          <p:column style="border-style:none;">
+            <p:selectOneMenu id="regionMenu" widgetVar="regionMenu"
+              onchange="if(PF('weekMenu').getSelectedValue() &gt; 0 &amp;&amp; PF('distributorMenu').getSelectedValue() &gt;= 0 &amp;&amp; PF('regionMenu').getSelectedValue() &gt;= 0){ PF('downloadButton').enable() } else { PF('downloadButton').disable() }"
+              value="#{distributorsReportBean.idRegion}" style="width:35%;" panelStyle="width:30%;">
+              <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOneMenu']}" itemValue="-1" />
+
+              <f:selectItem itemLabel="#{msg['digitalbooking.reports.distributorsReport.allRegionsLabel']}"
+                itemValue="0" />
+              <f:selectItems value="#{distributorsReportBean.regions}" var="region" itemLabel="#{region.name}"
+                itemValue="#{region.id}" />
+            </p:selectOneMenu>
+          </p:column>
+        </p:row>
+        <f:facet name="footer">
+          <p:row>
+            <p:column style="border-style:none;" colspan="3">
+              <p:commandButton id="downloadButton" style="float: right"
+                value="#{msg['digitalbooking.reports.distributorsReport.downloadBtnText']}" widgetVar="downloadButton"
+                ajax="false" onclick="PrimeFaces.monitorDownload(start, stop)" icon="ui-icon-arrowthickstop-1-s">
+                <p:fileDownload value="#{distributorsReportBean.file}" />
+              </p:commandButton>
+              <p:commandButton id="resetBtn" style="float: right" value="#{msg['digitalbooking.common.resetBtnText']}"
+                type="reset" icon="ui-icon-arrowrefresh-1-s" onclick="regionMenu.selectValue(-1); distributorMenu.selectValue(-1)" />
+            </p:column>
+          </p:row>
+        </f:facet>
+      </p:panelGrid>
+    </h:form>
+    <h:form id="validationDialogForm">
+      <p:dialog id="validationErrorDialog" header="#{msg['digitalbooking.common.validationErrorTitle']}"
+        widgetVar="validationErrorDialog" modal="true" resizable="false">
+        <h:panelGrid id="validationErrorPanel" columns="1" style="text-align:center">
+          <h:outputText value="#{msg['digitalbooking.reports.distributorsReport.validationErrorText']}" />
+          <p:commandButton id="acceptBtn" value="#{msg['digitalbooking.common.acceptBtnText']}"
+            oncomplete="validationErrorDialog.hide();" />
+        </h:panelGrid>
+      </p:dialog>
+    </h:form>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            PF('downloadButton').disable();
+        });
+        function start() {
+            PF('statusDialog').show();
+        }
+        function stop() {
+            PF('statusDialog').hide();
+        }
+    </script>
+    <p:dialog modal="true" widgetVar="statusDialog" header="#{msg['digitalbooking.common.waitingText']}"
+      draggable="false" closable="false" resizable="false">
+      <p:graphicImage value="/images/ajaxloadingbar.gif" />
+    </p:dialog>
+    <script>
+      jQuery(document).ready(function() {
+          var resetBtn = document.getElementById('form:resetBtn');
+          if(resetBtn){
+              resetBtn.click();
+          }
+      });
+    </script>
+  </ui:define>
+</ui:composition>

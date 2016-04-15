@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:p="http://primefaces.org/ui" xmlns:cdb="http://cinepolis/digital-booking/custom-tags"
+  xmlns:pe="http://primefaces.org/ui/extensions">
+  <ui:define name="content_title">#{msg['digitalbooking.reports.sendemailregion.sendEmailRegionTitle']}</ui:define>
+  <ui:define name="content">
+    <cdb:waitingDialog components=":filterPanelForm:weekMenu" />
+    <h:form id="filterPanelForm">
+      <h:panelGrid columns="7" id="filterPanelGrid" styleClass="panel-background" width="100%" cellpadding="5" cellspacing="4">
+        <p:outputLabel for="weekMenu" value="#{msg['digitalbooking.reports.sendemailregion.dateOutputLable']}" />
+        <p:selectOneMenu id="weekMenu" widgetVar="weekMenu" value="#{sendEmailRegionBean.weekIdSelected}"
+          onchange="if(PF('weekMenu').getSelectedValue() &amp;&amp; PF('regionMenu').getSelectedValue()){ PF('downloadButton').enable(); PF('sendButton').enable(); } else { PF('downloadButton').disable(); PF('sendButton').disable(); }"
+          style="width:200px;" panelStyleClass="select-one-menu-width-200-panel-style">
+          <p:ajax update="txtSubject, templateEditor, :formAttachments:attachmentsTable" listener="#{sendEmailRegionBean.loadTemplate}" />
+          <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOneMenu']}" itemValue="" />
+          <f:selectItems value="#{sendEmailRegionBean.weeks}" var="week" itemLabel="#{week.weekDescription}"
+            itemValue="#{week.idWeek}" />
+        </p:selectOneMenu>
+        <p:outputLabel for="regionMenu" value="#{msg['digitalbooking.reports.sendemailregion.regionOutputLable']}" />
+        <p:selectOneMenu id="regionMenu" widgetVar="regionMenu" value="#{sendEmailRegionBean.regionIdSelected}"
+          onchange="if(PF('weekMenu').getSelectedValue() &amp;&amp; PF('regionMenu').getSelectedValue()){ PF('downloadButton').enable(); PF('sendButton').enable(); } else { PF('downloadButton').disable(); PF('sendButton').disable(); }"
+          style="width:200px;" panelStyleClass="select-one-menu-width-200-panel-style">
+          <p:ajax update="txtSubject, templateEditor, :formAttachments:attachmentsTable" listener="#{sendEmailRegionBean.loadTemplate}" />
+          <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOneMenu']}" itemValue="" />
+          <f:selectItems value="#{sendEmailRegionBean.regions}" var="region" itemLabel="#{region.name}" itemValue="#{region.id}" />
+        </p:selectOneMenu>
+        <p:commandButton id="resetBtn" value="#{msg['digitalbooking.common.resetBtnText']}" type="reset"
+          icon="ui-icon-arrowrefresh-1-s" onclick="regionMenu.selectValue('')" style="margin-right: 80%;" />
+        <p:commandButton id="downloadButton" widgetVar="downloadButton" value="#{msg['digitalbooking.common.downloadBtnText']}"
+          ajax="false" onclick="PrimeFaces.monitorDownload(start, stop)" icon="ui-icon-arrowthickstop-1-s"
+          style="width: 150px; margin:0 auto; display:block;">
+          <p:fileDownload value="#{sendEmailRegionBean.file}" />
+        </p:commandButton>
+        <cdb:commandButton id="sendButton" widgetVar="sendButton" value="#{msg['digitalbooking.common.sendDocumentBtnText']}"
+          rendered="#{sendEmailRegionBean.isWeekEditable}" icon="ui-icon-arrowthickstop-1-e"
+          action="#{sendEmailRegionBean.sendDocument}" onclick="PF('statusDialog').show()" oncomplete="PF('statusDialog').hide()"
+          style="width: 150px; margin:0 auto; display:block;">
+          <cdb:success />
+        </cdb:commandButton>
+      </h:panelGrid>
+      
+      <h:panelGrid columns="2" id="subjectPanelGrid" width="100%" cellpadding="5" cellspacing="4"
+        columnClasses="send_presale_region_align_column" style="margin-top:20px;" styleClass="panel-background">
+        <p:outputLabel for="txtSubject" value="#{msg['digitalbooking.reports.sendemailpresaleregion.subjectOutputLable']}"
+          style="display: block; width: 45px;" />
+        <p:inputText id="txtSubject" widgetVar="txtSubject" value="#{sendEmailRegionBean.subject}" maxlength="160"
+          size="97" style="" />
+      </h:panelGrid>
+      
+      <h:panelGrid id="editorPanelGrid" style="border-style:none; align: center; text-align: center;" columns="1" width="100%">
+        <pe:ckEditor id="templateEditor" value="#{sendEmailRegionBean.template}" width="100%" height="350" required="true"
+          widgetVar="templateEditor" contentsCss="#{facesContext.externalContext.requestContextPath}/css/myckeditor.css"
+          toolbar="[[ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat' ], [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote',  '-', 'JustifyLeft', 'JustifyCenter',
+                  'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl' ], [ 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar' ], [ 'Styles', 'Format', 'Font', 'FontSize' ], [ 'TextColor', 'BGColor' ]]" />
+      </h:panelGrid>
+    </h:form>
+
+    <h:form id="formAttachments" enctype="multipart/form-data">
+      <p:panelGrid style="width:100%;border-style:none; margin-top:20px;" bgcolor="#FFFFFF">
+        <f:facet name="header">
+          <p:row>
+            <p:column colspan="2">
+              <p:outputLabel value="#{msg['digitalbooking.reports.sendemailregion.attachment.suggestion']}" />
+            </p:column>
+          </p:row>
+        </f:facet>
+        <p:row>
+          <p:column style="border-style:none;width:400px;">
+            <p:fileUpload id="attachments" widgetVar="attachments" fileUploadListener="#{sendEmailRegionBean.handleFileUpload}"
+              mode="advanced" dragDropSupport="true" multiple="false" allowTypes="/(\.|\/)(xls|xlsx|pdf|doc|docx)$/"
+              sizeLimit="512000" invalidSizeMessage="#{msg['digitalbooking.reports.sendemailregion.uploadAttachment.errorSize']}"
+              value="#{sendEmailRegionBean.files}" style="border-style:none;"
+              fileLimitMessage="#{msg['digitalbooking.reports.sendemailregion.fileLimitMessage']}" update="attachmentsTable" />
+            <p:messages id="messages" autoUpdate="false" closable="true" rendered="false" />
+
+          </p:column>
+          <p:column style="border-style:none;width:624px;">
+            <p:dataTable id="attachmentsTable" widgetVar="attachmentsTable" var="attachment" value="#{sendEmailRegionBean.files}"
+              lazy="true" rowKey="#{attachment.id}" selection="#{sendEmailRegionBean.selectedFile}" selectionMode="single"
+              tyle="border-style:none;">
+              <p:ajax event="rowSelect" />
+              <p:ajax event="rowUnselect" />
+              <f:facet name="header">
+                <p:toolbar style="border:'none';">
+                  <p:toolbarGroup align="left">
+                    <p:commandButton id="removeButton" value="#{msg['digitalbooking.common.removeBtnText']}"
+                      onclick="if(PF('attachmentsTable').getSelectedRowsCount() === 1) { PF('confirmDeleteAttachment').show();} else {PF('validationErrorDialog').show();}"
+                      icon="ui-icon-close" />
+                  </p:toolbarGroup>
+                </p:toolbar>
+              </f:facet>
+              <p:column headerText="#{msg['digitalbooking.reports.sendemailregion.attachement.header']}" style="width:10%">
+                      #{attachment.name}
+        </p:column>
+            </p:dataTable>
+          </p:column>
+        </p:row>
+
+      </p:panelGrid>
+    </h:form>
+
+
+    <script type="text/javascript">
+			    $(document).ready(function() {
+			        PF('downloadButton').disable();
+			        PF('sendButton').disable();
+			    });
+					function start() {
+						PF('statusDialog').show();
+					}
+					function stop() {
+						PF('templateEditor').destroy();
+						PF('templateEditor').render();
+						PF('statusDialog').hide();
+					}
+				</script>
+    <p:dialog modal="true" widgetVar="statusDialog" header="#{msg['digitalbooking.common.waitingText']}" draggable="false"
+      closable="false" resizable="false">
+      <p:graphicImage value="/images/ajaxloadingbar.gif" />
+    </p:dialog>
+
+    <h:form id="formDeleteAttachment">
+      <p:confirmDialog id="confirmDialog" message="#{msg['digitalbooking.common.removeMsgConfirmationText']}"
+        header="#{msg['digitalbooking.common.removeRecordTitle']}" severity="alert" widgetVar="confirmDeleteAttachment"
+        modal="true">
+        <cdb:commandButton id="deleteAttachmentBtn" value="#{msg['digitalbooking.common.yesBtnText']}"
+          oncomplete="confirmDeleteAttachment.hide();" action="#{sendEmailRegionBean.removeAttachment}"
+          update=":formAttachments:attachmentsTable">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmDeleteAttachment.hide();" />
+      </p:confirmDialog>
+    </h:form>
+
+    <h:form id="validationDialogForm">
+      <p:dialog id="validationErrorDialog" header="#{msg['digitalbooking.common.validationErrorTitle']}"
+        widgetVar="validationErrorDialog" resizable="false" modal="true">
+        <h:panelGrid id="validationErrorPanel" columns="1" style="text-align:center">
+          <h:panelGrid columns="2" style="text-align:center">
+            <span class="ui-dialog-message ui-messages-error-icon" />
+            <h:outputText value="#{msg['digitalbooking.common.validationErrorText']}" />
+          </h:panelGrid>
+          <p:commandButton id="acceptBtn" value="#{msg['digitalbooking.common.acceptBtnText']}"
+            oncomplete="validationErrorDialog.hide();" />
+        </h:panelGrid>
+      </p:dialog>
+    </h:form>
+    <script type="text/javascript">
+    $(this).css({'line-height' : ''});
+</script>
+    <script>
+      jQuery(document).ready(function() {
+          var resetBtn = document.getElementById('filterPanelForm:resetBtn');
+          if(resetBtn){
+              resetBtn.click();
+          }
+      });
+    </script>
+  </ui:define>
+</ui:composition>

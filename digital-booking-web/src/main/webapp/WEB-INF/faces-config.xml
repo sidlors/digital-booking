@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<faces-config xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_1.xsd"
+  version="2.1">
+
+  <application>
+    <locale-config>
+      <default-locale>en_US</default-locale>
+    </locale-config>
+    <resource-bundle>
+      <base-name>bundles.messages</base-name>
+      <var>msg</var>
+    </resource-bundle>
+    <message-bundle>bundles.customMessages</message-bundle>
+  </application>
+
+  <factory>
+    <exception-handler-factory>mx.com.cinepolis.digital.booking.web.util.CustomExceptionHandlerFactory</exception-handler-factory>
+  </factory>
+
+  <behavior>
+    <behavior-id>mx.com.cinepolis.digital.booking.SuccessMsgBehavior</behavior-id>
+    <behavior-class>mx.com.cinepolis.digital.booking.web.components.SuccessMsgBehavior</behavior-class>
+  </behavior>
+
+  <component>
+    <component-type>mx.com.cinepolis.digital.booking.components.CommandButtonSuccess</component-type>
+    <component-class>mx.com.cinepolis.digital.booking.web.components.CommandButtonSuccess</component-class>
+  </component>
+  
+  <component>
+  	<component-type>mx.com.cinepolis.digital.booking.components.WaitingComponent</component-type>
+  	<component-class>mx.com.cinepolis.digital.booking.web.components.WaitingComponent</component-class>
+  </component>
+
+  <render-kit>
+    <renderer>
+      <component-family>mx.com.cinepolis.digital.booking.components</component-family>
+      <renderer-type>mx.com.cinepolis.digital.booking.components.CommandButtonSuccessRenderer</renderer-type>
+      <renderer-class>mx.com.cinepolis.digital.booking.web.components.CommandButtonSuccessRenderer</renderer-class>
+    </renderer>
+    <renderer>
+      <component-family>mx.com.cinepolis.digital.booking.components</component-family>
+      <renderer-type>mx.com.cinepolis.digital.booking.components.WaitingComponentRenderer</renderer-type>
+      <renderer-class>mx.com.cinepolis.digital.booking.web.components.WaitingComponentRenderer</renderer-class>
+    </renderer>
+  </render-kit>
+</faces-config>

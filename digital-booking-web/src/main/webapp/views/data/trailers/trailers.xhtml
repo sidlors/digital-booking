@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:p="http://primefaces.org/ui" xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+
+  <ui:define name="content_title">#{msg['digitalbooking.trailers.administration.trailerTitle']}</ui:define>
+  <ui:define name="content">
+    <cdb:waitingDialog
+      components=":form::addButton, :form::modifyButton, :form3:deleteOkBtn, form::searchButton,
+      :form::selectFilterDistributor, :form::synchronizeViewButton" />
+    <h:form id="form" style="width:100%">
+      <p:messages id="modifyMsgs" autoUpdate="true" closable="true" />
+      <p:focus />
+
+      <p:dataTable id="trailerDetailsList" widgetVar="trailerDetailsList" var="trailer" value="#{trailersBean.trailerTOList}"
+        lazy="true" paginator="true" rows="10"
+        paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+        rowsPerPageTemplate="10,50,100" paginatorPosition="bottom" scrollable="false" scrollHeight="255"
+        rowKey="#{trailer.idTrailer}" selection="#{trailersBean.trailerTOSelected}" selectionMode="single">
+        <p:ajax event="rowDblselect" listener="#{trailersBean.initializationForModifyTrailer}"
+          oncomplete="PF('addTrailer').show();" update=":form1:addTrailerPanel, :form:trailerDetailsList" resetValues="true"
+          immediate="true" />
+
+        <f:facet name="header">
+          <p:toolbar style="border:'none';">
+            <p:toolbarGroup align="left" style="margin-top: 0cm 0cm 0cm 5cm;">
+              <p:commandButton id="addButton" value="#{msg['digitalbooking.common.addBtnText']}" icon="ui-icon-plus"
+                action="#{trailersBean.initializationForNewTrailer}" oncomplete="PF('addTrailer').show();"
+                update=":form1:addTrailerPanel" />
+              <p:commandButton id="modifyButton" value="#{msg['digitalbooking.common.modifyBtnText']}" icon="ui-icon-pencil"
+                action="#{trailersBean.initializationForModifyTrailer}" oncomplete="PF('addTrailer').show();"
+                update=":form1:addTrailerPanel" />
+              <p:commandButton id="removeButton" value="#{msg['digitalbooking.common.removeBtnText']}" icon="ui-icon-close"
+                action="#{movieBean.validateSelection}"
+                oncomplete="if(!args.fail){PF('confirmDelete').show()} else {PF('validationErrorDialog').show()}" />
+              <cdb:commandButton id="synchronizeViewButton" value="#{msg['digitalbooking.common.synchronizeViewBtnText']}"
+                action="#{movieBean.synchronizeWithView}">
+                <cdb:success />
+              </cdb:commandButton>
+            </p:toolbarGroup>
+
+            <p:toolbarGroup>
+              <p:fieldset id="filters" legend="#{msg['digitalbooking.common.applyFilters']}" style="width: 700px;" align="center">
+                <p:ajax event="toggle" listener="#{trailersBean.resetFilters}" update="filters, trailerDetailsList" />
+                <p:panelGrid cellpadding="10" style="border-style:none;" bgcolor="#FFFFFF">
+                  <p:row>
+                    <p:column style="border-style:none;width:120px">
+                      <p:outputLabel for="filterMovieName" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.trailers.administration.trailerNameFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none; width: 340px !important;">
+                      <p:inputText id="filterMovieName" value="#{trailersBean.trailerNameFilter}" maxlength="160" size="30"
+                        style="width:300px" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <br />
+                    </p:column>
+                  </p:row>
+                  <p:row>
+                    <p:column style="border-style:none;width:120px">
+                      <p:outputLabel for="selectFilterRating" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.trailers.administration.ratingFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:selectOneMenu id="selectFilterRating" widgetVar="selectFilterRating"
+                        value="#{trailersBean.idRatingFilter}" panelStyle="width:180px" style="width:300px">
+                        <p:ajax update="trailerDetailsList" listener="#{trailersBean.setFilters}" />
+                        <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                        <f:selectItems value="#{trailersBean.ratingList}" var="filterRating" itemLabel="#{filterRating.name}"
+                          itemValue="#{filterRating.id}" />
+                      </p:selectOneMenu>
+                    </p:column>
+                  </p:row>
+                  <p:row>
+                    <p:column style="border-style:none;width:120px">
+                      <p:outputLabel for="selectFilterDistributor" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.trailers.administration.distributorFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:selectOneMenu id="selectFilterDistributor" widgetVar="selectFilterDistributor"
+                        value="#{trailersBean.idDistributorFilter}" panelStyle="width:180px" style="width:300px">
+                        <p:ajax update="trailerDetailsList" listener="#{trailersBean.setFilters}" />
+                        <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                        <f:selectItems value="#{trailersBean.distributorTOList}" var="filterDistributor"
+                          itemLabel="#{filterDistributor.shortName}" itemValue="#{filterDistributor.id}" />
+                      </p:selectOneMenu>
+                    </p:column>
+                  </p:row>
+
+                  <p:row>
+                    <p:column style="border-style:none;">
+                      <p:outputLabel for="filterCurrentTrailer" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.trailers.administration.currentTrailerFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:selectBooleanCheckbox id="filterCurrentTrailer" value="#{trailersBean.trailerCurrentFilter}"
+                        widgetVar="filterCurrentMovie">
+                      </p:selectBooleanCheckbox>
+                    </p:column>
+                  </p:row>
+
+                  <p:row>
+                    <p:column colspan="5" style="border-style:none;text-align:right;">
+                      <p:commandButton id="resetButton" value="#{msg['digitalbooking.common.resetBtnText']}"
+                        icon="ui-icon-arrowrefresh-1-s" update="trailerDetailsList" action="#{trailersBean.resetFilters}">
+                        <p:ajax update="filters" resetValues="true" />
+                      </p:commandButton>
+                      <p:commandButton id="searchButton" value="#{msg['digitalbooking.common.searchBtnText']}"
+                        icon="ui-icon-search" update="trailerDetailsList" action="#{trailersBean.setFilters}" />
+                    </p:column>
+                  </p:row>
+                </p:panelGrid>
+              </p:fieldset>
+            </p:toolbarGroup>
+          </p:toolbar>
+        </f:facet>
+
+        <p:column headerText="#{msg['digitalbooking.trailers.administration.idHeader']}" style="width:5%;">
+            #{trailer.idTrailer}
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.trailers.administration.trailerNameHeader']}" style="width:25%;">
+            #{trailer.name}
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.trailers.administration.ratingHeader']}" style="width:10%;">
+            #{trailer.rating.name}
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.trailers.administration.durationHeader']}" style="width:10%;">
+            #{trailer.duration}
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.trailers.administration.releaseDateHeader']}"
+          style="width:10%; 
+        	text-align:center;">
+          <h:outputText value="#{trailer.releaseDate}">
+            <f:convertDateTime pattern="dd/MM/yyyy" />
+          </h:outputText>
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.trailers.administration.distributorHeader']}"
+          style="width:15%; 
+          text-align:center;">
+            #{trailer.distributor.name}
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.trailers.administration.statusHeader']}"
+          style="width:20%; 
+          text-align:center;">
+          #{trailer.statusTrailer.name}
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.trailers.administration.currentHeader']}" style="width:5%; text-align:center;">
+          <p:graphicImage value="/images/tick.png" rendered="#{trailer.current}" />
+        </p:column>
+      </p:dataTable>
+
+    </h:form>
+
+    <!-- ############### ADD/EDIT TRAILER - MODAL WINDOW ###############  -->
+    <h:form id="form1">
+      <p:dialog id="addTrailerDialog" header="#{trailersBean.trailerHeader}" modal="true" widgetVar="addTrailer" resizable="false"
+        width="70%">
+        <p:ajax event="close" update="addTrailerDialog" resetValues="true" immediate="true" />
+        <p:panel id="addTrailerPanel">
+          <p:messages id="modifyMsgs" autoUpdate="true" closable="true" />
+
+          <p:panelGrid id="dataTrailerPanel" style="width:100%; border-style:none;" bgcolor="#FFFFFF"
+            headerClass="ui-widget-header" styleClass="ui-widget-content" footerClass="ui-widget-header"
+            title="#{trailersBean.trailerHeader}">
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="nameTrailer" style="color:#000000;"
+                  value="#{msg['digitalbooking.trailers.administration.nameTrailerLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:inputText id="nameTrailer" value="#{trailersBean.trailerName}" required="true" maxlength="160" size="30"
+                  style="width:200px" />
+              </p:column>
+            </p:row>
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="format" style="color:#000000;"
+                  value="#{msg['digitalbooking.trailers.administration.formatLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:selectOneMenu id="format" value="#{trailersBean.trailerFormat}" required="true" panelStyle="width:180px"
+                  style="width:300px">
+                  <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                  <f:selectItems value="#{trailersBean.formatList}" var="formatTrailer" itemLabel="#{formatTrailer.name}"
+                    itemValue="#{formatTrailer.id}" />
+                </p:selectOneMenu>
+              </p:column>
+            </p:row>
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="version" style="color:#000000;"
+                  value="#{msg['digitalbooking.trailers.administration.versionLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:selectOneMenu id="version" value="#{trailersBean.trailerVersion}" required="true" panelStyle="width:180px"
+                  style="width:300px">
+                  <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                  <f:selectItems value="#{trailersBean.versionList}" var="versionTrailer" itemLabel="#{versionTrailer.name}"
+                    itemValue="#{versionTrailer.id}" />
+                </p:selectOneMenu>
+              </p:column>
+            </p:row>
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="rating" style="color:#000000;"
+                  value="#{msg['digitalbooking.trailers.administration.ratingLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:selectOneMenu id="rating" value="#{trailersBean.trailerRating}" required="true" panelStyle="width:180px"
+                  style="width:300px">
+                  <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                  <f:selectItems value="#{trailersBean.ratingList}" var="ratingTrailer" itemLabel="#{ratingTrailer.name}"
+                    itemValue="#{ratingTrailer.id}" />
+                </p:selectOneMenu>
+              </p:column>
+            </p:row>
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="genere" style="color:#000000;"
+                  value="#{msg['digitalbooking.trailers.administration.genereLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:inputText id="genere" value="#{trailersBean.trailerGenre}" required="true" maxlength="160" size="30"
+                  style="width:200px" />
+              </p:column>
+            </p:row>
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="duration" style="color:#000000;"
+                  value="#{msg['digitalbooking.trailers.administration.durationLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:inputText id="duration" value="#{trailersBean.trailerDuration}" required="true" maxlength="160" size="30"
+                  style="width:200px" />
+              </p:column>
+            </p:row>
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="distributor" style="color:#000000;"
+                  value="#{msg['digitalbooking.trailers.administration.distributorLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:selectOneMenu id="distributor" value="#{trailersBean.trailerDistributor}" required="true"
+                  panelStyle="width:180px" style="width:300px">
+                  <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                  <f:selectItems value="#{trailersBean.distributorTOList}" var="distributorTrailer"
+                    itemLabel="#{distributorTrailer.name}" itemValue="#{distributorTrailer.id}" />
+                </p:selectOneMenu>
+              </p:column>
+            </p:row>
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="releaseDate" style="color:#000000;"
+                  value="#{msg['digitalbooking.trailers.administration.releaseDateLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:inputText id="releaseDate" value="#{trailersBean.trailerReleaseDate}" required="true" maxlength="160" size="30"
+                  style="width:200px" />
+              </p:column>
+            </p:row>
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="status" style="color:#000000;"
+                  value="#{msg['digitalbooking.trailers.administration.statusLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:selectOneMenu id="status" value="#{trailersBean.trailerStatus}" required="true" panelStyle="width:180px"
+                  style="width:300px">
+                  <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                  <f:selectItems value="#{trailersBean.trailerStatusList}" var="statusTrailer" itemLabel="#{statusTrailer.name}"
+                    itemValue="#{statusTrailer.id}" />
+                </p:selectOneMenu>
+              </p:column>
+            </p:row>
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="currentTrailer" style="color:#000000;"
+                  value="#{msg['digitalbooking.trailers.administration.currentTrailerLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:selectBooleanCheckbox id="currentTrailer" widgetVar="currentTrailer" value="#{trailersBean.trailerCurrent}"
+                  required="true" />
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+
+          <br></br>
+          <p:panelGrid>
+            <p:row>
+              <p:column colspan="2" style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <cdb:commandButton id="saveBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+                  action="#{theatersBean.saveTheater}" style="float: right" onclick="changeFirstTab(0);"
+                  oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) {addTrailer.hide();}"
+                  update="addTrailerPanel, :form:trailerDetailsList">
+                  <cdb:success />
+                </cdb:commandButton>
+              </p:column>
+              <p:column colspan="1" style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <p:commandButton id="closeBtn" value="#{msg['digitalbooking.common.closeBtnText']}"
+                  oncomplete="PF('addTrailer').hide();" style="float: right" process="@this">
+                  <p:ajax update="addTrailerPanel, :form:trailerDetailsList" resetValues="true" immediate="true" />
+                  <p:resetInput target="addTrailerPanel" />
+                </p:commandButton>
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+
+    <h:form id="form3">
+      <p:confirmDialog id="confirmDialog" message="#{msg['digitalbooking.common.removeMsgConfirmationText']}"
+        header="#{msg['digitalbooking.common.removeRecordTitle']}" severity="alert" widgetVar="confirmDelete" modal="true"
+        resizable="false">
+        <cdb:commandButton id="deleteOkBtn" value="#{msg['digitalbooking.common.yesBtnText']}" action="#{movieBean.deleteMovie}"
+          update=":form:trailerDetailsList" oncomplete="confirmDelete.hide();">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmDelete.hide();" type="button" />
+      </p:confirmDialog>
+    </h:form>
+
+    <h:form id="validationDialogForm">
+      <p:dialog id="validationErrorDialog" header="#{msg['digitalbooking.common.validationErrorTitle']}"
+        widgetVar="validationErrorDialog" modal="true" resizable="false">
+        <h:panelGrid id="validationErrorPanel" columns="1" style="text-align:center">
+          <h:panelGrid columns="2" style="text-align:center">
+            <span class="ui-dialog-message ui-messages-error-icon" />
+            <h:outputText value="#{msg['digitalbooking.common.validationErrorText']}" />
+          </h:panelGrid>
+          <p:commandButton id="acceptBtn" value="#{msg['digitalbooking.common.acceptBtnText']}"
+            oncomplete="validationErrorDialog.hide();" />
+        </h:panelGrid>
+      </p:dialog>
+    </h:form>
+
+    <p:dialog modal="true" widgetVar="statusDialog" header="#{msg['digitalbooking.common.waitingText']}" draggable="false"
+      closable="false" resizable="false">
+      <p:graphicImage value="/images/ajaxloadingbar.gif" />
+    </p:dialog>
+
+    <script>
+                    jQuery(document).ready(function() {
+                        var resetBtn = document.getElementById('form:trailerDetailsList:resetButton');
+                        //alert("Entro reset !!!");
+                        if (resetBtn) {
+                            resetBtn.click();
+                        }
+                    });
+                    function start() {
+                        PF('statusDialog').show();
+                    }
+                    function stop() {
+                        PF('statusDialog').hide();
+                    }
+                </script>
+  </ui:define>
+</ui:composition>

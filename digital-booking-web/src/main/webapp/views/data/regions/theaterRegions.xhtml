@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+  xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+  <ui:define name="content_title">#{msg['digitalbooking.theaterregions.administration.theaterRegionsTitle']}</ui:define>
+  <ui:define name="content">
+    <cdb:waitingDialog components="theaterRegionListForm:theaterRegionTable:addButton,
+      theaterRegionListForm:theaterRegionTable:modifyButton, :confirmDialogform:deleteOkBtn" />
+    <h:form id="theaterRegionListForm" style="width:100%">
+      <p:dataTable id="theaterRegionTable" var="theaterRegion" value="#{theaterRegionsBean.theaterRegionsList}"
+        lazy="true" paginator="true" rows="10"
+        paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+        rowsPerPageTemplate="10,50,100" paginatorPosition="bottom" scrollable="true" scrollHeight="255"
+        rowKey="#{theaterRegion.catalogRegion.id}" selection="#{theaterRegionsBean.selectedTheaterRegion}"
+        selectionMode="single" style="width: 100%;">
+        <p:ajax event="rowDblselect" listener="#{theaterRegionsBean.validateSelection}" />
+        <f:facet name="header">
+          <p:commandButton id="addButton" value="#{msg['digitalbooking.common.addBtnText']}" icon="ui-icon-plus"
+            action="#{theaterRegionsBean.goAddTheaterRegion}" immediate="true"/>
+          <p:commandButton id="modifyButton" value="#{msg['digitalbooking.common.modifyBtnText']}" icon="ui-icon-pencil"
+            action="#{theaterRegionsBean.validateSelection}"
+            oncomplete="if(args.fail){PF('validationErrorDialog').show()}"/>
+          <p:commandButton id="removeButton" value="#{msg['digitalbooking.common.removeBtnText']}" icon="ui-icon-close"
+            action="#{theaterRegionsBean.validateSelectionForDelete}"
+            oncomplete="if(!args.fail){PF('confirmDelete').show()} else {PF('validationErrorDialog').show()}" />
+        </f:facet>
+        <p:column headerText="#{msg['digitalbooking.theaterregions.administration.idHeaderTable']}" width="20%">
+			#{theaterRegion.catalogRegion.id} </p:column>
+        <p:column headerText="#{msg['digitalbooking.theaterregions.administration.nameHeaderTable']}" width="50%">
+			#{theaterRegion.catalogRegion.name} </p:column>
+        <p:column headerText="#{msg['digitalbooking.theaterregions.administration.territoryHeaderTable']}" width="30%">
+			#{theaterRegion.idTerritory.name}  </p:column>
+      </p:dataTable>
+    </h:form>
+    <h:form id="confirmDialogform">
+      <p:confirmDialog id="confirmDialog" message="#{msg['digitalbooking.common.removeMsgConfirmationText']}"
+        header="#{msg['digitalbooking.common.removeRecordTitle']}" severity="alert" widgetVar="confirmDelete"
+        modal="true" resizable="false">
+        <cdb:commandButton id="deleteOkBtn" value="#{msg['digitalbooking.common.yesBtnText']}"
+          action="#{theaterRegionsBean.deleteTheaterRegion}" update=":theaterRegionListForm:theaterRegionTable"
+          oncomplete="confirmDelete.hide();">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmDelete.hide();" type="button" />
+      </p:confirmDialog>
+    </h:form>
+    <h:form id="validationDialogForm">
+      <p:dialog id="validationErrorDialog" header="#{msg['digitalbooking.common.validationErrorTitle']}"
+        widgetVar="validationErrorDialog" modal="true" resizable="false">
+        <h:panelGrid id="validationErrorPanel" columns="1" style="text-align:center">
+          <h:panelGrid columns="2" style="text-align:center">
+            <span class="ui-dialog-message ui-messages-error-icon" />
+            <h:outputText value="#{msg['digitalbooking.common.validationErrorText']}" />
+          </h:panelGrid>
+          <p:commandButton id="acceptBtn" value="#{msg['digitalbooking.common.acceptBtnText']}"
+            oncomplete="validationErrorDialog.hide();" />
+        </h:panelGrid>
+      </p:dialog>
+    </h:form>
+  </ui:define>
+</ui:composition>

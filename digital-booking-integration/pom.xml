@@ -1,0 +1,72 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>mx.com.cinepolis</groupId>
+    <artifactId>digital-booking</artifactId>
+    <version>1.3.1</version>
+  </parent>
+  <artifactId>digital-booking-integration</artifactId>
+  <version>${project.parent.version}</version>
+
+  <name>Cinepolis ::: Digital Booking ::: Integration</name>
+  <packaging>ejb</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>mx.com.cinepolis</groupId>
+      <artifactId>digital-booking-commons</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>mx.com.cinepolis</groupId>
+      <artifactId>digital-booking-integration-api</artifactId>
+      <version>${project.parent.version}</version>
+
+    </dependency>
+
+    <dependency>
+      <groupId>mx.com.cinepolis</groupId>
+      <artifactId>digital-booking-services</artifactId>
+      <version>${project.parent.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax</groupId>
+          <artifactId>javaee-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>javaee-api</artifactId>
+      <version>${java-ee.version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-ejb-plugin</artifactId>
+        <version>${maven-ejb-plugin.version}</version>
+        <configuration>
+          <ejbVersion>3.0</ejbVersion>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+</project>

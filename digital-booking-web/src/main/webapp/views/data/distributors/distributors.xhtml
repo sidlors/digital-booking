@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions" xmlns:cdb="http://cinepolis/digital-booking/custom-tags"
+  xmlns:pe="http://primefaces.org/ui/extensions">
+  <ui:define name="content_title">#{msg['digitalbooking.distributors.administration.distributorTitle']}</ui:define>
+  <ui:define name="content">
+    <cdb:waitingDialog
+      components=":form1:saveBtn, :form:distributorsTable:synchronizeViewButton, :form2:saveModifyBtn, :form3:deleteOkBtn" />
+    <h:form id="form" style="width:100%">
+      <p:dataTable id="distributorsTable" var="distributor" value="#{distributorsBean.distributorTOs}" lazy="true"
+        paginator="true" rows="10"
+        paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+        rowsPerPageTemplate="10,50,100" paginatorPosition="bottom" scrollable="true" scrollHeight="255"
+        rowKey="#{distributor.id}" selection="#{distributorsBean.selectedDistributor}" selectionMode="single">
+        <p:ajax event="rowSelect" update=":form2:editDistributorPanel" />
+        <p:ajax event="rowUnselect" update=":form2:editDistributorPanel" />
+        <p:ajax event="rowDblselect" update=":form2:editDistributorPanel" oncomplete="editDistributor.show()" />
+        <f:facet name="header">
+          <p:commandButton id="addButton" value="#{msg['digitalbooking.common.addBtnText']}" icon="ui-icon-plus"
+            onclick="PF('addDistributor').show()" />
+          <p:commandButton id="modifyButton" value="#{msg['digitalbooking.common.modifyBtnText']}" icon="ui-icon-pencil"
+            action="#{distributorsBean.validateSelection}"
+            oncomplete="if(!args.fail){PF('editDistributor').show()} else {PF('validationErrorDialog').show()}" />
+          <p:commandButton id="removeButton" value="#{msg['digitalbooking.common.removeBtnText']}" icon="ui-icon-close"
+            action="#{distributorsBean.validateSelection}"
+            oncomplete="if(!args.fail){PF('confirmDelete').show()} else {PF('validationErrorDialog').show()}" />
+          <cdb:commandButton id="synchronizeViewButton" value="#{msg['digitalbooking.common.synchronizeViewBtnText']}"
+            action="#{distributorsBean.synchronizeWithView}" update="distributorsTable">
+            <cdb:success />
+          </cdb:commandButton>
+        </f:facet>
+        <p:column headerText="#{msg['digitalbooking.distributors.administration.idHeaderTable']}" style="width:10%">
+		#{distributor.id}  
+		</p:column>
+        <p:column headerText="#{msg['digitalbooking.distributors.administration.idVistaHeaderTable']}" style="width:10%">
+        #{distributor.idVista}  
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.distributors.administration.nameHeaderTable']}" style="width:30%">
+		#{distributor.name}  
+		</p:column>
+        <p:column headerText="#{msg['digitalbooking.distributors.add.shortNameHeaderTable']}" style="width:20%">
+        #{distributor.shortName}  
+        </p:column>
+      </p:dataTable>
+    </h:form>
+    <h:form id="form1">
+      <p:dialog id="addDistributorDialog"
+        header="#{msg['digitalbooking.distributors.administration.addDistributorWindowTitle']}" modal="true"
+        widgetVar="addDistributor" width="500" resizable="false">
+        <p:ajax event="close" listener="#{distributorsBean.handleClose}" update="addDistributorPanel"
+          resetValues="true" immediate="true" />
+        <p:panel id="addDistributorPanel" style="display:block;">
+          <p:messages autoUpdate="true" closable="true" />
+          <h:panelGrid id="addDistributorPanelGrid" columns="2" styleClass="components-dialog">
+            <p:outputLabel for="name" style="color:#000000;"
+              value="#{msg['digitalbooking.distributors.add.nameOutputText']}" />
+            <p:inputText id="name" value="#{distributorsBean.newName}" required="true"
+              label="#{msg['digitalbooking.distributors.administration.nameHeaderTable']}" maxlength="12"
+              styleClass="components-dialog" />
+            <p:outputLabel for="shortName" style="color:#000000;"
+              value="#{msg['digitalbooking.distributors.add.shortNameOutputLabel']}" />
+            <p:inputText id="shortName" value="#{distributorsBean.newShortName}" required="true"
+              label="#{msg['digitalbooking.distributors.add.shortNameOutputLabel']}" maxlength="10"
+              styleClass="components-dialog" />
+            <p:outputLabel for="idVista" style="color:#000000;"
+              value="#{msg['digitalbooking.distributors.add.idVistaOutputText']}" cellpadding="4" />
+            <p:inputText id="idVista" value="#{distributorsBean.newIdVista}" required="true" maxlength="12"
+              styleClass="components-dialog"
+              label="#{msg['digitalbooking.distributors.administration.idVistaHeaderTable']}">
+            </p:inputText>
+          </h:panelGrid>
+          <h:panelGrid columns="2" styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+          <p:panelGrid>
+            <p:row>
+              <p:column colspan="2"
+                style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <cdb:commandButton id="saveBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+                  action="#{distributorsBean.saveDistributor}" style="float: right"
+                  oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) { addDistributor.hide(); }"
+                  update=":form:distributorsTable, addDistributorPanelGrid, addDistributorPanel">
+                  <cdb:success />
+                </cdb:commandButton>
+              </p:column>
+              <p:column colspan="1"
+                style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <p:commandButton id="closeBtn" value="#{msg['digitalbooking.common.closeBtnText']}"
+                  onclick="PF('addDistributor').hide()" style="float: right" process="@this">
+                  <p:ajax update="addDistributorPanel" resetValues="true" immediate="true" />
+                  <p:resetInput target="addDistributorPanel" />
+                </p:commandButton>
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+    <h:form id="form2">
+      <p:dialog id="editDistributorDialog"
+        header="#{msg['digitalbooking.distributors.administration.modifyDistributorWindowTitle']}"
+        widgetVar="editDistributor" resizable="false" width="500" modal="true">
+        <p:ajax event="close" listener="#{distributorsBean.handleClose}" update="ditributorPanelModify"
+          resetValues="true" immediate="true" />
+        <p:panel id="ditributorPanelModify">
+          <p:messages id="modifyMsgs" autoUpdate="true" closable="true" />
+          <h:panelGrid id="editDistributorPanel" columns="2" styleClass="components-dialog">
+            <p:outputLabel for="nameModify" style="color:#000000;"
+              value="#{msg['digitalbooking.distributors.add.nameOutputText']}" cellpadding="4" />
+            <p:inputText id="nameModify" value="#{distributorsBean.selectedDistributor.name}" required="true"
+              label="#{msg['digitalbooking.distributors.administration.nameHeaderTable']}" maxlength="12"
+              styleClass="components-dialog" />
+            <p:outputLabel for="shortName" style="color:#000000;"
+              value="#{msg['digitalbooking.distributors.add.shortNameOutputLabel']}" />
+            <p:inputText id="shortName" value="#{distributorsBean.selectedDistributor.shortName}" required="true"
+              label="#{msg['digitalbooking.distributors.add.shortNameOutputLabel']}" maxlength="10"
+              styleClass="components-dialog" />
+            <p:outputLabel for="idVistaModify" style="color:#000000;"
+              value="#{msg['digitalbooking.distributors.add.idVistaOutputText']}" cellpadding="4" />
+            <p:inputText id="idVistaModify" value="#{distributorsBean.selectedDistributor.idVista}" required="true"
+              label="#{msg['digitalbooking.distributors.administration.idVistaHeaderTable']}" maxlength="12"
+              styleClass="components-dialog">
+            </p:inputText>
+          </h:panelGrid>
+          <h:panelGrid columns="2" styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+          <p:panelGrid>
+            <p:row>
+              <p:column colspan="2"
+                style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <cdb:commandButton id="saveModifyBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+                  action="#{distributorsBean.updateDistributor}" style="float: right"
+                  oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) {editDistributor.hide();}"
+                  update=":form:distributorsTable, ditributorPanelModify">
+                  <cdb:success />
+                </cdb:commandButton>
+              </p:column>
+              <p:column colspan="1"
+                style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <p:commandButton id="closeModifyBtn" value="#{msg['digitalbooking.common.closeBtnText']}"
+                  oncomplete="PF('editDistributor').hide()" style="float: right" resetValues="true" immediate="true">
+                  <p:ajax update="ditributorPanelModify" resetValues="true" />
+                </p:commandButton>
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+    <h:form id="form3">
+      <p:confirmDialog id="confirmDialog" message="#{msg['digitalbooking.common.removeMsgConfirmationText']}"
+        header="#{msg['digitalbooking.common.removeRecordTitle']}" severity="alert" widgetVar="confirmDelete"
+        modal="true">
+        <cdb:commandButton id="deleteOkBtn" value="#{msg['digitalbooking.common.yesBtnText']}"
+          action="#{distributorsBean.deleteDistributor}" update=":form:distributorsTable, :form2:editDistributorPanel"
+          oncomplete="confirmDelete.hide();">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmDelete.hide();" type="button" />
+      </p:confirmDialog>
+    </h:form>
+    <h:form id="validationDialogForm">
+      <p:dialog id="validationErrorDialog" header="#{msg['digitalbooking.common.validationErrorTitle']}"
+        widgetVar="validationErrorDialog" modal="true" resizable="false">
+        <h:panelGrid id="validationErrorPanel" columns="1" style="text-align:center">
+          <h:panelGrid columns="2" style="text-align:center">
+            <span class="ui-dialog-message ui-messages-error-icon" />
+            <h:outputText value="#{msg['digitalbooking.common.validationErrorText']}" />
+          </h:panelGrid>
+          <p:commandButton id="acceptBtn" value="#{msg['digitalbooking.common.acceptBtnText']}"
+            oncomplete="validationErrorDialog.hide();" />
+        </h:panelGrid>
+      </p:dialog>
+    </h:form>
+  </ui:define>
+</ui:composition>

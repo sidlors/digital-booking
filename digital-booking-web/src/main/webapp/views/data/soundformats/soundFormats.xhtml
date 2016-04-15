@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+  xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+  <ui:define name="content_title">#{msg['digitalbooking.soundformats.administration.soundFormatsTitle']}</ui:define>
+  <ui:define name="content">
+    <cdb:waitingDialog components=":addForm:saveBtn, :editForm:saveBtnModify, :confirmDialogform:deleteOkBtn" />
+    <h:form id="soundFormatListForm" style="width:100%;">
+      <p:dataTable id="soundFormatTable" var="soundFormat" value="#{soundFormatsBean.soundFormatsList}" lazy="true"
+        paginator="true" rows="10"
+        paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+        rowsPerPageTemplate="10,50,100" paginatorPosition="bottom" rowKey="#{soundFormat.id}"
+        selection="#{soundFormatsBean.selectedSoundFormat}" selectionMode="single" scrollable="true" scrollHeight="255" style="width: 100%;">
+        <p:ajax event="rowSelect" update=":editForm:editSoundFormatPanel" />
+        <p:ajax event="rowUnselect" update=":editForm:editSoundFormatPanel" />
+        <p:ajax event="rowDblselect" update=":editForm:editSoundFormatPanel" oncomplete="editSoundFormat.show()" />
+        <f:facet name="header">
+          <p:commandButton id="addButton" value="#{msg['digitalbooking.common.addBtnText']}" icon="ui-icon-plus"
+            onclick="PF('addSoundFormat').show()" />
+          <p:commandButton id="modifyButton" value="#{msg['digitalbooking.common.modifyBtnText']}" icon="ui-icon-pencil"
+            action="#{soundFormatsBean.validateSelection}"
+            oncomplete="if(!args.fail){PF('editSoundFormat').show()} else {PF('validationErrorDialog').show()}" />
+          <p:commandButton id="removeButton" value="#{msg['digitalbooking.common.removeBtnText']}" icon="ui-icon-close"
+            action="#{soundFormatsBean.validateSelection}"
+            oncomplete="if(!args.fail){PF('confirmDelete').show()} else {PF('validationErrorDialog').show()}" />
+        </f:facet>
+        <p:column headerText="#{msg['digitalbooking.soundformats.administration.idHeaderTable']}" width="30%">
+					            #{soundFormat.id}  
+				</p:column>
+
+        <p:column headerText="#{msg['digitalbooking.soundformats.administration.nameHeaderTable']}" width="70%">
+					            #{soundFormat.name}  
+				</p:column>
+      </p:dataTable>
+    </h:form>
+    <h:form id="addForm">
+      <p:dialog id="addSoundFormatDialog"
+        header="#{msg['digitalbooking.soundformats.administration.addSoundFormatWindowTitle']}" modal="true"
+        widgetVar="addSoundFormat" resizable="false" width="500">
+        <p:ajax event="close" listener="#{soundFormatsBean.handleClose}" update="addSoundFormatPanel"
+          resetValues="true" immediate="true" />
+        <p:panel id="soundFormatPanelAdd">
+          <p:messages id="msgs" autoUpdate="true" closable="true" />
+          <h:panelGrid id="addSoundFormatPanel" columns="2" styleClass="components-dialog">
+            <p:outputLabel for="name" style="color:#000000;"
+              value="#{msg['digitalbooking.soundformats.add.nameOutputText']}" cellpadding="4" />
+            <p:inputText id="name" value="#{soundFormatsBean.addedName}" required="true"
+              label="#{msg['digitalbooking.movieformats.administration.nameHeaderTable']}" maxlength="160"
+              styleClass="components-dialog" />
+          </h:panelGrid>
+          <h:panelGrid styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+          <p:panelGrid>
+            <p:row>
+              <p:column colspan="2"
+                style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <cdb:commandButton id="saveBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+                  action="#{soundFormatsBean.saveSoundFormat}" style="float: right"
+                  oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) {addSoundFormat.hide()}"
+                  update=":soundFormatListForm:soundFormatTable, addSoundFormatPanel, soundFormatPanelAdd">
+                  <cdb:success />
+                </cdb:commandButton>
+              </p:column>
+              <p:column colspan="1"
+                style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <p:commandButton id="closeBtn" value="#{msg['digitalbooking.common.closeBtnText']}"
+                  oncomplete="PF('addSoundFormat').hide()" style="float: right" process="@this">
+                  <p:ajax update="soundFormatPanelAdd" resetValues="true" immediate="true" />
+                  <p:resetInput target="soundFormatPanelAdd" />
+                </p:commandButton>
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+    <h:form id="editForm">
+      <p:dialog id="editSoundFormatDialog"
+        header="#{msg['digitalbooking.soundformats.administration.modifySoundFormatWindowTitle']}"
+        widgetVar="editSoundFormat" resizable="false" width="500" modal="true">
+        <p:ajax event="close" listener="#{soundFormatsBean.handleClose}" update="soundFormatPanelModify"
+          resetValues="true" immediate="true" />
+        <p:panel id="soundFormatPanelModify">
+          <p:messages id="modifyMsgs" autoUpdate="true" closable="true" />
+          <h:panelGrid id="editSoundFormatPanel" columns="2" styleClass="components-dialog">
+            <p:outputLabel for="addedName" style="color:#000000;"
+              value="#{msg['digitalbooking.soundformats.add.nameOutputText']}" cellpadding="4" />
+            <p:inputText id="addedName" value="#{soundFormatsBean.selectedSoundFormat.name}" required="true"
+              label="#{msg['digitalbooking.movieformats.administration.nameHeaderTable']}" maxlength="160"
+              styleClass="components-dialog" />
+          </h:panelGrid>
+          <h:panelGrid styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+
+          <p:panelGrid>
+            <p:row>
+              <p:column colspan="2"
+                style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <cdb:commandButton id="saveBtnModify" value="#{msg['digitalbooking.common.saveBtnText']}"
+                  action="#{soundFormatsBean.updateSoundFormat}" style="float: right"
+                  oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) {editSoundFormat.hide();}"
+                  update=":soundFormatListForm:soundFormatTable, soundFormatPanelModify">
+                  <cdb:success />
+                </cdb:commandButton>
+              </p:column>
+              <p:column colspan="1"
+                style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <p:commandButton id="closeBtnModify" value="#{msg['digitalbooking.common.closeBtnText']}"
+                  oncomplete="PF('editSoundFormat').hide()" style="float: right" resetValues="true" immediate="true">
+                  <p:ajax update="soundFormatPanelModify" resetValues="true" />
+                </p:commandButton>
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+    <h:form id="confirmDialogform">
+      <p:confirmDialog id="confirmDialog" message="#{msg['digitalbooking.common.removeMsgConfirmationText']}"
+        header="#{msg['digitalbooking.common.removeRecordTitle']}" severity="alert" widgetVar="confirmDelete"
+        modal="true">
+        <cdb:commandButton id="deleteOkBtn" value="#{msg['digitalbooking.common.yesBtnText']}"
+          action="#{soundFormatsBean.deleteSoundFormat}"
+          update=":soundFormatListForm:soundFormatTable, :editForm:editSoundFormatPanel"
+          oncomplete="confirmDelete.hide();">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmDelete.hide();" type="button" />
+      </p:confirmDialog>
+    </h:form>
+    <h:form id="validationDialogForm">
+      <p:dialog id="validationErrorDialog" header="#{msg['digitalbooking.common.validationErrorTitle']}"
+        widgetVar="validationErrorDialog" modal="true" resizable="false">
+        <h:panelGrid id="validationErrorPanel" columns="1" style="text-align:center">
+          <h:panelGrid columns="2" style="text-align:center">
+            <span class="ui-dialog-message ui-messages-error-icon" />
+            <h:outputText value="#{msg['digitalbooking.common.validationErrorText']}" />
+          </h:panelGrid>
+          <p:commandButton id="acceptBtn" value="#{msg['digitalbooking.common.acceptBtnText']}"
+            oncomplete="validationErrorDialog.hide();" />
+        </h:panelGrid>
+      </p:dialog>
+    </h:form>
+  </ui:define>
+</ui:composition>

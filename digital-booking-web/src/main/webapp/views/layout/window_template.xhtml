@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<f:view xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+  contentType="text/html">
+  <html>
+<h:head>
+  <link href="#{facesContext.externalContext.requestContextPath}/css/digital-booking.css" rel="stylesheet"
+    type="text/css" />
+  <script language="javascript">
+// 			var resizeForm = function() {
+// 				var bodyHeight = $(document).height();
+// 				$("#master-content").height(bodyHeight);
+// 			};
+
+// 			$(resizeForm);
+
+// 			$(window).resize(resizeForm);
+			var CONTEXT_APP = '#{facesContext.externalContext.requestContextPath}';
+		</script>
+  <script language="javascript" src="#{facesContext.externalContext.requestContextPath}/js/DigitalBookingUtil.js" />
+  <script language="javascript" src="#{facesContext.externalContext.requestContextPath}/js/SelectOneMenuRender.js" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</h:head>
+<h:body>
+  <div id="master-content">
+    <ui:insert name="content">Default Body</ui:insert>
+  </div>
+</h:body>
+  </html>
+</f:view>

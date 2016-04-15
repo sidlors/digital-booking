@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<f:view xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+  contentType="text/html">
+  <html>
+<h:head>
+  <link href="#{facesContext.externalContext.requestContextPath}/css/digital-booking.css" rel="stylesheet"
+    type="text/css" />
+  <script language="javascript">
+			var resizeForm = function() {
+				var bodyHeight = $(document).height() - 135;
+				$("#master-content").height(bodyHeight);
+			};
+
+			$(resizeForm);
+
+			$(window).resize(resizeForm);
+			var CONTEXT_APP = '#{facesContext.externalContext.requestContextPath}';
+		</script>
+  <script language="javascript" src="#{facesContext.externalContext.requestContextPath}/js/DigitalBookingUtil.js" />
+  <script language="javascript" src="#{facesContext.externalContext.requestContextPath}/js/SelectOneMenuRender.js" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</h:head>
+<h:body>
+  <div class="top-bar">
+    <div class="top-bar-inner">
+      <header class="master-header">
+      <div class="top-bar-logout"></div>
+      <div class="top-bar-image-container-center">
+        <div class="top-bar-image-left"></div>
+        <div class="top-bar-image-center"></div>
+      </div>
+      <div class="top-bar-line"></div>
+      </header>
+    </div>
+  </div>
+  <div class="master-content" id="master-content">
+    <ui:insert name="content">Default Body</ui:insert>
+  </div>
+  <footer class="master-footer"> <ui:insert name="footer">
+    <p:panelGrid id="infoDialogPanel" style="width:100%; height:40px;">
+      <p:row>
+        <p:column styleClass="footer" style="width:33%;border:none;">
+          <h:outputText value="Site Content 2014 Cinépolis de México, S.A. de C.V. "
+            style="color: #005FAA;font-family: Verdana,Arial,sans-serif;font-size: x-small;border:none;" />
+          <h:outputText rendered="#{dynamicMenuBean.showConfigPage}" value="/ "
+            style="color: #005FAA;font-family: Verdana,Arial,sans-serif;font-size: x-small;border:none;" />
+          <p:commandLink rendered="#{dynamicMenuBean.showConfigPage}" id="configLink"
+            action="#{dynamicMenuBean.changeConfigPage}" style="color:#005FAA">
+            <h:outputText value="Config"
+              style="color: #005FAA;font-family: Verdana,Arial,sans-serif;font-size: x-small;border:none;" />
+          </p:commandLink>
+
+        </p:column>
+
+
+        <p:column styleClass="footer" style="width:34%;text-align:center;border:none;">
+          <h:outputText
+            value="Version #{msg['digitalbooking.common.project.version']} - build #{msg['digitalbooking.common.project.buildNumber']}" />
+        </p:column>
+        <p:column styleClass="footer" style="width:34%;border:none;">
+          <div class="footer-logo-intellego"></div>
+        </p:column>
+      </p:row>
+
+    </p:panelGrid>
+  </ui:insert> </footer>
+</h:body>
+  </html>
+</f:view>

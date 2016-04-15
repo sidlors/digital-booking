@@ -1,0 +1,256 @@
+.ui-datatable .ui-datatable-header,.ui-datatable .ui-datatable-footer {
+  padding: 4px 10px;
+  text-align: left;
+}
+
+.ui-dialog .ui-dialog-buttonpane {
+  background-image: none;
+  border-width: 1px 0 0;
+  margin: 0.5em 0 0;
+  padding: 0.3em 1em 0.5em 0.4em;
+  text-align: center;
+}
+
+.ui-dialog-footer {
+  border-width: 1px 0 0;
+  text-align: left;
+}
+
+.components-dialog {
+  width: 99%;
+  padding: 5px;
+}
+
+.columnLeft {
+  text-align: left;
+}
+
+.columnRight {
+  text-align: right;
+}
+
+.ui-datatable-tablewrapper {
+  height: 100%;
+}
+
+.datatable {
+  height: 275px;
+}
+
+.ui-outputlabel .ui-outputlabel-rfi {
+  margin-left: 0px;
+}
+
+.ui-datatable-odd {
+  background-color: #E5E5E5;
+  background-image: none;
+}
+
+.ui-datatable-even {
+  background-color: #FFFFFF;
+  background-image: none;
+}
+
+.ui-panel .ui-panel-content {
+  background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
+  border: 0 none;
+  padding: 0px;
+}
+
+.ui-panel {
+  padding: 0px;
+}
+
+.select-one-menu {
+  padding: 0px;
+}
+
+.select-one-menu-width-200-panel-style {
+  width: 180px
+}
+
+.carousel-movie {
+  border-style: solid;
+  border-color: transparent;
+  height: 146px;
+  width: 100px;
+  vertical-align: middle;
+}
+
+.carousel-movie-selected {
+  border-style: solid;
+  border-color: #ffc627;
+  height: 146px;
+  width: 100px;
+  vertical-align: middle;
+}
+
+.ui-selectonemenu-list-item {
+  font-size: 10px;
+  padding: 2px 1px;
+  line-height: 0.5;
+}
+
+.columnsHomePanel {
+  vertical-align: top;
+}
+
+.ui-datatable thead th,.ui-datatable tbody td,.ui-datatable tfoot td {
+  border-style: solid;
+  border-width: 1px;
+  overflow: hidden;
+  padding: 4px 2px;
+}
+
+.master-header {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.master-header {
+  background: none repeat scroll 0 0 #005daa;
+  padding: 0px;
+  position: relative;
+  /*z-index: 9000;*/
+}
+
+.master-content {
+  min-height: 764px;
+}
+
+.master-footer {
+  background: none repeat scroll 0 0 #ffffff;
+  border-top: 2px solid #ff9d00;
+  width: 100%;
+  height: 36x;
+}
+
+.footer-logo-intellego {
+  background-image: url("../images/intellego-development.jpg");
+  background-repeat: no-repeat;
+  background-position: right;
+  padding: 10px 0 0px;
+  height: 36px;
+}
+
+.top-bar-logout {
+  position: relative;
+  display: table;
+  width: 100%;
+  background: none repeat scroll 0 0 #001e75;
+}
+
+.top-bar-inner {
+  background: none repeat scroll 0 0 #005daa;
+  padding: 0px;
+  position: relative;
+  /*z-index: 9000;*/
+}
+
+.top-bar-line {
+  background: none repeat scroll 0 0 #005daa;
+  border-top: 1px solid #e8c658;
+  border-bottom: 1px solid #ffb108;
+  padding: 0px;
+  position: relative;
+  /*z-index: 9000;*/
+  width: 100%;
+}
+
+.top-bar-image {
+  position: relative;
+  display: table;
+  background-image: url("../images/cine-header2.jpg");
+  min-height: 63px;
+  min-width: 1024px;
+  height: 68px;
+  width: 1024px;
+}
+
+.top-bar-image-left {
+  position: relative;
+  display: table;
+  background-image: url("../images/cine-header-logo.jpg");
+  min-height: 63px;
+  min-width: 208px;
+  height: 63px;
+  width: 208px;
+  background-position: left;
+  background-repeat: no-repeat;
+  float: left;
+}
+
+.top-bar-image-center {
+  position: relative;
+  display: table;
+  background-image: url("../images/cine-header-title.jpg");
+  min-height: 63px;
+  min-width: 300px;
+  height: 63px;
+  width: 300px;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin: 0 40%;
+}
+
+.top-bar-image-container-center {
+  margin: 0 auto;
+  position: relative;
+  width: 100%;
+  height: 63px;
+}
+
+.send-presale-container-td1 {
+  vertical-align: top;
+  width: 60%;
+}
+
+.send-presale-container-td2 {
+  vertical-align: top;
+  width: 40%;
+}
+
+.send_presale_region_align_column {
+  width: 45px;
+}
+
+.blueIcon .ui-icon {
+  background-image:
+    url("/digital-booking-web/javax.faces.resource/images/ui-icons_056b93_256x240.png.do?ln=primefaces-cinepolis-theme");
+}
+
+.ui-panelgrid.borderless thead th,.ui-panelgrid.borderless tbody,.ui-panelgrid.borderless tbody tr,.ui-panelgrid.borderless tbody td {
+  border-style: none;
+}
+
+.ui-panelgrid.borderless td {
+  text-align: center;
+}
+
+.ui-panelgrid.borderless tr {
+  background: none;
+}
+
+.ui-panelgrid_border_less_left {
+  border-width: 0px !important;
+  font-size: 11px !important;
+  width: 60%;
+}
+
+.ui-panelgrid_border_less_right {
+  border-width: 0px !important;
+  font-size: 11px !important;
+  width: 40%;
+}
+
+.ui-slider {
+  background: url("/digital-booking-web/javax.faces.resource/images/ui-bg_glass_75_79c9ec_1x400.png.do?ln=primefaces-cinepolis-theme") repeat-x scroll 50% bottom #fcfdfd !important;
+}
+
+.ui-panelgrid-without-background tr{
+  background: none !important;
+}
+
+.ui-select_many_checkbox td{
+  padding: 2px !important;
+}

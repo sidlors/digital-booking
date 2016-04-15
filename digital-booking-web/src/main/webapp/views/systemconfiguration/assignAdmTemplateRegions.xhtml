@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:p="http://primefaces.org/ui" xmlns:cdb="http://cinepolis/digital-booking/custom-tags"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+  <ui:define name="content_title">#{msg['digitalbooking.config.assignusertemplateadmregion.assignUserAdmTemplateRegionTitle']}</ui:define>
+  <ui:define name="content">
+    <h:form id="mainForm">
+      <p:panel>
+        <p:messages autoUpdate="true" closable="true" />
+
+        <p:dataTable id="usersTable" widgetVar="usersTable" var="user" value="#{assignUserRegionsBean.users}" lazy="true"
+          scrollable="true" scrollHeight="140" rowKey="#{user.id}" rows="5" paginator="true" selectionMode="single"
+          selection="#{assignUserRegionsBean.selectedUser}"
+          paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+          rowsPerPageTemplate="5,10,20" paginatorPosition="bottom" style="width: 100%">
+          <p:ajax event="rowSelect" listener="#{assignUserRegionsBean.setUserData}" update=":mainForm:userRegionGrid" />
+          <p:column headerText="#{msg['digitalbooking.config.assignusertemplateadmregion.userHeaderTable']}" width="40%">
+            #{user.personTO.fullName}  
+          </p:column>
+          <p:column headerText="#{msg['digitalbooking.config.assignusertemplateadmregion.regionHeaderTable']}" width="60%">
+            #{user.regionAssigned}  
+          </p:column>
+        </p:dataTable>
+
+        <p:panelGrid columns="2" styleClass="components-dialog" id="userRegionGrid">
+          <p:outputLabel for="userSelectOne" style="color:#000000;"
+            value="#{msg['digitalbooking.config.assignusertemplateadmregion.userOutputLabel']}" cellpadding="4" />
+          <p:selectOneMenu id="userSelectOne" value="#{assignUserRegionsBean.userIdSelected}" style="width:30%;"
+            panelStyle="width:25%;" label="#{msg['digitalbooking.config.assignusertemplateadmregion.userOutputLabel']}" required="true">
+            <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOneMenu']}" itemValue="" />
+            <f:selectItems value="#{assignUserRegionsBean.userTOs}" var="user" itemLabel="#{user.personTO.fullName}"
+              itemValue="#{user.id}" />
+          </p:selectOneMenu>
+          <p:outputLabel for="regionSelectOne" style="color:#000000;"
+            value="#{msg['digitalbooking.config.assignusertemplateadmregion.regionsAvailableOutputLabel']}" cellpadding="4" />
+          <p:selectOneMenu id="regionSelectOne" value="" style="width:30%;"
+            panelStyle="width:25%;" label="#{msg['digitalbooking.config.assignusertemplateadmregion.regionsAvailableOutputLabel']}" required="true">
+            <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOneMenu']}" itemValue="" />
+          </p:selectOneMenu>
+          <f:facet name="footer">
+            <p:commandButton id="backBtn" value="#{msg['digitalbooking.common.backBtnText']}"
+              action="#{assignUserRegionsBean.back}" immediate="true" style="float: right" />
+            <cdb:commandButton id="saveBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+              action="#{assignUserRegionsBean.assignUserRegions}" style="float: right" update="usersTable">
+              <cdb:success />
+            </cdb:commandButton>
+          </f:facet>
+        </p:panelGrid>
+
+      </p:panel>
+    </h:form>
+  </ui:define>
+</ui:composition>

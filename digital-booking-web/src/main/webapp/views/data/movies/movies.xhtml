@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:p="http://primefaces.org/ui" xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+
+  <ui:define name="content_title">#{msg['digitalbooking.movies.administration.movieTitle']}</ui:define>
+  <ui:define name="content">
+    <cdb:waitingDialog
+      components=":form:movieTable:addButton, :form:movieTable:modifyButton, :form3:deleteOkBtn, form:movieTable:searchButton,
+      :form:movieTable:selectFilterDistributor, :form:movieTable:synchronizeViewButton" />
+    <h:form id="form" style="width:100%">
+      <p:messages id="modifyMsgs" autoUpdate="true" closable="true" />
+      <p:focus />
+      <p:dataTable id="movieTable" var="movie" value="#{movieBean.movies}" lazy="true" paginator="true" rows="10"
+        paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+        rowsPerPageTemplate="10,50,100" paginatorPosition="bottom" scrollable="true" scrollHeight="255" rowKey="#{movie.idEvent}"
+        selection="#{movieBean.selectedMovie}" selectionMode="single">
+        <p:ajax event="rowDblselect" listener="#{movieBean.chargePage}" />
+        <f:facet name="header">
+
+          <p:toolbar style="border:'none';">
+            <p:toolbarGroup align="left" style="margin-top: 0cm 0cm 0cm 5cm;">
+              <p:commandButton id="addButton" value="#{msg['digitalbooking.common.addBtnText']}" icon="ui-icon-plus"
+                action="/views/data/movies/addMovie.do" />
+              <p:commandButton id="modifyButton" value="#{msg['digitalbooking.common.modifyBtnText']}" icon="ui-icon-pencil"
+                action="#{movieBean.chargePage}" oncomplete="if(args.fail){PF('validationErrorDialog').show()}">
+              </p:commandButton>
+              <p:commandButton id="removeButton" value="#{msg['digitalbooking.common.removeBtnText']}" icon="ui-icon-close"
+                action="#{movieBean.validateSelection}"
+                oncomplete="if(!args.fail){PF('confirmDelete').show()} else {PF('validationErrorDialog').show()}" />
+              <cdb:commandButton id="synchronizeViewButton" value="#{msg['digitalbooking.common.synchronizeViewBtnText']}"
+                action="#{movieBean.synchronizeWithView}">
+                <cdb:success />
+              </cdb:commandButton>
+            </p:toolbarGroup>
+
+            <p:toolbarGroup>
+              <p:fieldset id="filters" legend="#{msg['digitalbooking.common.applyFilters']}" style="width: 900px;" align="center">
+                <p:ajax event="toggle" listener="#{movieBean.handleToggleFilters}" update="filters, movieTable" />
+                <p:panelGrid cellpadding="10" style="border-style:none;" bgcolor="#FFFFFF">
+                  <p:row>
+                    <p:column style="border-style:none;width:120px">
+                      <p:outputLabel for="filterMovieName" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.movies.administration.nameFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none; width: 340px !important;">
+                      <p:inputText id="filterMovieName" value="#{movieBean.filterMovieName}" maxlength="160" size="30"
+                        style="width:300px" />
+                    </p:column>
+                    <p:column style="border-style:none; width:120px">
+                      <p:outputLabel for="filterCurrentMovie" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.movies.administration.currentMovieFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none; width:50px">
+                      <p:selectBooleanCheckbox id="filterCurrentMovie" value="#{movieBean.filterCurrentMovie}"
+                        widgetVar="filterCurrentMovie" />
+                    </p:column>
+                    <p:column style="border-style:none; width:120px">
+                      <p:outputLabel for="filterFestival" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.movies.administration.festivalFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none; width:50px">
+                      <p:selectBooleanCheckbox id="filterFestival" value="#{movieBean.filterFestival}" widgetVar="filterFestival" />
+                    </p:column>
+                  </p:row>
+                  <p:row>
+                    <p:column style="border-style:none;width:120px">
+                      <p:outputLabel for="filterCodeDBS" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.movies.administration.codeDBSFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:inputText id="filterCodeDBS" value="#{movieBean.filterCodeDBS}" maxlength="160" size="30"
+                        style="width:300px" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:outputLabel for="filterPreRelease" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.movies.administration.previewFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:selectBooleanCheckbox id="filterPreRelease" value="#{movieBean.filterPreRelease}"
+                        widgetVar="filterPreRelease" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:outputLabel for="filterAlternateContent" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.movies.administration.alternateContentFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:selectBooleanCheckbox id="filterAlternateContent" value="#{movieBean.filetrAlternateContent}" widgetVar="filetrAlternateContent" />
+                    </p:column>
+                  </p:row>
+                  <p:row>
+                    <p:column style="border-style:none;width:120px">
+                      <p:outputLabel for="selectFilterDistributor" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.movies.administration.distributorFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:selectOneMenu id="selectFilterDistributor" widgetVar="selectFilterDistributor"
+                        value="#{movieBean.selectedFilterDistributor}" panelStyle="width:180px" style="width:300px">
+                        <p:ajax update="movieTable" listener="#{movieBean.searchFilters}" />
+                        <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                        <f:selectItems value="#{movieBean.filterDistributors}" var="filterDistributor"
+                          itemLabel="#{filterDistributor.shortName}" itemValue="#{filterDistributor.id}" />
+                      </p:selectOneMenu>
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:outputLabel for="filterPremiere" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.movies.administration.premiereFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:selectBooleanCheckbox id="filterPremiere" value="#{movieBean.filterPremiere}" widgetVar="filterPremiere" />
+                    </p:column>
+                  </p:row>
+                  <p:row>
+                    <p:column colspan="7" style="border-style:none;text-align:right;">
+                      <p:commandButton id="resetButton" value="#{msg['digitalbooking.common.resetBtnText']}"
+                        icon="ui-icon-arrowrefresh-1-s" update="movieTable" action="#{movieBean.resetFilters}">
+                        <p:ajax update="filters" resetValues="true" />
+                      </p:commandButton>
+                      <p:commandButton id="searchButton" value="#{msg['digitalbooking.common.searchBtnText']}"
+                        icon="ui-icon-search" update="movieTable" action="#{movieBean.searchFilters}" />
+                    </p:column>
+                  </p:row>
+                </p:panelGrid>
+              </p:fieldset>
+            </p:toolbarGroup>
+          </p:toolbar>
+        </f:facet>
+        <p:column headerText="#{msg['digitalbooking.movies.administration.codeDBSHeader']}" style="width:10%;">
+					            #{movie.codeDBS}  
+				</p:column>
+        <p:column headerText="#{msg['digitalbooking.movies.administration.nameHeader']}" style="width:25%;">
+					            #{movie.dsEventName}  
+				</p:column>
+        <p:column headerText="#{msg['digitalbooking.movies.administration.distributorHeader']}" style="width:15%;">
+                      #{movie.distributor.shortName}  
+        </p:column>
+
+        <p:column headerText="#{msg['digitalbooking.movies.administration.releaseHeader']}" style="width:10%;">
+          <h:outputText value="#{movie.dtRelease}">
+            <f:convertDateTime pattern="dd/MM/yyyy" />
+          </h:outputText>
+        </p:column>
+
+        <p:column headerText="#{msg['digitalbooking.movies.administration.currentMovieHeader']}"
+          style="width:10%; 
+        	text-align:center;">
+          <p:graphicImage value="/images/tick.png" rendered="#{movie.currentMovie}" />
+        </p:column>
+
+        <p:column headerText="#{msg['digitalbooking.movies.administration.previewHeader']}"
+          style="width:10%; 
+          text-align:center;">
+          <p:graphicImage value="/images/tick.png" rendered="#{movie.prerelease}" />
+        </p:column>
+
+        <p:column headerText="#{msg['digitalbooking.movies.administration.premiereHeader']}"
+          style="width:10%; 
+          text-align:center;">
+          <p:graphicImage value="/images/tick.png" rendered="#{movie.premiere}" />
+        </p:column>
+
+        <p:column headerText="#{msg['digitalbooking.movies.administration.festivalHeader']}"
+          style="width:10%; 
+          text-align:center;">
+          <p:graphicImage value="/images/tick.png" rendered="#{movie.festival}" />
+        </p:column>
+        
+        <p:column headerText="#{msg['digitalbooking.movies.administration.alternateContentHeader']}"
+          style="width:10%; 
+          text-align:center;">
+          <p:graphicImage value="/images/tick.png" rendered="#{movie.fgAlternateContent}" />
+        </p:column>
+
+      </p:dataTable>
+      <p:defaultCommand target=":form:movieTable:searchButton"></p:defaultCommand>
+    </h:form>
+    <h:form id="form3">
+      <p:confirmDialog id="confirmDialog" message="#{msg['digitalbooking.common.removeMsgConfirmationText']}"
+        header="#{msg['digitalbooking.common.removeRecordTitle']}" severity="alert" widgetVar="confirmDelete" modal="true"
+        resizable="false">
+        <cdb:commandButton id="deleteOkBtn" value="#{msg['digitalbooking.common.yesBtnText']}" action="#{movieBean.deleteMovie}"
+          update=":form:movieTable" oncomplete="confirmDelete.hide();">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmDelete.hide();" type="button" />
+      </p:confirmDialog>
+    </h:form>
+
+    <h:form id="validationDialogForm">
+      <p:dialog id="validationErrorDialog" header="#{msg['digitalbooking.common.validationErrorTitle']}"
+        widgetVar="validationErrorDialog" modal="true" resizable="false">
+        <h:panelGrid id="validationErrorPanel" columns="1" style="text-align:center">
+          <h:panelGrid columns="2" style="text-align:center">
+            <span class="ui-dialog-message ui-messages-error-icon" />
+            <h:outputText value="#{msg['digitalbooking.common.validationErrorText']}" />
+          </h:panelGrid>
+          <p:commandButton id="acceptBtn" value="#{msg['digitalbooking.common.acceptBtnText']}"
+            oncomplete="validationErrorDialog.hide();" />
+        </h:panelGrid>
+      </p:dialog>
+    </h:form>
+    <script>
+                    jQuery(document).ready(function() {
+                        var resetBtn = document.getElementById('form:movieTable:resetButton');
+                        if (resetBtn) {
+                            resetBtn.click();
+                        }
+                    });
+                </script>
+  </ui:define>
+</ui:composition>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+  xmlns:cdb="http://cinepolis/digital-booking/custom-tags" xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+  <ui:define name="content_title">#{msg['digitalbooking.config.assignuserstheater.assignUsersTheaterTitle']}</ui:define>
+  <ui:define name="content">
+    <h:form id="mainForm">
+      <p:panel>
+        <p:messages autoUpdate="true" closable="true" />
+        <h:panelGrid columns="2" styleClass="components-dialog" width="100%">
+          <p:outputLabel for="userSelectOne" style="color:#000000;"
+            value="#{msg['digitalbooking.config.assignuserstheater.userOutputLabel']}" cellpadding="4" />
+          <p:selectOneMenu id="userSelectOne" value="#{assignUserTeathersBean.userIdSelected}" style="width:25%;" panelStyle="width:20%;"
+            label="#{msg['digitalbooking.config.assignuserstheater.userOutputLabel']}" required="true">
+            <p:ajax update="regionSelectOne, theatersPickList" listener="#{assignUserTeathersBean.loadRegionsByUserId}" />
+            <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOneMenu']}" itemValue="" />
+            <f:selectItems value="#{assignUserTeathersBean.userTOs}" var="user" itemLabel="#{user.personTO.fullName}"
+              itemValue="#{user.id}" />
+          </p:selectOneMenu>
+          <p:outputLabel for="regionSelectOne" style="color:#000000;"
+            value="#{msg['digitalbooking.config.assignuserstheater.regionOutputLabel']}" cellpadding="4" />
+          <p:selectOneMenu id="regionSelectOne" value="#{assignUserTeathersBean.regionIdSelected}" style="width:25%;" panelStyle="width:20%;"
+            label="#{msg['digitalbooking.config.assignuserstheater.regionOutputLabel']}" required="true">
+            <p:ajax update="theatersPickList" listener="#{assignUserTeathersBean.loadTheatersByRegionId}" />
+            <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOneMenu']}" itemValue="" />
+            <f:selectItems value="#{assignUserTeathersBean.regionTOs}" var="region" itemLabel="#{region.name}"
+              itemValue="#{region.id}" />
+          </p:selectOneMenu>
+          <br></br>
+          <p:pickList id="theatersPickList" value="#{assignUserTeathersBean.theaterList}" converter="pickListConverter"
+            var="theater" itemLabel="#{theater.name}" itemValue="#{theater.id}"
+            style="background-color:#E5E5E5;text-align:center;" 
+            label="#{msg['digitalbooking.config.assignuserstheater.theatersSelectedOutputLabel']}">
+            <f:facet name="sourceCaption">#{msg['digitalbooking.config.assignuserstheater.theatersAvailableOutputLabel']}</f:facet>
+            <f:facet name="targetCaption">#{msg['digitalbooking.config.assignuserstheater.theatersSelectedOutputLabel']}</f:facet>
+          </p:pickList>
+          <f:facet name="footer">
+            <p:commandButton id="backBtn" value="#{msg['digitalbooking.common.backBtnText']}"
+              action="#{assignUserTeathersBean.back}" immediate="true" style="float: right" />
+            <cdb:commandButton id="saveBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+              action="#{assignUserTeathersBean.assignUserTheaters}" style="float: right">
+              <cdb:success />
+            </cdb:commandButton>
+          </f:facet>
+        </h:panelGrid>
+      </p:panel>
+    </h:form>
+  </ui:define>
+</ui:composition>

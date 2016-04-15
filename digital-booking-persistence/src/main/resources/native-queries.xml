@@ -1,0 +1,681 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_1_0.xsd"
+	version="1.0">
+
+	<named-native-query
+		name="BookingDO.nativeQuery.findBookingsByEventRegionWeek">
+		<query>
+      SELECT Q.ID_THEATER,
+             Q.THEATER_NAME,
+             Q.ID_SCREEN,
+             Q.NU_SCREEN,
+             Q.ID_BOOKING,
+             Q.QT_COPY,
+             Q.QT_COPY_SCREEN_ZERO,
+             Q.QT_COPY_SCREEN_ZERO_TERMINATED,
+             Q.NU_EXHIBITION_WEEK,
+             Q.ID_BOOKING_STATUS,
+             Q.STATUS_NAME,
+             Q.ENABLED,
+             Q.SELECTED
+      FROM
+        (-- Peliculas Programadas
+          SELECT CT.ID_THEATER AS ID_THEATER,
+                 CTL.DS_NAME AS THEATER_NAME,
+                 CS.ID_SCREEN,
+                 CS.NU_SCREEN,
+                 KB.ID_BOOKING,
+                 KBW.QT_COPY,
+                 KBW.QT_COPY_SCREEN_ZERO,
+                 KBW.QT_COPY_SCREEN_ZERO_TERMINATED,
+                 KBW.NU_EXHIBITION_WEEK,
+                 CBS.ID_BOOKING_STATUS,
+                 CBSL.DS_NAME AS STATUS_NAME,
+            (SELECT COUNT(*)
+             FROM C_SCREEN_X_CATEGORY CSXC
+             WHERE CSXC.ID_SCREEN = CS.ID_SCREEN
+               AND CSXC.ID_CATEGORY = ?5) AS ENABLED,
+            (SELECT COUNT(*)
+             FROM K_BOOKING_WEEK_SCREEN KBWS
+             WHERE KBWS.ID_BOOKING_WEEK = KBW.ID_BOOKING_WEEK
+               AND KBWS.ID_SCREEN = CS.ID_SCREEN
+               AND KBWS.ID_BOOKING_STATUS = 1) AS SELECTED
+          FROM C_THEATER CT
+          INNER JOIN C_THEATER_LANGUAGE CTL ON CTL.ID_THEATER = CT.ID_THEATER
+          INNER JOIN C_REGION CR ON CR.ID_REGION = CT.ID_REGION
+          INNER JOIN C_SCREEN CS ON CS.ID_THEATER = CT.ID_THEATER
+          INNER JOIN K_BOOKING KB ON KB.ID_THEATER = CT.ID_THEATER
+          INNER JOIN K_BOOKING_WEEK KBW ON KB.ID_BOOKING = KBW.ID_BOOKING
+          INNER JOIN C_WEEK CW ON CW.ID_WEEK = KBW.ID_WEEK
+          INNER JOIN C_BOOKING_STATUS CBS ON CBS.ID_BOOKING_STATUS = KBW.ID_BOOKING_STATUS
+          INNER JOIN C_BOOKING_STATUS_LANGUAGE CBSL ON CBSL.ID_BOOKING_STATUS = CBS.ID_BOOKING_STATUS
+          WHERE 1 = 1
+            AND CT.FG_ACTIVE = 1
+            AND CS.FG_ACTIVE = 1
+            AND CR.FG_ACTIVE = 1
+            AND CR.ID_REGION = ?1
+            AND CTL.ID_LANGUAGE = ?4
+            AND CBSL.ID_LANGUAGE = ?4
+            AND CW.ID_WEEK = ?3
+            AND KB.ID_EVENT = ?2
+            AND KB.FG_ACTIVE = 1
+            AND KBW.FG_ACTIVE = 1
+          UNION ALL 
+          -- Peliculas de la semana anterior no programadas
+          SELECT CT.ID_THEATER AS ID_THEATER, CTL.DS_NAME AS THEATER_NAME, CS.ID_SCREEN, CS.NU_SCREEN, KB.ID_BOOKING,
+            (SELECT kbw2.QT_COPY
+             FROM K_BOOKING_WEEK kbw2
+             WHERE kbw2.ID_BOOKING_WEEK =
+                 (SELECT MAX(ID_BOOKING_WEEK)
+                  FROM K_BOOKING_WEEK kbw3
+                  WHERE kbw3.ID_BOOKING = KB.ID_BOOKING)) QT_COPY,
+            0 AS QT_COPY_SCREEN_ZERO,
+            0 AS QT_COPY_SCREEN_ZERO_TERMINATED,
+            0 NU_EXHIBITION_WEEK,
+            NULL AS ID_BOOKING_STATUS,
+            NULL AS STATUS_NAME,
+            (SELECT COUNT(*)
+             FROM C_SCREEN_X_CATEGORY CSXC
+             WHERE CSXC.ID_SCREEN = CS.ID_SCREEN
+               AND CSXC.ID_CATEGORY = ?5) AS ENABLED,
+            0 SELECTED
+          FROM C_THEATER CT
+          INNER JOIN C_THEATER_LANGUAGE CTL ON CTL.ID_THEATER = CT.ID_THEATER
+          INNER JOIN C_REGION CR ON CR.ID_REGION = CT.ID_REGION
+          INNER JOIN C_SCREEN CS ON CS.ID_THEATER = CT.ID_THEATER
+          INNER JOIN K_BOOKING KB ON KB.ID_THEATER = CT.ID_THEATER
+          INNER JOIN K_BOOKING_WEEK KBW ON KB.ID_BOOKING = KBW.ID_BOOKING
+          WHERE 1 = 1
+            AND CT.FG_ACTIVE = 1
+            AND CS.FG_ACTIVE = 1
+            AND CR.FG_ACTIVE = 1
+            AND CR.ID_REGION = ?1
+            AND CTL.ID_LANGUAGE = ?4
+            AND KB.ID_EVENT = ?2
+            AND KB.FG_ACTIVE = 1
+            AND KB.FG_BOOKED = 1
+            AND
+              (SELECT count(*)
+               FROM K_BOOKING_WEEK kbw
+               WHERE kbw.ID_BOOKING = kb.id_booking
+                 AND kbw.ID_WEEK = ?3) = 0
+          UNION ALL 
+          -- Peliculas terminadas
+          SELECT CT.ID_THEATER AS ID_THEATER,
+            CTL.DS_NAME AS THEATER_NAME,
+            CS.ID_SCREEN,
+            CS.NU_SCREEN,
+            NULL ID_BOOKING,
+            1 QT_COPY,
+            0 AS QT_COPY_SCREEN_ZERO,
+            0 AS QT_COPY_SCREEN_ZERO_TERMINATED,
+            0 NU_EXHIBITION_WEEK,
+            NULL AS ID_BOOKING_STATUS,
+            NULL AS STATUS_NAME,
+            (SELECT COUNT(*)
+             FROM C_SCREEN_X_CATEGORY CSXC
+             WHERE CSXC.ID_SCREEN = CS.ID_SCREEN
+               AND CSXC.ID_CATEGORY = ?5) AS ENABLED,
+            0 SELECTED
+          FROM C_THEATER CT
+          INNER JOIN C_THEATER_LANGUAGE CTL ON CTL.ID_THEATER = CT.ID_THEATER
+          INNER JOIN C_REGION CR ON CR.ID_REGION = CT.ID_REGION
+          INNER JOIN C_SCREEN CS ON CS.ID_THEATER = CT.ID_THEATER
+          WHERE 1 = 1
+            AND CT.FG_ACTIVE = 1
+            AND CS.FG_ACTIVE = 1
+            AND CR.FG_ACTIVE = 1
+            AND CR.ID_REGION = ?1
+            AND CTL.ID_LANGUAGE = ?4
+            AND (
+                   (SELECT count(*)
+                    FROM K_BOOKING kb
+                    WHERE kb.id_theater = ct.id_theater
+                      AND kb.id_event = ?2
+                      AND kb.fg_active = 1) = 0
+                 OR (
+                       (SELECT count(*)
+                        FROM K_BOOKING kb
+                        INNER JOIN K_BOOKING_WEEK kbw ON kbw.id_booking = kb.id_booking
+                        WHERE kb.id_theater = ct.id_theater
+                          AND kb.id_event = ?2
+                          AND kbw.ID_WEEK = ?3
+                          AND kbw.ID_BOOKING_STATUS = 2
+                          AND kb.fg_active = 1) = 1 ) )
+          UNION ALL 
+          -- Peliculas canceladas
+          SELECT CT.ID_THEATER AS ID_THEATER,
+            CTL.DS_NAME AS THEATER_NAME,
+            CS.ID_SCREEN,
+            CS.NU_SCREEN,
+            NULL ID_BOOKING,
+            1 QT_COPY,
+            0 AS QT_COPY_SCREEN_ZERO,
+            0 AS QT_COPY_SCREEN_ZERO_TERMINATED,
+            0 NU_EXHIBITION_WEEK,
+            NULL AS ID_BOOKING_STATUS,
+            NULL AS STATUS_NAME,
+            (SELECT COUNT(*)
+             FROM C_SCREEN_X_CATEGORY CSXC
+             WHERE CSXC.ID_SCREEN = CS.ID_SCREEN
+               AND CSXC.ID_CATEGORY = ?5 ) AS ENABLED,
+            0 SELECTED
+          FROM C_THEATER CT
+          INNER JOIN C_THEATER_LANGUAGE CTL ON CTL.ID_THEATER = CT.ID_THEATER
+          INNER JOIN C_REGION CR ON CR.ID_REGION = CT.ID_REGION
+          INNER JOIN C_SCREEN CS ON CS.ID_THEATER = CT.ID_THEATER
+          WHERE 1 = 1
+            AND CT.FG_ACTIVE = 1
+            AND CS.FG_ACTIVE = 1
+            AND CR.FG_ACTIVE = 1
+            AND CR.ID_REGION = ?1
+            AND CTL.ID_LANGUAGE = ?4
+            AND
+              (SELECT count(*)
+               FROM K_BOOKING kb
+               WHERE kb.id_theater = ct.id_theater
+                 AND kb.id_event = ?2
+                 AND kb.fg_active = 1
+                 AND kb.fg_booked = 0) = 1
+            AND
+              (SELECT count(*)
+               FROM K_BOOKING kb
+               INNER JOIN K_BOOKING_WEEK kbw ON kbw.id_booking = kb.id_booking
+               WHERE kb.id_theater = ct.id_theater
+                 AND kb.id_event = ?2
+                 AND kbw.ID_WEEK = ?3
+                 AND kb.fg_active = 1) = 0
+         ) AS Q
+      ORDER BY Q.THEATER_NAME,
+               Q.NU_SCREEN,
+               Q.ID_BOOKING
+    </query>
+	</named-native-query>
+	<named-native-query name="EventDO.nativeQuery.findAvailableEventsByScreen">
+		<query>
+      SELECT ke.ID_EVENT,
+             ke.DS_NAME,
+             cd.ID_DISTRIBUTOR,
+             cd.DS_NAME,
+             cd.DS_SHORT_NAME,
+             ke.FG_PREMIERE
+      FROM K_EVENT ke
+      INNER JOIN K_EVENT_X_CATEGORY kexc ON kexc.ID_EVENT = ke.ID_EVENT
+      INNER JOIN C_CATEGORY cc ON cc.ID_CATEGORY = kexc.ID_CATEGORY
+      INNER JOIN K_EVENT_MOVIE kem ON kem.ID_EVENT = ke.ID_EVENT
+      INNER JOIN C_DISTRIBUTOR cd ON cd.ID_DISTRIBUTOR = kem.ID_DISTRIBUTOR
+      WHERE 1 = 1
+        AND cc.ID_CATEGORY_TYPE = 2
+        AND ke.fg_active = 1
+        AND ke.fg_current = 1
+        AND ke.ID_EVENT_TYPE = 1
+        AND ke.FG_FESTIVAL = 0
+        AND ke.FG_PRERELEASE = 0
+        AND (SELECT count(*)
+           FROM C_SCREEN_X_CATEGORY csxc 
+           WHERE csxc.ID_SCREEN = ?1
+		   and csxc.ID_CATEGORY = cc.ID_CATEGORY) > 0
+       ORDER BY ke.FG_PREMIERE DESC, ke.DS_NAME
+    </query>
+	</named-native-query>
+
+	<named-native-query
+		name="BookingDO.nativeQuery.countBookingTheaterWithNoScreensSelected">
+		<query>
+      SELECT sum(kbw.QT_COPY_SCREEN_ZERO)
+      FROM K_BOOKING kb
+      INNER JOIN K_BOOKING_WEEK kbw ON kb.ID_BOOKING = kbw.ID_BOOKING
+      WHERE kb.ID_THEATER = ?1
+        AND kb.FG_BOOKED = 1
+        AND kb.FG_ACTIVE = 1
+        AND kbw.ID_WEEK = ?2
+        AND kbw.FG_ACTIVE = 1
+        AND kbw.ID_BOOKING_STATUS = 1
+      </query>
+	</named-native-query>
+	<named-native-query name="BookingDO.nativeQuery.findTopWeekBookedMovies">
+		<query>
+      <![CDATA[
+      SELECT ke.DS_NAME,
+             max(kbw.NU_EXHIBITION_WEEK) AS exhibition
+      FROM k_event ke
+      INNER JOIN K_BOOKING kb ON kb.ID_EVENT = ke.ID_EVENT
+      INNER JOIN K_BOOKING_WEEK kbw ON kbw.ID_BOOKING = kb.ID_BOOKING
+      INNER JOIN c_week cw ON cw.ID_WEEK = kbw.ID_WEEK
+      WHERE ke.ID_EVENT IN
+          (SELECT DISTINCT kb.ID_EVENT
+           FROM K_BOOKING kb2
+           INNER JOIN K_BOOKING_WEEK kbw2 ON kbw2.ID_BOOKING = kb2.ID_BOOKING
+           WHERE kbw2.ID_WEEK IN (?1, ?2)
+           AND kb2.FG_ACTIVE = 1
+           AND kbw2.FG_ACTIVE = 1)
+        AND cw.DT_FINAL_DAY_WEEK <= ?3
+        AND ke.FG_ACTIVE = 1
+        AND kb.FG_ACTIVE = 1
+        AND kbw.FG_ACTIVE = 1
+      GROUP BY ke.DS_NAME
+      ]]>
+    </query>
+	</named-native-query>
+
+	<named-native-query name="BookingDO.nativeQuery.findBookingsExceeded">
+		<query>
+        SELECT kb.ID_BOOKING, kbw.ID_BOOKING_WEEK, kbw.QT_COPY,
+          (SELECT COUNT(*)
+           FROM K_BOOKING_WEEK_SCREEN kbws
+           WHERE kbws.ID_BOOKING_WEEK = kbw.ID_BOOKING_WEEK
+             AND kbws.ID_BOOKING_STATUS =1) screens
+        FROM K_BOOKING kb
+        INNER JOIN K_BOOKING_WEEK kbw ON kb.ID_BOOKING = kbw.ID_BOOKING
+        INNER JOIN C_WEEK cw ON cw.ID_WEEK = kbw.ID_WEEK
+        WHERE 1 = 1
+          AND cw.ID_WEEK = ?1
+          AND kb.ID_THEATER = ?2
+          AND kbw.ID_BOOKING_STATUS = 1
+          AND kb.FG_BOOKED = 1
+          AND (SELECT COUNT(*)
+               FROM K_BOOKING_WEEK_SCREEN kbws
+               WHERE kbws.ID_BOOKING_WEEK = kbw.ID_BOOKING_WEEK
+               AND kbws.ID_BOOKING_STATUS IN (2, 3)) >= kbw.QT_COPY
+    </query>
+	</named-native-query>
+
+	<!-- Named Queries JPQL -->
+	<named-query
+		name="BookingDO.namedQuery.countBookingTheaterWithScreensSelected">
+		<query>
+		SELECT count(DISTINCT s) from BookingDO as b 
+		INNER JOIN b.bookingWeekDOList as bw
+		INNER JOIN bw.bookingWeekScreenDOList as bws
+		INNER JOIN bws.idScreen as s
+		WHERE b.idTheater.idTheater = :idTheater
+		AND b.fgBooked = true
+		AND b.fgActive = true
+		AND bw.idWeek.idWeek = :idWeek
+		AND bw.idBookingStatus.idBookingStatus = 1
+		AND bw.fgActive = true
+		AND bws.idBookingStatus.idBookingStatus = 1
+		AND s.fgActive = true
+  		</query>
+	</named-query>
+
+	<named-query
+		name="BookingDO.namedQuery.countBookingTheaterWithNoScreensSelected">
+		<query>
+		SELECT sum(bw.qtCopyScreenZero) from BookingDO as b 
+		INNER JOIN b.bookingWeekDOList as bw
+		WHERE b.idTheater.idTheater = :idTheater
+		AND b.fgBooked = true
+		AND b.fgActive = true
+		AND bw.idWeek.idWeek = :idWeek
+		AND bw.idBookingStatus.idBookingStatus = 1
+		AND bw.fgActive = true
+		</query>
+	</named-query>
+	
+	<named-query name="BookingDO.namedQuery.findPremiereBooking">
+		<query>
+			SELECT DISTINCT e.idVista
+			FROM EventDO e
+			INNER JOIN e.bookingDOList as b
+			WHERE e.fgPremiere = true
+			AND e.fgActive = true
+			AND e.currentMovie = true
+			AND b.fgBooked = true
+		</query>
+	</named-query>
+
+  
+  <named-native-query name="SpecialEventDO.nativeQuery.findBookingsSpecialEventByEventRegion">
+    <query>
+		SELECT   Q.ID_THEATER,
+		         Q.THEATER_NAME,
+		         Q.ID_SCREEN,
+		         Q.NU_SCREEN,
+		         Q.ID_BOOKING_SPECIAL_EVENT,
+		         Q.ID_BOOKING,
+		         Q.QT_COPY,
+		         Q.QT_COPY_SCREEN_ZERO,
+		         Q.QT_COPY_SCREEN_ZERO_TERMINATED,
+		         Q.DT_START_SPECIAL_EVENT,
+		         Q.DT_END_SPECIAL_EVENT,
+		         Q.ID_OBSERVATION,
+		         Q.ID_BOOKING_STATUS,
+		         Q.STATUS_NAME,
+		         Q.ENABLED,
+		         Q.SELECTED,
+		         Q.FG_SHOW_DATE
+		FROM
+		    ( 
+		        SELECT DISTINCT  CT.ID_THEATER,
+		                 CTL.DS_NAME AS THEATER_NAME,
+		                 CS.ID_SCREEN,
+		                 CS.NU_SCREEN,
+		                 KBSE.ID_BOOKING_SPECIAL_EVENT,
+		                 KB.ID_BOOKING,
+		                 KBSE.QT_COPY,
+		                 KBSE.QT_COPY_SCREEN_ZERO,
+		                 KBSE.QT_COPY_SCREEN_ZERO_TERMINATED,
+		                 KBSE.DT_START_SPECIAL_EVENT,
+		                 KBSE.DT_END_SPECIAL_EVENT,
+		                 KBSES.ID_OBSERVATION,
+		                 CBS.ID_BOOKING_STATUS,
+		                 CBSL.DS_NAME AS STATUS_NAME,
+		                 (SELECT COUNT(*)
+		                  FROM C_SCREEN_X_CATEGORY CSXC
+		                  WHERE CSXC.ID_SCREEN = CS.ID_SCREEN
+		                   AND CSXC.ID_CATEGORY = ?5) AS ENABLED,
+		                 (SELECT COUNT(*)
+		                  FROM K_BOOKING_SPECIAL_EVENT_SCREEN KBSES
+		                  WHERE KBSES.ID_BOOKING_SPECIAL_EVENT = KBSE.ID_BOOKING_SPECIAL_EVENT
+		                   AND KBSES.ID_SCREEN = CS.ID_SCREEN
+		                   AND KBSES.ID_BOOKING_STATUS = 1) AS SELECTED,
+		                   KBSE.FG_SHOW_DATE
+		          FROM C_THEATER CT
+		          INNER JOIN C_THEATER_LANGUAGE CTL ON CTL.ID_THEATER = CT.ID_THEATER
+		          INNER JOIN C_REGION CR ON CR.ID_REGION = CT.ID_REGION
+		          INNER JOIN C_SCREEN CS ON CS.ID_THEATER = CT.ID_THEATER
+		          INNER JOIN K_BOOKING KB ON KB.ID_THEATER = CT.ID_THEATER
+		          INNER JOIN K_BOOKING_SPECIAL_EVENT KBSE ON KBSE.ID_BOOKING = KB.ID_BOOKING
+		          LEFT JOIN K_BOOKING_SPECIAL_EVENT_SCREEN KBSES ON KBSES.ID_BOOKING_SPECIAL_EVENT = KBSE.ID_BOOKING_SPECIAL_EVENT AND KBSES.ID_SCREEN = CS.ID_SCREEN
+		          INNER JOIN C_BOOKING_STATUS CBS ON CBS.ID_BOOKING_STATUS = KBSE.ID_BOOKING_STATUS
+		          INNER JOIN C_BOOKING_STATUS_LANGUAGE CBSL ON CBSL.ID_BOOKING_STATUS = CBS.ID_BOOKING_STATUS
+		          INNER JOIN K_OBSERVATION KO ON KO.ID_OBSERVATION = KBSES.ID_OBSERVATION OR KBSES.ID_OBSERVATION IS NULL
+		          WHERE 1 = 1
+		            AND CR.ID_REGION = ?1
+		            AND KB.ID_EVENT = ?2
+		            AND KB.ID_BOOKING_TYPE = ?3
+		            AND CTL.ID_LANGUAGE = ?4
+		            AND CBSL.ID_LANGUAGE = ?4
+		            AND CT.FG_ACTIVE = 1
+		            AND CS.FG_ACTIVE = 1
+		            AND CR.FG_ACTIVE = 1
+		            AND KB.FG_ACTIVE = 1
+		            AND KB.FG_BOOKED = 1
+		            AND KBSE.FG_ACTIVE = 1
+		    UNION ALL
+		    SELECT  CT.ID_THEATER AS ID_THEATER,
+		            CTL.DS_NAME AS THEATER_NAME,
+		            CS.ID_SCREEN,
+		            CS.NU_SCREEN,
+		            NULL AS ID_BOOKING_SPECIAL_EVENT,
+		            NULL AS ID_BOOKING,
+		            1 QT_COPY,
+		            0 AS QT_COPY_SCREEN_ZERO,
+		            0 AS QT_COPY_SCREEN_ZERO_TERMINATED,
+		            NULL DT_START_SPECIAL_EVENT,
+		            NULL DT_END_SPECIAL_EVENT,
+		            NULL AS ID_OBSERVATION,
+		            NULL AS ID_BOOKING_STATUS,
+		            NULL AS STATUS_NAME,
+		            (SELECT COUNT(*)
+		            FROM C_SCREEN_X_CATEGORY CSXC
+		            WHERE CSXC.ID_SCREEN = CS.ID_SCREEN
+		                AND CSXC.ID_CATEGORY = ?5) AS ENABLED,
+		            0 SELECTED,
+		            'false' FG_SHOW_DATE
+		    FROM    C_THEATER CT
+		            INNER JOIN C_THEATER_LANGUAGE CTL ON CTL.ID_THEATER = CT.ID_THEATER
+		            INNER JOIN C_REGION CR ON CR.ID_REGION = CT.ID_REGION
+		            INNER JOIN C_SCREEN CS ON CS.ID_THEATER = CT.ID_THEATER
+		            WHERE 1 = 1
+		            AND CT.FG_ACTIVE = 1
+		            AND CS.FG_ACTIVE = 1
+		            AND CR.FG_ACTIVE = 1
+		            AND CR.ID_REGION = ?1
+		            AND CTL.ID_LANGUAGE = ?4
+		            AND ( SELECT COUNT(*) FROM K_BOOKING KB
+		                INNER JOIN K_BOOKING_SPECIAL_EVENT KBSE ON KBSE.ID_BOOKING = KB.ID_BOOKING
+		                INNER JOIN K_BOOKING_SPECIAL_EVENT_SCREEN KBSES ON KBSES.ID_BOOKING_SPECIAL_EVENT = KBSE.ID_BOOKING_SPECIAL_EVENT
+		                WHERE KB.ID_THEATER = CT.ID_THEATER
+		                    AND KBSES.ID_SCREEN = CS.ID_SCREEN
+		                    AND KB.ID_EVENT = ?2
+		                    AND KB.FG_ACTIVE = 1
+		                    AND KB.FG_BOOKED = 1
+		                    AND KB.ID_BOOKING_TYPE = ?3 ) = 0
+	
+		    ) AS Q
+		          ORDER BY Q.THEATER_NAME,
+		                   Q.NU_SCREEN,
+		                   Q.ID_BOOKING
+    </query>
+  </named-native-query>
+  
+  <named-native-query name="ObservationDO.nativeQuery.findObservationsBySpecialEventId">
+    <query>
+        SELECT
+               KO.ID_OBSERVATION,
+               KO.ID_USER,
+               KO.DS_OBSERVATION
+        FROM   K_OBSERVATION KO
+        WHERE  KO.ID_OBSERVATION IN
+        (SELECT DISTINCT KBSES.ID_OBSERVATION
+        FROM
+               K_BOOKING_SPECIAL_EVENT_SCREEN KBSES
+        WHERE
+               KBSES.ID_BOOKING_SPECIAL_EVENT = ?1)
+    </query>
+  </named-native-query>
+
+  <named-native-query name="SpecialEventDO.nativeQuery.findBookingsSpecialEventByTheaterAndWeek">
+    <query>
+      SELECT   Q.ID_BOOKING_SPECIAL_EVENT_SCREEN,
+               Q.ID_EVENT,
+               Q.EVENT_NAME,
+               Q.FORMAT_NAME,
+               Q.NU_CAPACITY,
+               Q.DISTRIBUTOR_NAME,
+               Q.NU_SCREEN,
+               Q.ID_BOOKING_SPECIAL_EVENT,
+               Q.ID_BOOKING,
+               Q.FG_PRESALE,
+               Q.QT_COPY,
+               Q.QT_COPY_SCREEN_ZERO,
+               Q.ID_BOOKING_STATUS,
+               Q.ID_BOOKING_TYPE,
+               Q.DT_START_SPECIAL_EVENT,
+               Q.DT_END_SPECIAL_EVENT,
+               Q.ID_BOOKING_STATUS_SCREEN,
+               Q.FG_SHOW_DATE,
+               Q.ID_PRESALE,
+               Q.DT_START_DAY_PRESALE,
+               Q.DT_FINAL_DAY_PRESALE,
+               Q.DT_RELEASE_DAY
+      FROM
+          ( 
+              SELECT DISTINCT  KBSES.ID_BOOKING_SPECIAL_EVENT_SCREEN,
+                       KB.ID_EVENT,
+                       KE.DS_NAME AS EVENT_NAME,
+                       CCL.DS_NAME AS FORMAT_NAME,
+                       CS.NU_CAPACITY,
+                       CD.DS_NAME AS DISTRIBUTOR_NAME,
+                       CS.NU_SCREEN,
+                       KBSE.ID_BOOKING_SPECIAL_EVENT,
+                       KB.ID_BOOKING,
+                       KP.FG_ACTIVE AS FG_PRESALE,
+                       KBSE.QT_COPY,
+                       KBSE.QT_COPY_SCREEN_ZERO,
+                       CBS.ID_BOOKING_STATUS,
+                       KB.ID_BOOKING_TYPE,
+                       KBSE.DT_START_SPECIAL_EVENT,
+                       KBSE.DT_END_SPECIAL_EVENT,
+                       KBSES.ID_BOOKING_STATUS AS ID_BOOKING_STATUS_SCREEN,
+                       KBSE.FG_SHOW_DATE,
+                       KP.ID_PRESALE,
+                       KP.DT_START_DAY_PRESALE,
+                       KP.DT_FINAL_DAY_PRESALE,
+                       KP.DT_RELEASE_DAY
+                FROM C_THEATER CT
+                INNER JOIN C_THEATER_LANGUAGE CTL ON CTL.ID_THEATER = CT.ID_THEATER
+                INNER JOIN C_REGION CR ON CR.ID_REGION = CT.ID_REGION
+                INNER JOIN C_SCREEN CS ON CS.ID_THEATER = CT.ID_THEATER
+                INNER JOIN K_BOOKING KB ON KB.ID_THEATER = CT.ID_THEATER
+                INNER JOIN K_EVENT KE ON KE.ID_EVENT = KB.ID_EVENT
+                INNER JOIN K_EVENT_X_CATEGORY KEXC ON KEXC.ID_EVENT = KE.ID_EVENT
+                INNER JOIN C_CATEGORY CC ON ( CC.ID_CATEGORY = KEXC.ID_CATEGORY AND CC.ID_CATEGORY_TYPE = 2 )
+                INNER JOIN C_CATEGORY_LANGUAGE CCL ON CCL.ID_CATEGORY = CC.ID_CATEGORY
+                INNER JOIN K_EVENT_MOVIE KEM ON KEM.ID_EVENT = KE.ID_EVENT
+                INNER JOIN C_DISTRIBUTOR CD ON CD.ID_DISTRIBUTOR = KEM.ID_DISTRIBUTOR
+                INNER JOIN K_BOOKING_SPECIAL_EVENT KBSE ON KBSE.ID_BOOKING = KB.ID_BOOKING AND KB.ID_BOOKING IS NOT NULL
+                LEFT JOIN K_BOOKING_SPECIAL_EVENT_SCREEN KBSES ON KBSES.ID_BOOKING_SPECIAL_EVENT = KBSE.ID_BOOKING_SPECIAL_EVENT
+                LEFT JOIN K_PRESALE KP ON KP.ID_BOOKING_SPECIAL_EVENT_SCREEN = KBSES.ID_BOOKING_SPECIAL_EVENT_SCREEN
+                INNER JOIN C_BOOKING_STATUS CBS ON CBS.ID_BOOKING_STATUS = KBSE.ID_BOOKING_STATUS
+                INNER JOIN C_BOOKING_STATUS_LANGUAGE CBSL ON CBSL.ID_BOOKING_STATUS = CBS.ID_BOOKING_STATUS
+                INNER JOIN K_OBSERVATION KO ON KO.ID_OBSERVATION = KBSES.ID_OBSERVATION OR KBSES.ID_OBSERVATION IS NULL
+                INNER JOIN K_SPECIAL_EVENT_WEEK KSEW ON KSEW.ID_BOOKING_SPECIAL_EVENT = KBSE.ID_BOOKING_SPECIAL_EVENT
+                WHERE 1 = 1
+                  AND KB.ID_THEATER = ?1
+                  AND KSEW.ID_WEEK = ?2
+                  AND KB.ID_BOOKING_TYPE IN (2, 3)
+                  AND CTL.ID_LANGUAGE = 1
+                  AND CBSL.ID_LANGUAGE = 1
+                  AND CT.FG_ACTIVE = 1
+                  AND CS.FG_ACTIVE = 1
+                  AND CR.FG_ACTIVE = 1
+                  AND KB.FG_ACTIVE = 1
+                  AND KB.FG_BOOKED= 1
+                  AND KSEW.FG_ACTIVE = 1
+                  AND KBSE.FG_ACTIVE = 1
+                  AND ( KBSES.ID_SCREEN = CS.ID_SCREEN
+                   OR KBSES.ID_SCREEN IS NULL )
+                  --AND ( KBSES.ID_BOOKING_STATUS = 1
+                   --OR KBSES.ID_BOOKING_STATUS IS NULL )
+          ) AS Q
+                ORDER BY Q.NU_SCREEN,
+                         Q.ID_BOOKING
+    </query>
+  </named-native-query>
+
+  <named-native-query name="BookingDO.nativeQuery.findTheaterBookedPresalesByWeekAndRegion">
+    <query>
+      SELECT DISTINCT kb.ID_BOOKING,
+                      kb.ID_THEATER,
+                      ke.ID_EVENT,
+                      kp.FG_ACTIVE
+      FROM K_BOOKING kb
+           INNER JOIN C_THEATER ct ON ct.ID_THEATER = kb.ID_THEATER
+           INNER JOIN K_EVENT ke ON ke.ID_EVENT = kb.ID_EVENT
+           LEFT JOIN K_BOOKING_WEEK kbw ON kb.ID_BOOKING = kbw.ID_BOOKING
+           LEFT JOIN K_BOOKING_SPECIAL_EVENT kbse ON kbse.ID_BOOKING = kb.ID_BOOKING
+           LEFT JOIN K_SPECIAL_EVENT_WEEK ksew ON ksew.ID_BOOKING_SPECIAL_EVENT = kbse.ID_BOOKING_SPECIAL_EVENT
+           -- PREVENTA --
+           LEFT JOIN K_BOOKING_WEEK_SCREEN kbws ON kbws.ID_BOOKING_WEEK = kbw.ID_BOOKING_WEEK
+           LEFT JOIN K_BOOKING_SPECIAL_EVENT_SCREEN kbses ON kbses.ID_BOOKING_SPECIAL_EVENT = kbse.ID_BOOKING_SPECIAL_EVENT
+           LEFT JOIN K_PRESALE kp
+               ON ( kp.id_booking_special_event_screen =
+                       kbses.id_booking_special_event_screen
+                        OR kp.id_booking_week_screen = kbws.id_booking_week_screen )
+      WHERE (kbw.ID_WEEK = ?1 OR ksew.ID_WEEK = ?1)
+            AND ct.ID_REGION = ?2
+            AND kb.FG_BOOKED = 1
+            AND kb.FG_ACTIVE = 1
+            AND kp.FG_ACTIVE = 1
+    </query>
+  </named-native-query>
+
+  <named-native-query name="BookingDO.nativeQuery.findTheatersByWeekEventAndRegion">
+    <query>
+      SELECT DISTINCT CT.ID_THEATER
+      FROM C_THEATER CT
+           INNER JOIN K_BOOKING KB ON KB.ID_THEATER = CT.ID_THEATER
+           INNER JOIN K_EVENT KE ON KE.ID_EVENT = KB.ID_EVENT
+           LEFT JOIN K_BOOKING_WEEK KBW ON KBW.ID_BOOKING = KB.ID_BOOKING
+           LEFT JOIN K_BOOKING_SPECIAL_EVENT KBSE ON KBSE.ID_BOOKING = KB.ID_BOOKING
+           LEFT JOIN K_SPECIAL_EVENT_WEEK KSEW ON KSEW.ID_BOOKING_SPECIAL_EVENT = KBSE.ID_BOOKING_SPECIAL_EVENT
+           -- PREVENTA --
+           LEFT JOIN K_BOOKING_WEEK_SCREEN KBWS ON KBWS.ID_BOOKING_WEEK = KBW.ID_BOOKING_WEEK
+           LEFT JOIN K_BOOKING_SPECIAL_EVENT_SCREEN KBSES ON KBSES.ID_BOOKING_SPECIAL_EVENT = KBSE.ID_BOOKING_SPECIAL_EVENT
+           LEFT JOIN K_PRESALE KP
+               ON ( KP.id_booking_special_event_screen =
+                       KBSES.id_booking_special_event_screen
+                        OR KP.id_booking_week_screen = KBWS.id_booking_week_screen )
+      WHERE (KBW.ID_WEEK = ?1 OR KSEW.ID_WEEK = ?1)
+            AND KE.ID_EVENT = ?2
+            AND CT.ID_REGION = ?3
+            AND KB.FG_BOOKED = 1
+            AND KB.FG_ACTIVE = 1
+            AND KP.FG_ACTIVE = 1
+    </query>
+  </named-native-query>
+
+  <named-native-query name="BookingDO.nativeQuery.findEventsByWeekAndTheater">
+    <query>
+      --- QUERY PARA OBTENER LAS PREVENTAS TOTALES DE UN CINE POR SEMANA Y CINE ---
+      SELECT DISTINCT KE.ID_EVENT
+      FROM   K_BOOKING KB
+           INNER JOIN C_THEATER CT ON CT.ID_THEATER = KB.ID_THEATER
+           INNER JOIN K_EVENT KE ON KE.ID_EVENT = KB.ID_EVENT
+           LEFT JOIN K_BOOKING_WEEK KBW ON KBW.ID_BOOKING = KB.ID_BOOKING
+           LEFT JOIN K_BOOKING_SPECIAL_EVENT KBSE ON KBSE.ID_BOOKING = KB.ID_BOOKING
+           LEFT JOIN K_SPECIAL_EVENT_WEEK KSEW ON KSEW.ID_BOOKING_SPECIAL_EVENT = KBSE.ID_BOOKING_SPECIAL_EVENT
+           -- PREVENTA --
+           LEFT JOIN K_BOOKING_WEEK_SCREEN KBWS ON KBWS.ID_BOOKING_WEEK = KBW.ID_BOOKING_WEEK
+           LEFT JOIN K_BOOKING_SPECIAL_EVENT_SCREEN KBSES ON KBSES.ID_BOOKING_SPECIAL_EVENT = KBSE.ID_BOOKING_SPECIAL_EVENT
+           LEFT JOIN K_PRESALE KP
+               ON ( KP.id_booking_special_event_screen =
+                       KBSES.id_booking_special_event_screen
+                        OR KP.id_booking_week_screen = KBWS.id_booking_week_screen )
+      WHERE  (KBW.ID_WEEK = ?1 OR KSEW.ID_WEEK = ?1)
+           AND KB.id_theater = ?2
+           AND KB.fg_booked = 1
+           AND KB.fg_active = 1
+           AND KP.fg_active = 1
+    </query>
+  </named-native-query>
+
+  <named-native-query name="BookingIncomeDO.nativeQuery.findTopEvents">
+    <query>
+      SELECT ke.ID_EVENT,
+             ke.DS_NAME,
+             sum(kbi.QT_INCOME) incomes,
+             sum(kbi.QT_TICKETS) tickets
+      FROM K_EVENT ke
+      INNER JOIN K_BOOKING_INCOME kbi ON kbi.ID_EVENT = ke.ID_EVENT
+      WHERE ke.FG_ACTIVE = 1
+        AND ke.FG_CURRENT = 1
+        AND kbi.FG_ACTIVE = 1
+        AND kbi.ID_WEEK = ?1
+        AND
+          (SELECT count(*)
+           FROM K_BOOKING kb
+           WHERE kb.ID_EVENT = ke.ID_EVENT
+             AND kb.FG_ACTIVE = 1
+             AND kb.FG_BOOKED = 1) > 0
+      GROUP BY ke.ID_EVENT,
+               ke.DS_NAME
+      ORDER BY 3 DESC, 1 ASC  
+    </query>
+  </named-native-query>
+  
+  <named-query name="EmailTemplateDO.namedQuery.findByRegionAndEmailType">
+    <query>
+            SELECT t
+            FROM EmailTemplateDO t
+            WHERE t.regionDO.idRegion = :regionId
+            AND t.emailTypeDO.idEmailType = :emailTypeId
+    </query>
+  </named-query>
+  
+  <named-native-query name="BookingIncomeDO.nativeQuery.findTotalAdmissionWeekend">
+    <query> 
+            SELECT sum(kbi.QT_TICKETS) 
+            FROM K_BOOKING_INCOME kbi
+            WHERE kbi.ID_THEATER = ?1 
+            AND kbi.ID_WEEK = ?2 
+            AND DATEPART(dw, kbi.DT_SHOW) IN (1,6,7)
+    </query>
+  </named-native-query>
+  
+  <named-native-query name="BookingIncomeDO.nativeQuery.findTotalAdmissionWeek">
+    <query> 
+            SELECT sum(kbi.QT_TICKETS) 
+            FROM K_BOOKING_INCOME kbi
+            WHERE kbi.ID_THEATER = ?1 
+            AND kbi.ID_WEEK = ?2 
+            AND DATEPART(dw, kbi.DT_SHOW) IN (2,3,4,5)
+    </query>
+  </named-native-query>
+  
+</entity-mappings>

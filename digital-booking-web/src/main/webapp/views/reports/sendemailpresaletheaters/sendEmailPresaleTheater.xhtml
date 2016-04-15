@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:p="http://primefaces.org/ui" xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+  <ui:define name="content_title">#{msg['digitalbooking.reports.sendemailpresaletheaters.sendEmailPresaleTheatersTitle']}</ui:define>
+  <ui:define name="content">
+    <cdb:waitingDialog
+      components=":filterPanelForm:searchBookingBtn, :filterPanelForm:resetBtn, :filterPanelForm:weekMenu, :filterPanelForm:regionSelectOne, :confimSendForm:sendOkBtn" />
+    <h:form id="filterPanelForm">
+      <h:panelGrid columns="8" id="filterPanelGrid1" width="100%" cellpadding="5" cellspacing="4" styleClass="panel-background"
+        columnClasses="send_presale_region_align_column">
+        <p:outputLabel for="movieMenu" value="#{msg['digitalbooking.reports.sendemailpresaletheaters.movieOutputLable']}"
+          style="display: block; width: 45px;" />
+        <p:inputText id="movieMenu" widgetVar="movieMenu" value="#{sendEmailPresaleTheatersBean.movieName}" maxlength="160"
+          style="width: 200px;" />
+        <p:outputLabel for="weekMenu" value="#{msg['digitalbooking.reports.sendemailpresaletheaters.dateHeaderTable']}" />
+        <p:selectOneMenu id="weekMenu" value="#{sendEmailPresaleTheatersBean.weekIdSelected}" style="width:200px;"
+          panelStyle="width:150px;">
+          <p:ajax
+            update=":filterPanelForm:theatersTable, eventsTable, :filterPanelForm:downloadButton, :filterPanelForm:sendButton"
+            listener="#{sendEmailPresaleTheatersBean.clearTheaters}" oncomplete="resetSelected();" />
+          <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOneMenu']}" itemValue="" />
+          <f:selectItems value="#{sendEmailPresaleTheatersBean.weekList}" var="week" itemLabel="#{week.weekDescription}"
+            itemValue="#{week.idWeek}" />
+        </p:selectOneMenu>
+        <p:outputLabel for="regionSelectOne" value="#{msg['digitalbooking.reports.sendemailpresaletheaters.regionOutputLable']}" />
+        <p:selectOneMenu id="regionSelectOne" widgetVar="regionSelectOne" value="#{sendEmailPresaleTheatersBean.regionIdSelected}"
+          style="width:200px;" panelStyle="width:180px;">
+          <p:ajax
+            update=":filterPanelForm:theatersTable, eventsTable, :filterPanelForm:downloadButton, :filterPanelForm:sendButton"
+            listener="#{sendEmailPresaleTheatersBean.clearTheaters}" oncomplete="resetSelected();" />
+          <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOneMenu']}" itemValue="" />
+          <f:selectItems value="#{sendEmailPresaleTheatersBean.regions}" var="region" itemLabel="#{region.name}"
+            itemValue="#{region.id}" />
+        </p:selectOneMenu>
+        <p:commandButton id="resetBtn" value="#{msg['digitalbooking.common.resetBtnText']}" type="reset"
+          icon="ui-icon-arrowrefresh-1-s">
+          <p:ajax listener="#{sendEmailPresaleTheatersBean.reset}"
+            update=":filterPanelForm:filterPanelGrid1, :filterPanelForm:theatersTable, eventsTable" oncomplete="resetSelected();" />
+        </p:commandButton>
+        <p:commandButton id="searchBookingBtn" value="#{msg['digitalbooking.common.searchBtnText']}"
+          action="#{sendEmailPresaleTheatersBean.searchTheaters}" update=":filterPanelForm:theatersTable, eventsTable"
+          icon="ui-icon-search" oncomplete="resetSelected();" />
+      </h:panelGrid>
+
+      <h:panelGrid columns="4" id="filterPanelGrid2" width="100%" cellpadding="5" cellspacing="4"
+        columnClasses="send_presale_region_align_column" style="margin-top: 20px;" styleClass="panel-background">
+        <p:outputLabel for="txtSubject" value="#{msg['digitalbooking.reports.sendemailpresaletheaters.subjectOutputLable']}"
+          style="display: block; width: 45px;" />
+        <p:inputText id="txtSubject" widgetVar="txtSubject" value="#{sendEmailPresaleTheatersBean.subject}" maxlength="160"
+          size="97" style="" />
+        <p:commandButton id="downloadButton" widgetVar="downloadButton" value="#{msg['digitalbooking.common.downloadBtnText']}"
+          ajax="false" onclick="PrimeFaces.monitorDownload(start, stop)" icon="ui-icon-arrowthickstop-1-s"
+          disabled="#{sendEmailPresaleTheatersBean.enablePreviewButton}" style="width: 150px;">
+          <p:fileDownload value="#{sendEmailPresaleTheatersBean.file}" />
+        </p:commandButton>
+        <p:commandButton id="sendButton" value="#{msg['digitalbooking.common.sendDocumentBtnText']}"
+          icon="ui-icon-arrowthickstop-1-e" oncomplete="PF('confimSendDialog').show()" widgetVar="sendButton"
+          disabled="#{sendEmailPresaleTheatersBean.enableSendButton}" style="width: 150px;" />
+      </h:panelGrid>
+
+      <h:panelGrid id="listContainerGrid" columns="2" width="100%"
+        columnClasses="send-presale-container-td1, send-presale-container-td2" style="height:280px;">
+
+        <p:panel style="text-align:center; padding:5px;  height:458px;"
+          header="#{msg['digitalbooking.reports.sendemailpresaletheaters.titleTheaterListText']}">
+          <p:dataTable id="theatersTable" widgetVar="theatersTable" var="theater" value="#{sendEmailPresaleTheatersBean.theaters}"
+            lazy="true" scrollable="true" scrollHeight="350" rowKey="#{theater.id}"
+            selection="#{sendEmailPresaleTheatersBean.theatersSelected}" selectionMode="multiple"
+            style="width: 100%; align: center;">
+            <p:ajax event="rowSelect" listener="#{sendEmailPresaleTheatersBean.validateRows}"
+              update="theatersTable, :filterPanelForm:downloadButton, :filterPanelForm:sendButton" oncomplete="resetSelected();" />
+            <p:ajax event="rowUnselect" listener="#{sendEmailPresaleTheatersBean.validateRows}"
+              update="theatersTable, :filterPanelForm:downloadButton, :filterPanelForm:sendButton" oncomplete="resetSelected();" />
+            <f:facet name="header">
+              <p:commandButton id="selectAllBtn" widgetVar="selectAllBtn" value="#{msg['digitalbooking.common.selectAll']}"
+                onclick="selectAll();" actionListener="#{sendEmailPresaleTheatersBean.enableButtons}" icon="ui-icon-star"
+                update=":filterPanelForm:downloadButton, :filterPanelForm:sendButton" >
+              </p:commandButton>
+            </f:facet>
+            <p:column headerText="#{msg['digitalbooking.reports.sendemailpresaletheaters.idHeaderTable']}" style="width:20%">#{theater.id}</p:column>
+            <p:column headerText="#{msg['digitalbooking.reports.sendemailpresaletheaters.nuTheaterHeaderTable']}"
+              style="width:20%;">#{theater.nuTheater}</p:column>
+            <p:column headerText="#{msg['digitalbooking.reports.sendemailpresaletheaters.nameHeaderTable']}" style="width:40%">#{theater.name}</p:column>
+            <p:column headerText="#{msg['digitalbooking.reports.sendemailpresaletheaters.bookingStatusHeaderTable']}"
+              style="width:20%">
+              <p:graphicImage value="/images/#{theater.imageSemaphore}.png" />
+            </p:column>
+            <f:facet name="footer">
+              <p:row>
+                <p:column style="text-align: center;">
+                  <br />
+                </p:column>
+              </p:row>
+            </f:facet>
+          </p:dataTable>
+        </p:panel>
+
+        <p:panel style="text-align:center; padding:5px;  height:458px;"
+          header="#{msg['digitalbooking.reports.sendemailpresaletheaters.titleEventListText']}">
+          <p:dataTable id="eventsTable" widgetVar="eventsTable" var="event" value="#{sendEmailPresaleTheatersBean.movieList}"
+            rowKey="#{event.idEvent}" selection="#{sendEmailPresaleTheatersBean.movieListSelected}"
+            style="border-style:none; width: 100%;" lazy="true" paginator="true" rows="10" rowsPerPageTemplate="10,50,100"
+            paginatorPosition="bottom" scrollable="true" scrollHeight="357"
+            paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+            selectionMode="multiple">
+            <p:ajax event="rowSelect" listener="#{sendEmailPresaleTheatersBean.updateSemaphoresValue}"
+              update=":filterPanelForm:theatersTable, :filterPanelForm:downloadButton, :filterPanelForm:sendButton" />
+            <p:ajax event="rowUnselect" listener="#{sendEmailPresaleTheatersBean.updateSemaphoresValue}"
+              update=":filterPanelForm:theatersTable, :filterPanelForm:downloadButton, :filterPanelForm:sendButton" />
+            <f:facet name="header">
+              <p:row>
+                <p:column style="text-align: center; height: 50px;">
+                  <br />
+                </p:column>
+              </p:row>
+            </f:facet>
+            <p:column headerText="#{msg['digitalbooking.reports.sendemailpresaletheaters.header.idMovie']}" style="width:10%">#{event.idEvent}</p:column>
+            <p:column headerText="#{msg['digitalbooking.reports.sendemailpresaletheaters.header.movie']}" style="width:90%">#{event.dsEventName}</p:column>
+          </p:dataTable>
+        </p:panel>
+
+      </h:panelGrid>
+
+    </h:form>
+    <h:form id="confimSendForm">
+      <p:confirmDialog id="confimSendDialog"
+        message="#{msg['digitalbooking.reports.sendemailpresaletheaters.mesgerror.confirmSendText']}"
+        header="#{msg['digitalbooking.reports.sendemailpresaletheaters.mesgerror.confirmSendTitle']}" severity="alert"
+        widgetVar="confimSendDialog" modal="true">
+        <p:commandButton id="sendOkBtn" value="#{msg['digitalbooking.common.yesBtnText']}"
+          action="#{sendEmailPresaleTheatersBean.sendDocument}" update=":filterPanelForm:theatersTable"
+          oncomplete="PF('confimSendDialog').hide()">
+        </p:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confimSendDialog.hide();" type="button" />
+      </p:confirmDialog>
+    </h:form>
+    <script type="text/javascript">
+		$(document).ready(function() {
+			PF('downloadButton').disable();
+			PF('sendButton').disable();
+		});
+		function start() {
+			PF('statusDialog').show();
+		}
+		function stop() {
+			PF('statusDialog').hide();
+		}
+		var selected = false;
+		function selectAll(){
+			var i, rows, theatersTable;
+			theatersTable = PF('theatersTable');
+			rows = theatersTable.bodyTable[0].children["filterPanelForm:theatersTable_data"].rows.length;
+			if (!selected){
+				for (i = 0; i &lt; rows; i++){
+					theatersTable.selectRow(i, true);
+				}
+				selected = true;
+			} else {
+				for (i = 0; i &lt; rows; i++){
+					theatersTable.unselectRow(i, true);
+				}
+				selected = false;
+			}
+		}
+		function resetSelected()
+		{
+		  selected = false;
+		}
+		</script>
+    <p:dialog modal="true" widgetVar="statusDialog" header="#{msg['digitalbooking.common.waitingText']}" draggable="false"
+      closable="false" resizable="false">
+      <p:graphicImage value="/images/ajaxloadingbar.gif" />
+    </p:dialog>
+    <script>
+      jQuery(document).ready(function() {
+          /*var resetBtn = document.getElementById('filterPanelForm:resetBtn');
+          if(resetBtn){
+              resetBtn.click();
+          }*/
+      });
+    </script>
+  </ui:define>
+</ui:composition>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+  xmlns:cdb="http://cinepolis/digital-booking/custom-tags" xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+  <ui:define name="content_title">#{msg['digitalbooking.config.systemConfigTitle']}</ui:define>
+  <ui:define name="content">
+    <h:form id="mainForm">
+      <p:panel>
+        <h:panelGrid id="addDistributorPanel" columns="1" styleClass="components-dialog">
+          <p:commandLink id="addUserLink" action="#{configurationBean.changeAdminUsers}">
+            <h:outputText value="#{msg['digitalbooking.config.addUserOutputLabel']}" style="color: #005FAA;" />
+          </p:commandLink>
+          <p:commandLink id="assignUserRegionLink" action="#{configurationBean.changeAssignUserRegionsPage}">
+            <h:outputText value="#{msg['digitalbooking.config.assignUserRegionOutputLabel']}" style="color: #005FAA;" />
+          </p:commandLink>
+          <p:commandLink id="assignUserTheaterLink" action="#{configurationBean.changeAssignUserTheatersPage}">
+            <h:outputText value="#{msg['digitalbooking.config.assignUserTheaterOutputLabel']}" style="color: #005FAA;" />
+          </p:commandLink>
+          <p:commandLink id="assignUserAdminTemplateToRegionLink" action="#{configurationBean.changeAssignUserAdminTemplateRegionsPage}">
+            <h:outputText value="#{msg['digitalbooking.config.assignUserAdminTemplateToRegion']}" style="color: #005FAA;" />
+          </p:commandLink>
+          <p:commandLink id="systemLogLink" action="#{configurationBean.changeSystemLogPage}">
+            <h:outputText value="#{msg['digitalbooking.config.systemLogOutputLabel']}" style="color: #005FAA;" />
+          </p:commandLink>
+          <p:commandLink id="clearCacheDBLink" onclick="PF('clearCacheConfirmDialog').show()">
+            <h:outputText value="#{msg['digitalbooking.config.clearCacheDBOutputLabel']}" style="color: #005FAA;" />
+          </p:commandLink>
+        </h:panelGrid>
+      </p:panel>
+    </h:form>
+    <h:form>
+      <p:confirmDialog id="clearCacheConfirmDialog" header="Clear Cache Confirmation"
+        message="Cache will be cleared. Are you sure?" severity="alert" widgetVar="clearCacheConfirmDialog" modal="true">
+        <cdb:commandButton id="clearCacheOkBtn" value="#{msg['digitalbooking.common.yesBtnText']}"
+          action="#{dynamicMenuBean.clearCache}" oncomplete="clearCacheConfirmDialog.hide();">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="clearCacheConfirmDialog.hide();"
+          type="button" />
+      </p:confirmDialog>
+    </h:form>
+  </ui:define>
+</ui:composition>

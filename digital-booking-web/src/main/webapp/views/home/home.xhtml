@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="../layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml" xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+  xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+  <ui:define name="content_title">#{msg['digitalbooking.home.homeTitle']}</ui:define>
+  <ui:define name="content">
+    <h:form id="mainForm">
+      <h:panelGrid id="topPanelGrid" style="border-style:none;" columns="2" columnClasses="columnsHomePanel, columnsHomePanel">
+        <p:panel style="text-align:center; padding:5px;  height:280px;" header="#{msg['digitalbooking.home.latestMoviesTitle']}">
+          <p:carousel id="moviePremiereCarousel" value="#{homeBean.eventMovieTOs}" var="eventMovieTO" style="text-align:center;"
+            numVisible="4" autoPlayInterval="15000" circular="true">
+            <p:panelGrid style="border-style:none;">
+              <f:facet name="header">
+                <p:row>
+                  <p:column>
+                    <p:graphicImage id="movieGraphicImage" value="/image.html?id=#{eventMovieTO.idMovieImage}"
+                      style="border-style:solid;border-color:transparent; height:146px; width:100px;vertical-align: middle;" />
+                  </p:column>
+                </p:row>
+              </f:facet>
+              <p:row>
+                <p:column
+                  style="height:40px; width:100px;text-overflow: ellipsis;font-size: 0.9em; color: #222222; overflow:auto;">
+                #{eventMovieTO.dsEventName}
+              </p:column>
+              </p:row>
+            </p:panelGrid>
+
+          </p:carousel>
+        </p:panel>
+        <p:panel style="text-align:center; padding:5px; height:280px;" header="#{msg['digitalbooking.home.topWeekTitle']}">
+          <p:dataTable id="topWeekTable" var="topWeek" value="#{homeBean.topWeekTOs}" rowKey="#{topWeek.idEventMovie}"
+            widgetVar="topWeekTable" scrollable="true" scrollHeight="220">
+            <f:facet name="header">
+              <h:panelGroup layout="block" style="width: 100%; text-align: center;" >
+                <p:outputLabel styleClass="ui-panel-title">#{homeBean.currentWeekString}</p:outputLabel>
+              </h:panelGroup>
+            </f:facet>
+            <p:column headerText="#{msg['digitalbooking.home.movieHeaderTable']}" width="71%">#{topWeek.event.dsEventName}</p:column>
+            <p:column headerText="#{msg['digitalbooking.home.incomeHeaderTable']}" style="min-width:18%; white-space:nowrap;">
+              <h:outputText value="#{topWeek.income}">
+                <f:convertNumber pattern="$ ###,###,##0.00" />
+              </h:outputText>
+            </p:column>
+            <p:column headerText="#{msg['digitalbooking.home.attendanceHeaderTable']}" width="11%">
+              <h:outputText value="#{topWeek.tickets}">
+                <f:convertNumber pattern="###,###,##0" />
+              </h:outputText>
+            </p:column>
+          </p:dataTable>
+        </p:panel>
+        <p:panel style="text-align:center; padding:5px; height:280px;" header="#{msg['digitalbooking.home.myTheatersTitle']}"
+          widgetVar="myTheatersPanel">
+          <p:dataTable id="myTheatersTable" var="theater" value="#{homeBean.theaterTOs}" rowKey="#{theater.id}"
+            widgetVar="myTheatersTable" scrollable="true" scrollHeight="190">
+            <p:column headerText="#{msg['digitalbooking.home.regionHeaderTable']}" width="30%">#{theater.region.catalogRegion.name}</p:column>
+            <p:column headerText="#{msg['digitalbooking.home.cityHeaderTable']}" width="30%"> #{theater.city.name}</p:column>
+            <p:column headerText="#{msg['digitalbooking.home.theaterHeaderTable']}" width="40%"> #{theater.name}</p:column>
+          </p:dataTable>
+        </p:panel>
+        <p:panel style="text-align:center; padding:5px; height:280px;" header="#{msg['digitalbooking.home.newsFeedTitle']}"
+          widgetVar="myNewsFeedPanel">
+          <p:dataTable id="newsFeedTable" var="newsFeed" value="#{homeBean.newsFeedTOs}" rowKey="#{newsFeed.idNewsFeed}"
+            widgetVar="newsFeedTable" scrollable="true" scrollHeight="190" selectionMode="single"
+            selection="#{homeBean.newsFeedTO}">
+            <p:ajax event="rowSelect" update=":editNewsFeedForm:editNewsFeedPanel" listener="#{homeBean.checkOwner}" />
+            <p:ajax event="rowUnselect" update=":editNewsFeedForm:editNewsFeedPanel" />
+            <p:ajax event="rowDblselect" update=":editNewsFeedForm:editNewsFeedPanel" listener="#{homeBean.checkOwner}"
+              oncomplete="editNewsFeed.show()" />
+            <f:facet name="header">
+              <p:commandButton value="#{msg['digitalbooking.home.createFeedBtnText']}" onclick="PF('addNewsFeed').show()" />
+              <p:commandButton value="#{msg['digitalbooking.home.editFeedBtnText']}" action="#{homeBean.validateSelection}"
+                oncomplete="if(!args.fail){PF('editNewsFeed').show()}" />
+              <p:commandButton value="#{msg['digitalbooking.home.deleteFeedBtnText']}" action="#{homeBean.validateSelection}"
+                oncomplete="if(!args.fail){PF('confirmDelete').show()}" />
+            </f:facet>
+            <p:column headerText="#{msg['digitalbooking.home.addnewsfeed.userInputText']}" width="30%">#{newsFeed.personTO.fullName}</p:column>
+            <p:column headerText="#{msg['digitalbooking.home.addnewsfeed.commentInputText']}" width="70%">#{newsFeed.observation}</p:column>
+          </p:dataTable>
+        </p:panel>
+      </h:panelGrid>
+    </h:form>
+    <h:form id="addNewsFeedForm">
+      <p:dialog id="addNewsFeedDialog" header="#{msg['digitalbooking.home.createFeedBtnTitle']}" modal="true"
+        widgetVar="addNewsFeed" width="500" resizable="false">
+        <p:ajax event="close" listener="#{homeBean.newsFeedHandleClose}" update="addNewsFeedPanelGrid" />
+        <p:panel id="addNewsFeedPanel" style="display:block;" styleClass="components-dialog">
+          <p:focus for="saveBtn"></p:focus>
+          <p:messages autoUpdate="true" closable="true" />
+          <h:outputText value="#{homeBean.fullNameUser}" />
+          <h:panelGrid id="addNewsFeedPanelGrid" columns="2" styleClass="components-dialog">
+            <p:outputLabel for="startDate" style="color:#000000;"
+              value="#{msg['digitalbooking.home.addnewsfeed.startDateInputText']}" />
+            <p:calendar id="startDate" value="#{homeBean.newStartDate}" required="true"
+              label="#{msg['digitalbooking.home.addnewsfeed.startDateInputText']}" pattern="dd-MM-yyyy" showOn="button"
+              mindate="homeBean.current" />
+            <p:outputLabel for="endDate" style="color:#000000;" value="#{msg['digitalbooking.home.addnewsfeed.endDateInputText']}" />
+            <p:calendar id="endDate" value="#{homeBean.newEndDate}" required="true"
+              label="#{msg['digitalbooking.home.addnewsfeed.endDateInputText']}" pattern="dd-MM-yyyy" showOn="button"
+              mindate="homeBean.current" />
+            <p:outputLabel for="commentIntput" style="color:#000000;"
+              value="#{msg['digitalbooking.home.addnewsfeed.commentInputText']}" />
+            <p:inputTextarea id="commentIntput" value="#{homeBean.newComment}" required="true" style="width:99%;resize: none;"
+              autoResize="false" maxlength="10000" label="#{msg['digitalbooking.home.addnewsfeed.commentInputText']}" />
+          </h:panelGrid>
+          <p:commandButton id="closeBtn" value="#{msg['digitalbooking.common.closeBtnText']}" onclick="PF('addNewsFeed').hide()"
+            style="float: right" process="@this">
+            <p:ajax update="addNewsFeedPanelGrid" resetValues="true" immediate="true" />
+            <p:resetInput target="addNewsFeedPanelGrid" />
+          </p:commandButton>
+          <cdb:commandButton id="saveBtn" value="#{msg['digitalbooking.common.saveBtnText']}" action="#{homeBean.saveNewsFeed}"
+            style="float: right" oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) { addNewsFeed.hide(); }"
+            update="addNewsFeedPanelGrid, addNewsFeedPanel, :mainForm:newsFeedTable">
+            <cdb:success />
+          </cdb:commandButton>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+    <h:form id="editNewsFeedForm">
+      <p:dialog id="editNewsFeedDialog" header="#{msg['digitalbooking.home.editFeedBtnTitle']}" modal="true"
+        widgetVar="editNewsFeed" width="500" resizable="false">
+        <p:panel id="editNewsFeedPanel" style="display:block;" styleClass="components-dialog">
+          <p:messages autoUpdate="true" closable="true" />
+          <h:outputText value="#{homeBean.newsFeedTO.personTO.fullName}" />
+          <h:panelGrid id="editNewsFeedPanelGrid" columns="2" styleClass="components-dialog">
+            <p:outputLabel for="startDate" style="color:#000000;"
+              value="#{msg['digitalbooking.home.addnewsfeed.startDateInputText']}" />
+            <p:calendar id="startDate" value="#{homeBean.newsFeedTO.start}" required="true"
+              label="#{msg['digitalbooking.home.addnewsfeed.startDateInputText']}" pattern="dd-MM-yyyy" showOn="button"
+              mindate="homeBean.current" />
+            <p:outputLabel for="endDate" style="color:#000000;" value="#{msg['digitalbooking.home.addnewsfeed.endDateInputText']}" />
+            <p:calendar id="endDate" value="#{homeBean.newsFeedTO.end}" required="true"
+              label="#{msg['digitalbooking.home.addnewsfeed.endDateInputText']}" pattern="dd-MM-yyyy" showOn="button"
+              mindate="homeBean.current" />
+            <p:outputLabel for="commentIntput" style="color:#000000;"
+              value="#{msg['digitalbooking.home.addnewsfeed.commentInputText']}" />
+            <p:inputTextarea id="commentIntput" value="#{homeBean.newsFeedTO.observation}" required="true"
+              style="width:294px;resize: none;" autoResize="false" maxlength="10000"
+              label="#{msg['digitalbooking.home.addnewsfeed.commentInputText']}" />
+          </h:panelGrid>
+          <p:commandButton id="closeBtn" value="#{msg['digitalbooking.common.closeBtnText']}"
+            oncomplete="PF('editNewsFeed').hide()" style="float: right">
+            <p:ajax update="editNewsFeedPanel" resetValues="true" />
+          </p:commandButton>
+          <cdb:commandButton id="saveBtn" value="#{msg['digitalbooking.common.saveBtnText']}" rendered="#{homeBean.messageOwner}"
+            action="#{homeBean.updateNewsFeed}" style="float: right"
+            oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) { editNewsFeed.hide(); }"
+            update="editNewsFeedPanel, :mainForm:newsFeedTable">
+            <cdb:success />
+          </cdb:commandButton>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+    <h:form id="confirmDialogForm">
+      <p:confirmDialog id="confirmDialog" message="#{msg['digitalbooking.common.removeMsgConfirmationText']}"
+        header="#{msg['digitalbooking.common.removeRecordTitle']}" severity="alert" widgetVar="confirmDelete" modal="true">
+        <cdb:commandButton id="deleteOkBtn" value="#{msg['digitalbooking.common.yesBtnText']}" action="#{homeBean.deleteNewsFeed}"
+          update=":mainForm:newsFeedTable" oncomplete="confirmDelete.hide();">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmDelete.hide();" type="button" />
+      </p:confirmDialog>
+    </h:form>
+
+
+  </ui:define>
+</ui:composition>

@@ -1,0 +1,908 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/window_template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:cdb="http://cinepolis/digital-booking/custom-tags"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+	<ui:define name="content_title">#{msg['digitalbooking.income.content.title']}</ui:define>
+	<ui:define name="content">
+
+		<cdb:waitingDialog
+			components=":incomeForm:displayScreenBtn, :incomeForm:hideScreenBtn, :incomeForm:displayShowBtn, :incomeForm:hideShowBtn, :incomeForm:displayIncomeBtn, :incomeForm:hideIncomeBtn, :incomeForm:displaySemaphoresBtn, :incomeForm:hideSemaphoresBtn, :incomeForm:displayWeekendBtn, :incomeForm:displayWeekBtn, :incomeForm:displayScreenBtn2, :incomeForm:hideScreenBtn2, :incomeForm:displayShowBtn2, :incomeForm:hideShowBtn2, :incomeForm:displayIncomeBtn2, :incomeForm:hideIncomeBtn2, :incomeForm:displaySemaphoresBtn2, :incomeForm:hideSemaphoresBtn2, :incomeForm:displayWeekendBtn2, :incomeForm:displayWeekBtn" />
+
+
+		<h:form id="incomeForm">
+
+			<p:tabView>
+				<p:tab title="#{msg['digitalbooking.income.tab.movie.title']}">
+					<p:panel style="text-align:center; padding:5px; height:280px;"
+						header="#{msg['digitalbooking.income.theater.label']} #{incomeBean.incomesByMovie.data.booking.theater.name}     #{msg['digitalbooking.income.week.label']} #{incomeBean.strWeek}">
+
+						<p:dataTable id="incomeTable" widgetVar="incomeTable"
+							value="#{incomeBean.incomeTableByMovie}" var="income"
+							sortBy="weekendTickets" sortFunction="#{incomeBean.dummySort}"
+							scrollable="false" scrollHeight="500" style="height: 90%;">
+							<p:ajax event="sort" listener="#{incomeBean.sortByMovie}"
+								update="incomeTable" immediate="true" onstart="start()"
+								oncomplete="stop()" />
+
+
+							<f:facet name="header">
+
+								<p:outputLabel
+									value="#{msg['digitalbooking.income.totals.totalAdmission']}" />
+								<h:outputText value="#{incomeBean.totWeekendAdmission}"
+									style="font-weight:bold;width:20%"
+									rendered="#{incomeBean.displayWeekend}">
+									
+								</h:outputText>
+								<h:outputText value="#{incomeBean.totWeekAdmission}"
+									style="font-weight:bold;width:20%"
+									rendered="#{!incomeBean.displayWeekend}">
+									
+								</h:outputText>
+
+								<p:spacer height="1" width="20"></p:spacer>
+								<p:outputLabel
+									value="#{msg['digitalbooking.income.totals.totalShows']}" />
+								<h:outputText value="#{incomeBean.totWeekendShows}"
+									style="font-weight:bold;width:20%"
+									rendered="#{incomeBean.displayWeekend}">
+									
+								</h:outputText>
+								<h:outputText value="#{incomeBean.totWeekShows}"
+									style="font-weight:bold;width:20%"
+									rendered="#{!incomeBean.displayWeekend}">
+									
+								</h:outputText>
+
+								<p:spacer height="1" width="20"></p:spacer>
+								<p:outputLabel
+									value="#{msg['digitalbooking.income.totals.totalAdmPerShows']}" />
+								<h:outputText
+									value=" #{incomeBean.totWeekendAdmissionPerShows}"
+									style="font-weight:bold;width:20%"
+									rendered="#{incomeBean.displayWeekend}">
+								</h:outputText>
+								<h:outputText
+									value="#{incomeBean.totWeekAdmissionPerShows}"
+									style="font-weight:bold;width:20%"
+									rendered="#{!incomeBean.displayWeekend}">
+								</h:outputText>
+
+								<p:spacer height="1" width="20"></p:spacer>
+								<p:outputLabel
+									value="#{msg['digitalbooking.income.totals.totalScreenOccupancy']}" />
+								<h:outputText
+									value=" #{incomeBean.totWeekendScreenOccupancy}"
+									style="font-weight:bold;width:20%"
+									rendered="#{incomeBean.displayWeekend}">
+								</h:outputText>
+								<h:outputText
+									value="#{incomeBean.totWeekScreenOccupancy}"
+									style="font-weight:bold;width:20%"
+									rendered="#{!incomeBean.displayWeekend}">
+								</h:outputText>
+
+								<p:spacer height="1" width="20"></p:spacer>
+								<p:outputLabel
+									value="#{msg['digitalbooking.income.totals.totalChgPrewWeek']}" />
+								<h:outputText value="#{incomeBean.totWeekendChgPrewWeek}"
+									style="font-weight:bold;width:20%"
+									rendered="#{incomeBean.displayWeekend}">
+								</h:outputText>
+								<h:outputText value="#{incomeBean.totWeekChgPrewWeek}"
+									style="font-weight:bold;width:20%"
+									rendered="#{!incomeBean.displayWeekend}">
+								</h:outputText>
+
+								<p:spacer height="1" width="20"></p:spacer>
+								<p:outputLabel
+									value="#{msg['digitalbooking.income.totals.totalGross']}" />
+								<h:outputText value=" #{incomeBean.totWeekendGross}"
+									style="font-weight:bold;width:20%"
+									rendered="#{incomeBean.displayWeekend}">
+								</h:outputText>
+								<h:outputText value="#{incomeBean.totWeekGross}"
+									style="font-weight:bold;width:20%"
+									rendered="#{!incomeBean.displayWeekend}">
+								</h:outputText>
+
+							</f:facet>
+
+							<p:column id="sortByMovie"
+								headerText="#{msg['digitalbooking.income.incomeTable.movie.header']}"
+								style="width:20%;" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<p:spacer height="1" width="0"
+									rendered="#{income.movie &amp;&amp; !incomeBean.displayScreen}"
+									styleClass="ui-icon ui-icon-carat-1-e"
+									style="background-image: url('/digital-booking-web/javax.faces.resource/images/ui-icons_056b93_256x240.png.do?ln=primefaces-cinepolis-theme'); display: inline-block;" />
+
+								<p:spacer height="1" width="0"
+									rendered="#{income.movie &amp;&amp; incomeBean.displayScreen}"
+									styleClass="ui-icon ui-icon-carat-1-s"
+									style="background-image: url('/digital-booking-web/javax.faces.resource/images/ui-icons_056b93_256x240.png.do?ln=primefaces-cinepolis-theme'); display: inline-block;" />
+
+								<p:spacer height="1" width="30" rendered="#{income.screen}" />
+								<p:spacer height="1" width="0"
+									rendered="#{income.screen &amp;&amp; !incomeBean.displayShow}"
+									styleClass="ui-icon ui-icon-carat-1-e"
+									style="background-image: url('/digital-booking-web/javax.faces.resource/images/ui-icons_056b93_256x240.png.do?ln=primefaces-cinepolis-theme'); display: inline-block;" />
+
+								<p:spacer height="1" width="0"
+									rendered="#{income.screen &amp;&amp; incomeBean.displayShow}"
+									styleClass="ui-icon ui-icon-carat-1-s"
+									style="background-image: url('/digital-booking-web/javax.faces.resource/images/ui-icons_056b93_256x240.png.do?ln=primefaces-cinepolis-theme'); display: inline-block;" />
+
+								<p:spacer height="1" width="60" rendered="#{income.show}" />
+								<p:spacer height="1" width="0" rendered="#{income.show}"
+									styleClass="ui-icon ui-icon-carat-1-e"
+									style="background-image: url('/digital-booking-web/javax.faces.resource/images/ui-icons_056b93_256x240.png.do?ln=primefaces-cinepolis-theme'); display: inline-block;" />
+
+
+								<h:outputText value="#{income.name}" />
+							</p:column>
+
+							<p:column id="sortByWeek2"
+								headerText="#{msg['digitalbooking.income.incomeTable.screens.header']}"
+								style="text-align:center;" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.booking.screen.nuScreen}" />
+							</p:column>
+
+							<p:column id="sortByWeek"
+								headerText="#{msg['digitalbooking.income.incomeTable.week.header']}"
+								style="text-align:center;" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.booking.exhibitionWeek}" />
+							</p:column>
+
+							<p:column id="sortByAttendants"
+								headerText="#{msg['digitalbooking.income.incomeTable.attendants.header']}"
+								style="text-align:center;"
+								rendered="#{incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekendTickets}">
+									<f:convertNumber pattern="###,##0" />
+								</h:outputText>
+							</p:column>
+							<p:column id="sortByAttendants1"
+								headerText="#{msg['digitalbooking.income.incomeTable.attendants.header']}"
+								style="text-align:center;"
+								rendered="#{!incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekTickets}">
+									<f:convertNumber pattern="###,##0" />
+								</h:outputText>
+							</p:column>
+
+							<p:column id="sortByShows"
+								headerText="#{msg['digitalbooking.income.incomeTable.shows.header']}"
+								style="text-align:center;"
+								rendered="#{incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekendQuantityShows}" />
+							</p:column>
+							<p:column id="sortByShows1"
+								headerText="#{msg['digitalbooking.income.incomeTable.shows.header']}"
+								style="text-align:center;"
+								rendered="#{!incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekQuantityShows}" />
+							</p:column>
+
+							<p:column id="sortByIncomes"
+								headerText="#{msg['digitalbooking.income.incomeTable.incomes.header']}"
+								style="text-align:center;"
+								rendered="#{incomeBean.displayIncome &amp;&amp; incomeBean.displayWeekend}"
+								sortBy="name" sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekendIncome}">
+									<f:convertNumber pattern="$###,###,##0.00" locale="es_MX" />
+								</h:outputText>
+							</p:column>
+							<p:column id="sortByIncomes1"
+								headerText="#{msg['digitalbooking.income.incomeTable.incomes.header']}"
+								style="text-align:center;"
+								rendered="#{incomeBean.displayIncome &amp;&amp; !incomeBean.displayWeekend}"
+								sortBy="name" sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekIncome}">
+									<f:convertNumber pattern="$###,###,##0.00" locale="es_MX" />
+								</h:outputText>
+							</p:column>
+
+							<p:column id="sortByAttPerShow"
+								headerText="#{msg['digitalbooking.income.incomeTable.attendancePerShow.header']}"
+								style="text-align:center;"
+								rendered="#{incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekendAttendace}">
+									<f:convertNumber pattern="###,##0.00" />
+								</h:outputText>
+							</p:column>
+							<p:column id="sortByAttPerShow1"
+								headerText="#{msg['digitalbooking.income.incomeTable.attendancePerShow.header']}"
+								style="text-align:center;"
+								rendered="#{!incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekAttendace}">
+									<f:convertNumber pattern="###,##0.00" />
+								</h:outputText>
+							</p:column>
+
+							<p:column id="sortByOccupancy"
+								headerText="#{msg['digitalbooking.income.incomeTable.occupancy.header']}"
+								style="text-align:center;"
+								rendered="#{incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekendOccupancy}">
+									<f:convertNumber pattern="##0.00 %" />
+								</h:outputText>
+							</p:column>
+							<p:column id="sortByOccupancy1"
+								headerText="#{msg['digitalbooking.income.incomeTable.occupancy.header']}"
+								style="text-align:center;"
+								rendered="#{!incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekOccupancy}">
+									<f:convertNumber pattern="##0.00 %" />
+								</h:outputText>
+							</p:column>
+							<p:column style="width:30px;text-align:center;"
+								rendered="#{incomeBean.displaySemaphores}">
+								<p:graphicImage
+									style="top: 4px; padding-left: 8px; position: relative;"
+									value="/images/#{income.weekendSemaphoreOccupancy}.png"
+									rendered="#{incomeBean.displayWeekend}" />
+								<p:graphicImage
+									style="top: 4px; padding-left: 8px; position: relative;"
+									value="/images/#{income.weekSemaphoreOccupancy}.png"
+									rendered="#{!incomeBean.displayWeekend}" />
+							</p:column>
+
+							<p:column id="sortByVariation"
+								headerText="#{msg['digitalbooking.income.incomeTable.weeklyVariation.header']}"
+								style="text-align:center;"
+								rendered="#{incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekendVariation}"
+									rendered="#{income.movie}">
+									<f:convertNumber pattern="##0.00 %" />
+								</h:outputText>
+								<p:outputLabel value="--" rendered="#{!income.movie}"
+									style="color:#000000;" />
+							</p:column>
+							<p:column id="sortByVariation1"
+								headerText="#{msg['digitalbooking.income.incomeTable.weeklyVariation.header']}"
+								style="text-align:center;width:120px;"
+								rendered="#{!incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekVariation}"
+									rendered="#{income.movie}">
+									<f:convertNumber pattern="##0.00 %" />
+								</h:outputText>
+								<p:outputLabel value="--" rendered="#{!income.movie}"
+									style="color:#000000;" />
+							</p:column>
+							<p:column style="width:30px;text-align:center;"
+								rendered="#{incomeBean.displaySemaphores}">
+								<p:graphicImage
+									style="top: 4px; padding-left: 8px; position: relative;"
+									value="/images/#{income.weekendSemaphoreVariation}.png"
+									rendered="#{income.movie &amp;&amp; incomeBean.displayWeekend}" />
+								<p:graphicImage
+									style="top: 4px; padding-left: 8px; position: relative;"
+									value="/images/#{income.weekSemaphoreVariation}.png"
+									rendered="#{income.movie &amp;&amp; !incomeBean.displayWeekend}" />
+								<p:outputLabel value="--" rendered="#{!income.movie}"
+									style="color:#000000;" />
+							</p:column>
+							<f:facet name="footer">
+
+								<p:panelGrid style="width:100%;" styleClass="borderless">
+									<p:row>
+										<p:column style="text-align:left;width:45%;border:none;">
+
+											<p:panelGrid id="filtersheader1"
+												style="width:100%;border-style:none;margin-top:20px;"
+												styleClass="borderless">
+												<f:facet name="header">
+													<p:row>
+														<p:column style="text-align: center;">
+															<p:outputLabel
+																value="#{msg['digitalbooking.income.incomeTable.detailedData.legend']}" />
+														</p:column>
+													</p:row>
+												</f:facet>
+											</p:panelGrid>
+											<p:fieldset>
+
+												<h:panelGroup style="width:100%;" styleClass="borderless">
+
+													<cdb:commandButton id="displayScreenBtn"
+														value="#{msg['digitalbooking.income.incomeTable.displayScreen.label']}"
+														actionListener="#{incomeBean.toogleDisplayScreen}"
+														rendered="#{!incomeBean.displayScreen}"
+														update="incomeTable" icon="ui-icon-circle-check"
+														style="width:136px; margin-top: 5px;" />
+													<cdb:commandButton id="hideScreenBtn"
+														value="#{msg['digitalbooking.income.incomeTable.hideScreen.label']}"
+														actionListener="#{incomeBean.toogleDisplayScreen}"
+														rendered="#{incomeBean.displayScreen}"
+														update="incomeTable" icon="ui-icon-circle-close"
+														style="width:136px; margin-top: 5px;" />
+
+													<cdb:commandButton id="displayIncomeBtn"
+														value="#{msg['digitalbooking.income.incomeTable.displayIncome.label']}"
+														actionListener="#{incomeBean.toogleDisplayIncome}"
+														rendered="#{!incomeBean.displayIncome}"
+														update="incomeTable" icon="ui-icon-circle-check"
+														style="width:136px; margin-top: 5px;" />
+													<cdb:commandButton id="hideIncomeBtn"
+														value="#{msg['digitalbooking.income.incomeTable.hideIncome.label']}"
+														actionListener="#{incomeBean.toogleDisplayIncome}"
+														rendered="#{incomeBean.displayIncome}"
+														update="incomeTable" icon="ui-icon-circle-close"
+														style="width:136px; margin-top: 5px;" />
+
+													<cdb:commandButton id="displaySemaphoresBtn"
+														value="#{msg['digitalbooking.income.incomeTable.displaySemaphores.label']}"
+														actionListener="#{incomeBean.toogleDisplaySemaphores}"
+														rendered="#{!incomeBean.displaySemaphores}"
+														update="incomeTable" icon="ui-icon-circle-check"
+														style="width:138px; margin-top: 5px;" />
+													<cdb:commandButton id="hideSemaphoresBtn"
+														value="#{msg['digitalbooking.income.incomeTable.hideSemaphores.label']}"
+														actionListener="#{incomeBean.toogleDisplaySemaphores}"
+														rendered="#{incomeBean.displaySemaphores}"
+														update="incomeTable" icon="ui-icon-circle-close"
+														style="width:138px; margin-top: 5px;" />
+
+													<cdb:commandButton id="displayShowBtn"
+														value="#{msg['digitalbooking.income.incomeTable.displayShow.label']}"
+														actionListener="#{incomeBean.toogleDisplayShow}"
+														disabled="#{!incomeBean.displayScreen}"
+														rendered="#{!incomeBean.displayShow}" update="incomeTable"
+														icon="ui-icon-circle-check"
+														style="width:136px; margin-top: 5px;" />
+													<cdb:commandButton id="hideShowBtn"
+														value="#{msg['digitalbooking.income.incomeTable.hideShow.label']}"
+														actionListener="#{incomeBean.toogleDisplayShow}"
+														disabled="#{!incomeBean.displayScreen}"
+														rendered="#{incomeBean.displayShow}" update="incomeTable"
+														icon="ui-icon-circle-close"
+														style="width:136px; margin-top: 5px;" />
+
+												</h:panelGroup>
+
+											</p:fieldset>
+
+										</p:column>
+
+										<p:column></p:column>
+
+										<p:column style="width:20%;border:none;">
+											<p:panelGrid id="displayheader1"
+												style="width:100%;border-style:none;margin-top:20px;"
+												styleClass="borderless">
+												<f:facet name="header">
+													<p:row>
+														<p:column style="text-align: center;">
+															<p:outputLabel
+																value="#{msg['digitalbooking.income.incomeTable.showData.legend']}" />
+														</p:column>
+													</p:row>
+												</f:facet>
+											</p:panelGrid>
+											<p:fieldset>
+												<p:panelGrid style="width:100%;" styleClass="borderless">
+													<p:row>
+														<p:column>
+															<cdb:commandButton id="displayWeekendBtn"
+																value="#{msg['digitalbooking.income.incomeTable.displayWeekend.label']}"
+																actionListener="#{incomeBean.toogleDisplayWeekend}"
+																disabled="#{incomeBean.displayWeekend}"
+																update="incomeTable" icon="ui-icon-circle-check" />
+														</p:column>
+													</p:row>
+													<p:row>
+														<p:column>
+															<cdb:commandButton id="displayWeekBtn"
+																value="#{msg['digitalbooking.income.incomeTable.hideWeekend.label']}"
+																actionListener="#{incomeBean.toogleDisplayWeekend}"
+																disabled="#{!incomeBean.displayWeekend}"
+																update="incomeTable" icon="ui-icon-circle-check" />
+														</p:column>
+													</p:row>
+												</p:panelGrid>
+
+											</p:fieldset>
+
+
+										</p:column>
+									</p:row>
+
+									<p:row>
+										<p:column colspan="3" style="text-align:right;">
+											<p:commandButton
+												value="#{msg['digitalbooking.income.incomeTable.relaunch.text']}"
+												icon="ui-icon-shuffle"
+												actionListener="#{incomeBean.synchronizeIncomes}"
+												onstart="start()" oncomplete="stop()" update="incomeTable" />
+											<p:commandButton
+												value="#{msg['digitalbooking.common.closeBtnText']}"
+												onclick="closeWindow()" />
+										</p:column>
+									</p:row>
+
+								</p:panelGrid>
+
+
+							</f:facet>
+
+						</p:dataTable>
+					</p:panel>
+				</p:tab>
+
+				<!-- Tab de Salas -->
+				<p:tab title="#{msg['digitalbooking.income.tab.screen.title']}">
+					<p:panel style="text-align:center; padding:5px; height:280px;"
+						header="#{msg['digitalbooking.income.theater.label']} #{incomeBean.incomesByMovie.data.booking.theater.name}     #{msg['digitalbooking.income.week.label']} #{incomeBean.strWeek}">
+						<p:dataTable id="incomeTable2"
+							value="#{incomeBean.incomeTableByScreen}" var="income"
+							sortBy="weekendTickets" sortFunction="#{incomeBean.dummySort}"
+							scrollable="false" scrollHeight="500" style="height: 90%;">
+							<p:ajax event="sort" listener="#{incomeBean.sortByScreen}"
+								update="incomeTable2" immediate="true" onstart="start()"
+								oncomplete="stop()" />
+
+							<f:facet name="header">
+								<p:outputLabel
+									value="#{msg['digitalbooking.income.totals.totalAdmission']}" />
+								<h:outputText value="#{incomeBean.totWeekendAdmission}"
+									style="font-weight:bold;width:20%"
+									rendered="#{incomeBean.displayWeekend}">
+									
+								</h:outputText>
+								<h:outputText value="#{incomeBean.totWeekAdmission}"
+									style="font-weight:bold;width:20%"
+									rendered="#{!incomeBean.displayWeekend}">
+									
+								</h:outputText>
+
+								<p:spacer height="1" width="20"></p:spacer>
+								<p:outputLabel
+									value="#{msg['digitalbooking.income.totals.totalShows']}" />
+								<h:outputText value="#{incomeBean.totWeekendShows}"
+									style="font-weight:bold;width:20%"
+									rendered="#{incomeBean.displayWeekend}">
+									
+								</h:outputText>
+								<h:outputText value="#{incomeBean.totWeekShows}"
+									style="font-weight:bold;width:20%"
+									rendered="#{!incomeBean.displayWeekend}">
+									
+								</h:outputText>
+
+								<p:spacer height="1" width="20"></p:spacer>
+								<p:outputLabel
+									value="#{msg['digitalbooking.income.totals.totalAdmPerShows']}" />
+								<h:outputText
+									value=" #{incomeBean.totWeekendAdmissionPerShows}"
+									style="font-weight:bold;width:20%"
+									rendered="#{incomeBean.displayWeekend}">
+								</h:outputText>
+								<h:outputText
+									value="#{incomeBean.totWeekAdmissionPerShows}"
+									style="font-weight:bold;width:20%"
+									rendered="#{!incomeBean.displayWeekend}">
+								</h:outputText>
+
+								<p:spacer height="1" width="20"></p:spacer>
+								<p:outputLabel
+									value="#{msg['digitalbooking.income.totals.totalScreenOccupancy']}" />
+								<h:outputText
+									value=" #{incomeBean.totWeekendScreenOccupancy}"
+									style="font-weight:bold;width:20%"
+									rendered="#{incomeBean.displayWeekend}">
+								</h:outputText>
+								<h:outputText
+									value="#{incomeBean.totWeekScreenOccupancy}"
+									style="font-weight:bold;width:20%"
+									rendered="#{!incomeBean.displayWeekend}">
+								</h:outputText>
+
+								<p:spacer height="1" width="20"></p:spacer>
+								<p:outputLabel
+									value="#{msg['digitalbooking.income.totals.totalChgPrewWeek']}" />
+								<h:outputText value="#{incomeBean.totWeekendChgPrewWeek}"
+									style="font-weight:bold;width:20%"
+									rendered="#{incomeBean.displayWeekend}">
+								</h:outputText>
+								<h:outputText value="#{incomeBean.totWeekChgPrewWeek}"
+									style="font-weight:bold;width:20%"
+									rendered="#{!incomeBean.displayWeekend}">
+								</h:outputText>
+
+								<p:spacer height="1" width="20"></p:spacer>
+								<p:outputLabel
+									value="#{msg['digitalbooking.income.totals.totalGross']}" />
+								<h:outputText value=" #{incomeBean.totWeekendGross}"
+									style="font-weight:bold;width:20%"
+									rendered="#{incomeBean.displayWeekend}">
+								</h:outputText>
+								<h:outputText value="#{incomeBean.totWeekGross}"
+									style="font-weight:bold;width:20%"
+									rendered="#{!incomeBean.displayWeekend}">
+								</h:outputText>
+
+							</f:facet>
+
+							<p:column id="sortByMovie2"
+								headerText="#{msg['digitalbooking.income.incomeTable.movie.header']}"
+								style="width:20%;" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<p:spacer height="1" width="0"
+									rendered="#{income.screen &amp;&amp; !incomeBean.displayMovie}"
+									styleClass="ui-icon ui-icon-carat-1-e"
+									style="background-image: url('/digital-booking-web/javax.faces.resource/images/ui-icons_056b93_256x240.png.do?ln=primefaces-cinepolis-theme'); display: inline-block;" />
+
+								<p:spacer height="1" width="0"
+									rendered="#{income.screen &amp;&amp; incomeBean.displayMovie}"
+									styleClass="ui-icon ui-icon-carat-1-s"
+									style="background-image: url('/digital-booking-web/javax.faces.resource/images/ui-icons_056b93_256x240.png.do?ln=primefaces-cinepolis-theme'); display: inline-block;" />
+
+								<p:spacer height="1" width="30" rendered="#{income.movie}" />
+								<p:spacer height="1" width="0"
+									rendered="#{income.movie &amp;&amp; !incomeBean.displayShow}"
+									styleClass="ui-icon ui-icon-carat-1-e"
+									style="background-image: url('/digital-booking-web/javax.faces.resource/images/ui-icons_056b93_256x240.png.do?ln=primefaces-cinepolis-theme'); display: inline-block;" />
+
+								<p:spacer height="1" width="0"
+									rendered="#{income.movie &amp;&amp; incomeBean.displayShow}"
+									styleClass="ui-icon ui-icon-carat-1-s"
+									style="background-image: url('/digital-booking-web/javax.faces.resource/images/ui-icons_056b93_256x240.png.do?ln=primefaces-cinepolis-theme'); display: inline-block;" />
+
+								<p:spacer height="1" width="60" rendered="#{income.show}" />
+								<p:spacer height="1" width="0" rendered="#{income.show}"
+									styleClass="ui-icon ui-icon-carat-1-e"
+									style="background-image: url('/digital-booking-web/javax.faces.resource/images/ui-icons_056b93_256x240.png.do?ln=primefaces-cinepolis-theme'); display: inline-block;" />
+
+
+								<h:outputText value="#{income.name}" />
+							</p:column>
+
+							<p:column id="sortByWeek21"
+								headerText="#{msg['digitalbooking.income.incomeTable.screens.header']}"
+								style="text-align:center;" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.booking.screen.nuScreen}" />
+							</p:column>
+
+							<p:column id="sortByWeek2"
+								headerText="#{msg['digitalbooking.income.incomeTable.week.header']}"
+								style="text-align:center;" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.booking.exhibitionWeek}" />
+							</p:column>
+
+							<p:column id="sortByAttendants2"
+								headerText="#{msg['digitalbooking.income.incomeTable.attendants.header']}"
+								style="text-align:center;"
+								rendered="#{incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekendTickets}">
+									<f:convertNumber pattern="###,##0" />
+								</h:outputText>
+							</p:column>
+							<p:column id="sortByAttendants3"
+								headerText="#{msg['digitalbooking.income.incomeTable.attendants.header']}"
+								style="text-align:center;"
+								rendered="#{!incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekTickets}">
+									<f:convertNumber pattern="###,##0" />
+								</h:outputText>
+							</p:column>
+
+							<p:column id="sortByShows2"
+								headerText="#{msg['digitalbooking.income.incomeTable.shows.header']}"
+								style="text-align:center;"
+								rendered="#{incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekendQuantityShows}" />
+							</p:column>
+							<p:column id="sortByShows3"
+								headerText="#{msg['digitalbooking.income.incomeTable.shows.header']}"
+								style="text-align:center;"
+								rendered="#{!incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekQuantityShows}" />
+							</p:column>
+
+							<p:column id="sortByIncomes2"
+								headerText="#{msg['digitalbooking.income.incomeTable.incomes.header']}"
+								style="text-align:center;"
+								rendered="#{incomeBean.displayIncome &amp;&amp; incomeBean.displayWeekend}"
+								sortBy="name" sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekendIncome}">
+									<f:convertNumber pattern="$###,###,##0.00" locale="es_MX" />
+								</h:outputText>
+							</p:column>
+							<p:column id="sortByIncomes3"
+								headerText="#{msg['digitalbooking.income.incomeTable.incomes.header']}"
+								style="text-align:center;"
+								rendered="#{incomeBean.displayIncome &amp;&amp; !incomeBean.displayWeekend}"
+								sortBy="name" sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekIncome}">
+									<f:convertNumber pattern="$###,###,##0.00" locale="es_MX" />
+								</h:outputText>
+							</p:column>
+
+							<p:column id="sortByAttPerShow2"
+								headerText="#{msg['digitalbooking.income.incomeTable.attendancePerShow.header']}"
+								style="text-align:center;"
+								rendered="#{incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekendAttendace}">
+									<f:convertNumber pattern="###,##0.00" />
+								</h:outputText>
+							</p:column>
+							<p:column id="sortByAttPerShow3"
+								headerText="#{msg['digitalbooking.income.incomeTable.attendancePerShow.header']}"
+								style="text-align:center;"
+								rendered="#{!incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekAttendace}">
+									<f:convertNumber pattern="###,##0.00" />
+								</h:outputText>
+							</p:column>
+
+							<p:column id="sortByOccupancy2"
+								headerText="#{msg['digitalbooking.income.incomeTable.occupancy.header']}"
+								style="text-align:center;"
+								rendered="#{incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekendOccupancy}">
+									<f:convertNumber pattern="##0.00 %" />
+								</h:outputText>
+							</p:column>
+							<p:column id="sortByOccupancy3"
+								headerText="#{msg['digitalbooking.income.incomeTable.occupancy.header']}"
+								style="text-align:center;"
+								rendered="#{!incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekOccupancy}">
+									<f:convertNumber pattern="##0.00 %" />
+								</h:outputText>
+							</p:column>
+							<p:column style="width:30px;text-align:center;"
+								rendered="#{incomeBean.displaySemaphores}">
+								<p:graphicImage
+									style="top: 4px; padding-left: 8px; position: relative;"
+									value="/images/#{income.weekendSemaphoreOccupancy}.png"
+									rendered="#{incomeBean.displayWeekend}" />
+								<p:graphicImage
+									style="top: 4px; padding-left: 8px; position: relative;"
+									value="/images/#{income.weekSemaphoreOccupancy}.png"
+									rendered="#{!incomeBean.displayWeekend}" />
+							</p:column>
+
+							<p:column id="sortByVariation2"
+								headerText="#{msg['digitalbooking.income.incomeTable.weeklyVariation.header']}"
+								style="text-align:center;"
+								rendered="#{incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekendVariation}"
+									rendered="#{income.screen}">
+									<f:convertNumber pattern="##0.00 %" />
+								</h:outputText>
+								<p:outputLabel value="--" rendered="#{!income.screen}"
+									style="color:#000000;" />
+							</p:column>
+							<p:column id="sortByVariation3"
+								headerText="#{msg['digitalbooking.income.incomeTable.weeklyVariation.header']}"
+								style="text-align:center;"
+								rendered="#{!incomeBean.displayWeekend}" sortBy="name"
+								sortFunction="#{incomeBean.dummySort}">
+								<h:outputText value="#{income.weekVariation}"
+									rendered="#{income.screen}">
+									<f:convertNumber pattern="##0.00 %" />
+								</h:outputText>
+								<p:outputLabel value="--" rendered="#{!income.screen}"
+									style="color:#000000;" />
+							</p:column>
+							<p:column style="width:30px;text-align:center;"
+								rendered="#{incomeBean.displaySemaphores}">
+								<p:graphicImage
+									style="top: 4px; padding-left: 8px; position: relative;"
+									value="/images/#{income.weekendSemaphoreVariation}.png"
+									rendered="#{income.screen &amp;&amp; incomeBean.displayWeekend}" />
+								<p:graphicImage
+									style="top: 4px; padding-left: 8px; position: relative;"
+									value="/images/#{income.weekSemaphoreVariation}.png"
+									rendered="#{income.movie &amp;&amp; !incomeBean.displayWeekend}" />
+								<p:outputLabel value="--" rendered="#{!income.screen}"
+									style="color:#000000;" />
+
+							</p:column>
+
+							<f:facet name="footer">
+
+								<p:panelGrid style="width:100%;" styleClass="borderless">
+									<p:row>
+										<p:column style="text-align:left;width:45%;border:none;"
+											styleClass="borderless">
+											<p:panelGrid id="filtersheader2"
+												style="width:100%;border-style:none;margin-top:20px;"
+												styleClass="borderless">
+												<f:facet name="header">
+													<p:row>
+														<p:column style="text-align: center;">
+															<p:outputLabel
+																value="#{msg['digitalbooking.income.incomeTable.detailedData.legend']}" />
+														</p:column>
+													</p:row>
+												</f:facet>
+											</p:panelGrid>
+											<p:fieldset>
+												<p:panelGrid style="width:100%;" styleClass="borderless">
+													<p:row>
+														<p:column>
+															<cdb:commandButton id="displayMovieBtn2"
+																value="#{msg['digitalbooking.income.incomeTable.displayMovie.label']}"
+																actionListener="#{incomeBean.toogleDisplayMovie}"
+																rendered="#{!incomeBean.displayMovie}"
+																update="incomeTable2" icon="ui-icon-circle-check"
+																style="width:136px;" />
+															<cdb:commandButton id="hideMovieBtn2"
+																value="#{msg['digitalbooking.income.incomeTable.hideMovie.label']}"
+																actionListener="#{incomeBean.toogleDisplayMovie}"
+																rendered="#{incomeBean.displayMovie}"
+																update="incomeTable2" icon="ui-icon-circle-close"
+																style="width:136px;" />
+														</p:column>
+														<p:column>
+															<cdb:commandButton id="displaySemaphoresBtn2"
+																value="#{msg['digitalbooking.income.incomeTable.displaySemaphores.label']}"
+																actionListener="#{incomeBean.toogleDisplaySemaphores}"
+																rendered="#{!incomeBean.displaySemaphores}"
+																update="incomeTable2" icon="ui-icon-circle-check"
+																style="width:138px;" />
+															<cdb:commandButton id="hideSemaphoresBtn2"
+																value="#{msg['digitalbooking.income.incomeTable.hideSemaphores.label']}"
+																actionListener="#{incomeBean.toogleDisplaySemaphores}"
+																rendered="#{incomeBean.displaySemaphores}"
+																update="incomeTable2" icon="ui-icon-circle-close"
+																style="width:138px;" />
+
+														</p:column>
+														<p:column>
+
+															<cdb:commandButton id="displayIncomeBtn2"
+																value="#{msg['digitalbooking.income.incomeTable.displayIncome.label']}"
+																actionListener="#{incomeBean.toogleDisplayIncome}"
+																rendered="#{!incomeBean.displayIncome}"
+																update="incomeTable2" icon="ui-icon-circle-check"
+																style="width:136px;" />
+															<cdb:commandButton id="hideIncomeBtn2"
+																value="#{msg['digitalbooking.income.incomeTable.hideIncome.label']}"
+																actionListener="#{incomeBean.toogleDisplayIncome}"
+																rendered="#{incomeBean.displayIncome}"
+																update="incomeTable2" icon="ui-icon-circle-close"
+																style="width:136px;" />
+														</p:column>
+													</p:row>
+													<p:row>
+														<p:column>
+															<cdb:commandButton id="displayShowBtn2"
+																value="#{msg['digitalbooking.income.incomeTable.displayShow.label']}"
+																actionListener="#{incomeBean.toogleDisplayShow2}"
+																disabled="#{!incomeBean.displayMovie}"
+																rendered="#{!incomeBean.displayShow2}"
+																update="incomeTable2" icon="ui-icon-circle-check"
+																style="width:136px;" />
+															<cdb:commandButton id="hideShowBtn2"
+																value="#{msg['digitalbooking.income.incomeTable.hideShow.label']}"
+																actionListener="#{incomeBean.toogleDisplayShow2}"
+																disabled="#{!incomeBean.displayMovie}"
+																rendered="#{incomeBean.displayShow2}"
+																update="incomeTable2" icon="ui-icon-circle-check"
+																style="width:136px;" />
+														</p:column>
+													</p:row>
+												</p:panelGrid>
+											</p:fieldset>
+										</p:column>
+
+										<p:column></p:column>
+
+										<p:column style="text-align:center;width:20%;border:none;">
+
+
+											<p:panelGrid id="displayheader2"
+												style="width:100%;border-style:none;margin-top:20px;"
+												styleClass="borderless">
+												<f:facet name="header">
+													<p:row>
+														<p:column style="text-align: center;">
+															<p:outputLabel
+																value="#{msg['digitalbooking.income.incomeTable.showData.legend']}" />
+														</p:column>
+													</p:row>
+												</f:facet>
+											</p:panelGrid>
+											<p:fieldset>
+												<p:panelGrid style="width:100%;" styleClass="borderless">
+													<p:row>
+														<p:column>
+															<cdb:commandButton id="displayWeekendBtn2"
+																value="#{msg['digitalbooking.income.incomeTable.displayWeekend.label']}"
+																actionListener="#{incomeBean.toogleDisplayWeekend}"
+																disabled="#{incomeBean.displayWeekend}"
+																update="incomeTable2" icon="ui-icon-circle-check" />
+														</p:column>
+													</p:row>
+													<p:row>
+														<p:column>
+															<cdb:commandButton id="displayWeekBtn2"
+																value="#{msg['digitalbooking.income.incomeTable.hideWeekend.label']}"
+																actionListener="#{incomeBean.toogleDisplayWeekend}"
+																disabled="#{!incomeBean.displayWeekend}"
+																update="incomeTable2" icon="ui-icon-circle-close" />
+														</p:column>
+													</p:row>
+												</p:panelGrid>
+											</p:fieldset>
+
+										</p:column>
+									</p:row>
+
+									<p:row>
+										<p:column colspan="3" style="text-align:right;">
+											<p:commandButton
+												value="#{msg['digitalbooking.income.incomeTable.relaunch.text']}"
+												icon="ui-icon-shuffle"
+												actionListener="#{incomeBean.synchronizeIncomes}"
+												onstart="start()" oncomplete="stop()" update="incomeTable2" />
+											<p:commandButton
+												value="#{msg['digitalbooking.common.closeBtnText']}"
+												onclick="closeWindow()" />
+										</p:column>
+									</p:row>
+
+								</p:panelGrid>
+							</f:facet>
+
+						</p:dataTable>
+					</p:panel>
+				</p:tab>
+
+			</p:tabView>
+		</h:form>
+
+		<script type="text/javascript">
+			function start() {
+				PF('statusDialog').show();
+			}
+			function stop() {
+				PF('statusDialog').hide();
+			}
+			var closeWindow = function() {
+				window.close();
+			};
+		</script>
+		<p:dialog modal="true" widgetVar="statusDialog"
+			header="#{msg['digitalbooking.common.waitingText']}"
+			draggable="false" closable="false" resizable="false">
+			<p:graphicImage value="/images/ajaxloadingbar.gif" />
+		</p:dialog>
+
+	</ui:define>
+</ui:composition>

@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:p="http://primefaces.org/ui" xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+
+  <ui:define name="content_title">#{msg['digitalbooking.movies.administration.editMovieTitlePrincipal']}</ui:define>
+  <ui:define name="content">
+    <cdb:waitingDialog components=":formEdit:saveModifyBtn" />
+    <h:form id="formEdit" styleClass="ui-widget">
+      <p:focus />
+      <p:panel>
+        <p:messages id="messages1" autoUpdate="true" closable="true" redisplay="false" />
+        <p:panelGrid id="editMoviePanel" style="width:100%;border-style:none;" bgcolor="#FFFFFF" headerClass="ui-widget-header"
+          styleClass="ui-widget-content" footerClass="ui-widget-header"
+          title="#{msg['digitalbooking.movies.administration.editMovieTitle']}">
+          <f:facet name="header">
+            <p:row>
+              <p:column style="border-style:none;" colspan="5">#{msg['digitalbooking.movies.administration.editMovieTitle']}</p:column>
+            </p:row>
+          </f:facet>
+          <p:row>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="name" style="color:#000000;" value="#{msg['digitalbooking.movies.administration.name']}"
+                cellpadding="3" />
+            </p:column>
+
+            <p:column style="border-style:none;" colspan="3">
+              <p:inputText id="name" value="#{editMovieBean.selectedMovie.dsEventName}" required="true" size="40" maxlength="160"
+                label="#{msg['digitalbooking.movies.administration.name']}" />
+            </p:column>
+          </p:row>
+          <p:row>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="originalname" style="color:#000000;"
+                value="#{msg['digitalbooking.movies.administration.originalName']}" cellpadding="3" />
+            </p:column>
+
+            <p:column style="border-style:none;">
+              <p:inputText id="originalname" value="#{editMovieBean.selectedMovie.dsOriginalName}" required="true" size="40"
+                maxlength="160" label="#{msg['digitalbooking.movies.administration.originalName']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="duration" style="color:#000000;" value="#{msg['digitalbooking.movies.administration.duration']}"
+                cellpadding="4" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:inputText id="duration" required="true" value="#{editMovieBean.selectedMovie.duration}"
+                label="#{msg['digitalbooking.movies.administration.duration']}" size="10" maxlength="4">
+                <f:validateLongRange minimum="1" maximum="9999" />
+              </p:inputText>
+
+            </p:column>
+          </p:row>
+          <p:row>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="distribuidor" style="color:#000000;"
+                value="#{msg['digitalbooking.movies.administration.distributor']}" cellpadding="4" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:inputText id="idDistributorAlternateContent" widgetVar="idDistributorAlternateContent"
+                value="#{editMovieBean.idDistributorAlternateContent}" type="hidden" />
+              <p:selectOneMenu value="#{editMovieBean.selectedMovie.distributor.id}" style="width:294px;"
+                label="#{msg['digitalbooking.movies.administration.distributor']}" id="distribuidor" required="true"
+                onchange="if($(this).val() == PF('idDistributorAlternateContent').jq.val()){festival.uncheck();prerelease.uncheck();premiere.uncheck();}">
+                <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOneMenu']}" itemValue="" />
+                <f:selectItems value="#{movieBean.distributors}" var="distributor" itemLabel="#{distributor.shortName}"
+                  itemValue="#{distributor.id}" />
+              </p:selectOneMenu>
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="country" style="color:#000000;" value="#{msg['digitalbooking.movies.administration.countries']}"
+                cellpadding="4" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:inputText id="country" required="true" label="#{msg['digitalbooking.movies.administration.countries']}"
+                value="#{editMovieBean.selectedMovie.dsCountry}" size="40" maxlength="50" />
+            </p:column>
+          </p:row>
+          <p:row>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="releaseDate" style="color:#000000;"
+                value="#{msg['digitalbooking.movies.administration.releaseDate']}" cellpadding="4" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:calendar id="releaseDate" value="#{editMovieBean.selectedMovie.dtRelease}" required="true"
+                label="#{msg['digitalbooking.movies.administration.releaseDate']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="idVista" style="color:#000000;" value="#{msg['digitalbooking.movies.administration.idVista']}"
+                cellpadding="4" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:inputText id="idVista" value="#{editMovieBean.selectedMovie.idVista}" required="true" maxlength="12"
+                label="#{msg['digitalbooking.movies.administration.idVista']}">
+              </p:inputText>
+            </p:column>
+          </p:row>
+          <p:row>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="synopsis" style="color:#000000;" value="#{msg['digitalbooking.movies.administration.synopsis']}"
+                cellpadding="4" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:inputTextarea id="synopsis" value="#{editMovieBean.selectedMovie.dsSynopsis}" required="true"
+                style="width:294px;resize: none;" autoResize="false" maxlength="10000"
+                label="#{msg['digitalbooking.movies.administration.synopsis']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="rating" style="color:#000000;" value="#{msg['digitalbooking.movies.administration.rating']}"
+                cellpadding="4" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:inputText id="rating" value="#{editMovieBean.selectedMovie.dsRating}" required="true" size="40" maxlength="160"
+                label="#{msg['digitalbooking.movies.administration.rating']}" />
+            </p:column>
+          </p:row>
+          <p:row>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="actor" style="color:#000000;" value="#{msg['digitalbooking.movies.administration.actors']}"
+                cellpadding="4" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:inputTextarea id="actor" value="#{editMovieBean.selectedMovie.dsActor}" required="true" maxlength="160"
+                style="width:294px;resize: none;" autoResize="false" label="#{msg['digitalbooking.movies.administration.actors']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="genre" style="color:#000000;" value="#{msg['digitalbooking.movies.administration.genre']}"
+                cellpadding="3" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:inputText id="genre" value="#{editMovieBean.selectedMovie.dsGenre}" required="true" size="40" maxlength="160"
+                label="#{msg['digitalbooking.movies.administration.genre']}" />
+            </p:column>
+          </p:row>
+          <p:row>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="urlMovie" style="color:#000000;" value="#{msg['digitalbooking.movies.administration.url']}"
+                cellpadding="4" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:inputText id="urlMovie" value="#{editMovieBean.selectedMovie.dsUrl}" size="40" maxlength="160"
+                label="#{msg['digitalbooking.movies.administration.url']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="director" style="color:#000000;" value="#{msg['digitalbooking.movies.administration.director']}"
+                cellpadding="4" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:inputText id="director" value="#{editMovieBean.selectedMovie.dsDirector}" required="true" size="40"
+                maxlength="160" label="#{msg['digitalbooking.movies.administration.director']}" />
+            </p:column>
+          </p:row>
+          <p:row>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="director" style="color:#000000;" value="#{msg['digitalbooking.movies.administration.codeDBS']}"
+                cellpadding="4" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:inputText id="codeDBS" required="true" value="#{editMovieBean.selectedMovie.codeDBS}" size="40" maxlength="50"
+                label="#{msg['digitalbooking.movies.administration.codeDBS']}">
+              </p:inputText>
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="quantity" style="color:#000000;" value="#{msg['digitalbooking.movies.administration.quantity']}"
+                cellpadding="4" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:inputText id="quantity" required="false" value="#{editMovieBean.selectedMovie.qtCopy}" maxlength="4"
+                label="#{msg['digitalbooking.movies.administration.quantity']}">
+              </p:inputText>
+            </p:column>
+          </p:row>
+          <p:row>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="soundFormats" style="color:#000000;"
+                value="#{msg['digitalbooking.movies.administration.soundFormat']}" cellpadding="4" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:selectOneMenu id="soundFormats" widgetVar="soundFormats" value="#{editMovieBean.soundFormatIdSelected}"
+                style="width:294px;" label="#{msg['digitalbooking.movies.administration.soundFormat']}" required="true">
+                <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOneMenu']}" itemValue="" />
+                <f:selectItems value="#{movieBean.soundFormats}" var="sound" itemLabel="#{sound.name}" itemValue="#{sound.id}" />
+              </p:selectOneMenu>
+            </p:column>
+
+            <p:column style="border-style:none;">
+              <p:outputLabel for="currentMovie" style="color:#000000;"
+                value="#{msg['digitalbooking.movies.administration.currentMovie']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:selectBooleanCheckbox id="currentMovie" value="#{editMovieBean.selectedMovie.currentMovie}" />
+            </p:column>
+
+          </p:row>
+          <p:row>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="movieFormats" style="color:#000000;"
+                value="#{msg['digitalbooking.movies.administration.movieFormat']}" cellpadding="4" />
+            </p:column>
+            <p:column style="border-style:none;" colspan="1">
+              <p:selectOneMenu id="movieFormats" widgetVar="movieFormats" value="#{editMovieBean.movieFormatIdSelected}"
+                style="width:294px;" label="#{msg['digitalbooking.movies.administration.movieFormat']}" required="true">
+                <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOneMenu']}" itemValue="" />
+                <f:selectItems value="#{movieBean.movieFormats}" var="movie" itemLabel="#{movie.name}" itemValue="#{movie.id}" />
+              </p:selectOneMenu>
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:outputLabel for="prerelease" style="color:#000000;"
+                value="#{msg['digitalbooking.movies.administration.preview']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:selectBooleanCheckbox id="prerelease" widgetVar="prerelease" value="#{editMovieBean.selectedMovie.prerelease}">
+                <p:ajax listener="#{editMovieBean.validatePreRelease}" update="festival, alternateContent" />
+              </p:selectBooleanCheckbox>
+            </p:column>
+
+          </p:row>
+          <p:row>
+            <p:column colspan="2" style="border-style:none;">
+            </p:column>
+
+            <p:column style="border-style:none;">
+              <p:outputLabel for="premiere" style="color:#000000;" value="#{msg['digitalbooking.movies.administration.premiere']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:selectBooleanCheckbox id="premiere" widgetVar="premiere" value="#{editMovieBean.selectedMovie.premiere}">
+                <p:ajax listener="#{editMovieBean.validatePreRelease}" update="festival, alternateContent" />
+              </p:selectBooleanCheckbox>
+            </p:column>
+
+          </p:row>
+          <p:row>
+            <p:column colspan="2" style="border-style:none;">
+            </p:column>
+
+            <p:column style="border-style:none;">
+              <p:outputLabel for="festival" style="color:#000000;" value="#{msg['digitalbooking.movies.administration.festival']}" />
+            </p:column>
+            <p:column style="border-style:none;">
+              <p:selectBooleanCheckbox id="festival" widgetVar="festival" value="#{editMovieBean.selectedMovie.festival}">
+                <p:ajax listener="#{editMovieBean.validateFestival}" update="prerelease, premiere, alternateContent" />
+              </p:selectBooleanCheckbox>
+            </p:column>
+          </p:row>
+          <p:row>
+           <p:column colspan="2" style="border-style:none;">
+           </p:column>
+           <p:column style="border-style:none;">
+	          <p:outputLabel for="alternateContent" style="color:#000000; font-weight: normal;"
+	            value="#{msg['digitalbooking.movies.administration.alternateContentFilter']}" />
+	        </p:column>
+	        <p:column style="border-style:none;">
+	          <p:selectBooleanCheckbox id="alternateContent" value="#{editMovieBean.selectedMovie.fgAlternateContent}" widgetVar="alternateContent" >
+	          	<p:ajax listener="#{editMovieBean.validateAlternateContent}" update="prerelease, premiere, festival" />
+	          </p:selectBooleanCheckbox>
+	        </p:column>
+        </p:row>
+          <p:row>
+            <p:column style="border-style:none;">
+              <h:outputText value="#{msg['digitalbooking.movies.administration.imageMovieRequiere']}" cellpadding="4" />
+            </p:column>
+            <p:column style="border-style:none;" colspan="3">
+              <h:form id="form3" enctype="multipart/form-data">
+                <p:outputLabel id="image">
+                  <p:graphicImage cache="false"
+                    value="/image.html?id=#{editMovieBean.selectedMovie.idMovieImage}&amp;random=#{editMovieBean.random}"
+                    styleClass="components-graphicImage" id="imageEdit" width="264px" height="386px" />
+                </p:outputLabel>
+                <p:fileUpload fileUploadListener="#{editMovieBean.handleFileUpload}" mode="advanced" sizeLimit="307200"
+                  invalidSizeMessage="#{msg['digitalbooking.movies.uploadImage.errorSize']}" dragDropSupport="true" update="image"
+                  allowTypes="/(\.|\/)(gif|jpe?g|png)$/" multiple="false" />
+                <p:outputLabel value="#{msg['digitalbooking.movies.uploadImage.suggestion']}" />
+                <p:messages id="messages" autoUpdate="false" closable="true" rendered="false" />
+
+              </h:form>
+            </p:column>
+          </p:row>
+          <p:row>
+            <p:column colspan="4" style="border-style:none;">
+              <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+            </p:column>
+          </p:row>
+          <p:row>
+            <p:column colspan="4" style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+              <cdb:commandButton id="saveModifyBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+                action="#{editMovieBean.editMovie}" style="float: right">
+                <cdb:success successurl="/views/data/movies/movies.do" />
+              </cdb:commandButton>
+            </p:column>
+            <p:column colspan="1" style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+              <p:commandButton id="backBtn" value="#{msg['digitalbooking.common.cancelBtnText']}" style="float: right"
+                action="#{editMovieBean.back}" immediate="true" />
+            </p:column>
+          </p:row>
+        </p:panelGrid>
+      </p:panel>
+    </h:form>
+  </ui:define>
+</ui:composition>

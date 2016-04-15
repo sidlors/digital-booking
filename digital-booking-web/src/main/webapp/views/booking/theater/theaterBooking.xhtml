@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:p="http://primefaces.org/ui" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+  xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+  <ui:define name="content_title">#{msg['digitalbooking.booking.theater.theaterTitle']}</ui:define>
+  <ui:define name="content">
+    <cdb:waitingDialog
+      components=":filterPanelForm:regionSelectOne, :filterPanelForm:searchBookingsBtn, :filterPanelForm:movieListTable:sendTheaterBookingBtn, :filterPanelForm:movieListTable:editBtn3, :filterPanelForm:movieListTable:sendTheaterBookingBtn2, :editPreviousWeekForm:editPreviousWeekBtn, :confirmSaveBookingForm:saveBookingOkBtn, :confirmSaveBookingFormAlternative:saveBookingOkBtn2, :filterPanelForm:movieListTable:editBtn, :filterPanelForm:movieListTable:editBtn2, :filterPanelForm:movieListTable:cancelPresaleBtn, :filterPanelForm:movieListTable:cancelSpecialEventBtn, :filterPanelForm:movieListTable:cancelPresaleBtn2, :filterPanelForm:movieListTable:cancelSpecialEventBtn2" />
+
+    <h:form id="filterPanelForm">
+      <h:panelGrid columns="10" id="filterPanelGrid" styleClass="panel-background" style="overflow:scroll;" width="100%">
+        <p:outputLabel value="#{msg['digitalbooking.booking.theater.dateOutputText']}" />
+        <p:messages id="addMovieMsgError1" autoUpdate="true" closable="true" />
+        <p:selectOneMenu id="weekMenu" style="width:200px;" value="#{theaterBookingBean.weekIdSelected}"
+          panelStyleClass="select-one-menu-width-200-panel-style">
+          <p:ajax listener="#{theaterBookingBean.resetBookings}" update="movieListTable"
+            oncomplete="PF('downloadButton').disable();PF('downloadButton2').disable();" />
+          <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+          <f:selectItems value="#{theaterBookingBean.weekList}" var="week" itemLabel="#{week.weekDescription}"
+            itemValue="#{week.idWeek}" />
+        </p:selectOneMenu>
+        <p:outputLabel value="#{msg['digitalbooking.booking.theater.regionOutputText']}" />
+        <p:selectOneMenu id="regionMenu" style="width:200px;" widgetVar="regionMenu"
+          value="#{theaterBookingBean.regionIdSelected}" panelStyleClass="select-one-menu-width-200-panel-style">
+          <p:ajax update="theaterMenu, movieListTable" listener="#{theaterBookingBean.loadTheaters}"
+            oncomplete="PF('downloadButton').disable();PF('downloadButton2').disable();" />
+          <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+          <f:selectItems value="#{theaterBookingBean.regions}" var="region" itemLabel="#{region.name}" itemValue="#{region.id}" />
+        </p:selectOneMenu>
+        <p:outputLabel value="#{msg['digitalbooking.booking.theater.theaterOutputText']}" />
+        <p:selectOneMenu id="theaterMenu" style="width:300px;" value="#{theaterBookingBean.theaterIdSelected}" immediate="true"
+          filterMatchMode="contains" filter="true" panelStyleClass="select-one-menu-width-300-panel-style" update="movieListTable">
+          <p:ajax listener="#{theaterBookingBean.resetBookings}" update="movieListTable"
+            oncomplete="PF('downloadButton').disable();PF('downloadButton2').disable();" />
+          <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+          <f:selectItems value="#{theaterBookingBean.theaters}" var="theater" itemLabel="#{theater.name}"
+            itemValue="#{theater.id}" />
+        </p:selectOneMenu>
+        <p:inputText id="validPreviewDocument" widgetVar="validPreviewDocument" value="#{theaterBookingBean.validPreviewDocument}"
+          type="hidden" />
+        <p:commandButton id="resetBtn" value="#{msg['digitalbooking.common.resetBtnText']}" type="reset"
+          icon="ui-icon-arrowrefresh-1-s" onclick="regionMenu.selectValue('');" />
+        <p:commandButton id="searchBookingsBtn" value="#{msg['digitalbooking.common.searchBtnText']}" icon="ui-icon-search"
+          action="#{theaterBookingBean.searchBooking}"
+          update=":filterPanelForm:movieListTable, validPreviewDocument, :filterPanelForm:addMovieTable, :addMovieForm:addMovieDialog"
+          oncomplete="if(args.fail || PF('movieListTable').isEmpty() || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+      </h:panelGrid>
+
+      <div>
+        <p:dataTable id="movieListTable" var="movie" value="#{theaterBookingBean.bookingTOs}"
+          selection="#{theaterBookingBean.bookingTO}" rowKey="#{movie.id}" editable="true" editMode="cell"
+          widgetVar="movieListTable">
+          <f:facet name="header">
+            <p:commandButton id="addMovieBtn" value="#{msg['digitalbooking.booking.theater.addMovieBtnText']}"
+              action="#{theaterBookingBean.addMovie}" update=":addMovieForm:addMovieDialog"
+              rendered="#{theaterBookingBean.sameOrBeforeWeek}"
+              oncomplete=" if(!args.fail){PF('addMovieDialog').show();} if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+
+            <cdb:commandButton id="editBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+              action="#{theaterBookingBean.editBookingTheater}"
+              rendered="#{theaterBookingBean.sameOrBeforeWeek and theaterBookingBean.currentWeek}"
+              oncomplete="if(!args.fail){PF('downloadButton').enable();PF('downloadButton2').enable();}else {PF('downloadButton').disable();PF('downloadButton2').disable();}"
+              update="movieListTable">
+              <cdb:success />
+            </cdb:commandButton>
+            <p:commandButton id="editPreviousWeekBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+              rendered="#{theaterBookingBean.sameOrBeforeWeek and !theaterBookingBean.currentWeek}"
+              oncomplete="PF('editPreviousWeekDialog').show()">
+            </p:commandButton>
+
+            <p:commandButton id="cancelPresaleBtn" value="#{msg['digitalbooking.booking.theater.cancelPresaleBtn']}"
+              action="#{theaterBookingBean.cancelBookingTheaterInPresale}" rendered="#{theaterBookingBean.existPresaleToCancel}"
+              update="movieListTable"
+              oncomplete="if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+            <p:commandButton id="cancelSpecialEventBtn" value="#{msg['digitalbooking.booking.theater.cancelSpecialEventBtn']}"
+              action="#{theaterBookingBean.cancelBookingTheaterSpecialEvent}"
+              rendered="#{theaterBookingBean.existSpecialEventToCancel}" update="movieListTable"
+              oncomplete="if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+
+            <p:commandButton id="displayShowsBtn" value="#{msg['digitalbooking.booking.theater.displayShows']}"
+              action="#{theaterBookingBean.updateShows}" rendered="#{!theaterBookingBean.displayShows}" update="movieListTable"
+              oncomplete="if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+            <p:commandButton id="hideShowsBtn" value="#{msg['digitalbooking.booking.theater.hideShows']}"
+              action="#{theaterBookingBean.updateShows}" rendered="#{theaterBookingBean.displayShows}" update="movieListTable"
+              oncomplete="if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+
+            <p:commandButton value="#{msg['digitalbooking.booking.theater.displayAttendanceBtn.label']}"
+              action="#{theaterBookingBean.toogleDisplayAttendance}" update="movieListTable"
+              rendered="#{theaterBookingBean.consulted and !theaterBookingBean.displayAttendance}"
+              oncomplete="if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+            <p:commandButton value="#{msg['digitalbooking.booking.theater.displayIncomeBtn.label']}"
+              action="#{theaterBookingBean.toogleDisplayAttendance}" update="movieListTable"
+              rendered="#{theaterBookingBean.consulted and theaterBookingBean.displayAttendance}"
+              oncomplete="if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+
+            <p:commandButton id="displayPresaleBtn" value="#{msg['digitalbooking.booking.theater.displayPresale']}"
+              action="#{theaterBookingBean.updatePresaleColumn}" rendered="#{!theaterBookingBean.displayPresale}"
+              update="movieListTable"
+              oncomplete="if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+            <p:commandButton id="hidePresaleBtn" value="#{msg['digitalbooking.booking.theater.hidePresale']}"
+              action="#{theaterBookingBean.updatePresaleColumn}" rendered="#{theaterBookingBean.displayPresale}"
+              update="movieListTable"
+              oncomplete="if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+
+            <p:commandButton id="showIncomeDetailBtn" widgetVar="showIncomeDetailBtn"
+              rendered="#{theaterBookingBean.sameOrBeforeWeek and theaterBookingBean.sameOrBeforeWeek}"
+              value="#{msg['digitalbooking.booking.theater.showIncomeDetailBtn.label']}"
+              actionListener="#{theaterBookingBean.openIncomesWindow}" onsuccess="openIncomeWindow()" />
+            <p:commandButton id="downloadButton" widgetVar="downloadButton"
+              value="#{msg['digitalbooking.common.downloadBtnText']}" ajax="false"
+              onclick="PrimeFaces.monitorDownload(start, stop);" icon="ui-icon-arrowthickstop-1-s"
+              oncomplete="if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}">
+              <p:fileDownload value="#{bookingTheaterDocumentController.file}" />
+            </p:commandButton>
+            <p:commandButton id="sendTheaterBookingBtn" value="#{msg['digitalbooking.common.sendBtnText']}"
+              icon="ui-icon-arrowthickstop-1-e"
+              oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) {PF('confirmSendBooking').show();};  if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();} "
+              rendered="#{theaterBookingBean.sameOrBeforeWeek}" />
+            <h:outputText rendered="#{theaterBookingBean.consulted}" style="padding-left: 8px;"
+              value="#{msg['digitalbooking.booking.theater.theaterBookingStatus']}" />
+
+            <p:graphicImage rendered="#{theaterBookingBean.consulted}" style="top: 4px; padding-left: 8px; position: relative;"
+              value="/images/#{theaterBookingBean.imageSemaphore}.png" />
+
+            <h:outputText rendered="#{theaterBookingBean.emailSent}" style="padding-left: 8px;"
+              value="#{msg['digitalbooking.booking.theater.emailSent']}" />
+
+            <h:outputText rendered="#{theaterBookingBean.zero}" style="padding-left: 8px;"
+              value="#{msg['digitalbooking.booking.theater.zeroWarning']}" />
+          </f:facet>
+          <p:columnGroup type="header">
+            <p:row>
+              <p:column rowspan="2" headerText="#{msg['digitalbooking.booking.theater.screenHeader']}" style="width:5%;" />
+              <p:column rowspan="2" headerText="#{msg['digitalbooking.booking.theater.formatHeader']}" style="width:7%;" />
+              <p:column rowspan="2" headerText="#{msg['digitalbooking.booking.theater.capacityHeader']}" style="width:7%" />
+              <p:column rowspan="2" headerText="#{msg['digitalbooking.booking.theater.showsHeader']}" style="width:10%"
+                rendered="#{theaterBookingBean.displayShows}" />
+              <p:column rowspan="2" headerText="#{msg['digitalbooking.booking.theater.movieHeader']}" style="width:15%" />
+              <p:column rowspan="2" headerText="#{msg['digitalbooking.booking.theater.distributorHeader']}" style="width:7%" />
+              <p:column colspan="5" style="width:10%" rendered="#{!theaterBookingBean.displayAttendance}"
+                headerText="#{msg['digitalbooking.booking.theater.weekendIncomeHeader']}" />
+              <p:column colspan="5" style="width:10%" rendered="#{theaterBookingBean.displayAttendance}"
+                headerText="#{msg['digitalbooking.booking.theater.ticketsHeader']}" />
+              <p:column rowspan="2" style="width:7%" headerText="#{msg['digitalbooking.booking.theater.statusHeader']}" />
+              <p:column rowspan="2" style="width:5%" headerText="#{msg['digitalbooking.booking.theater.noteHeader']}" />
+              <p:column headerText="#{msg['digitalbooking.booking.prerelease.presaleHeader']}" style="width:5%" rowspan="2"
+                rendered="#{theaterBookingBean.displayPresale}" />
+            </p:row>
+            <p:row>
+              <p:column headerText="#{msg['digitalbooking.booking.theater.weekHeader']}" style="width:7%" />
+              <p:column headerText="#{msg['digitalbooking.booking.theater.fridayHeader']}"
+                rendered="#{!theaterBookingBean.displayAttendance}" style="width:7%" />
+              <p:column headerText="#{msg['digitalbooking.booking.theater.saturdayHeader']}"
+                rendered="#{!theaterBookingBean.displayAttendance}" style="width:7%" />
+              <p:column headerText="#{msg['digitalbooking.booking.theater.sundayHeader']}"
+                rendered="#{!theaterBookingBean.displayAttendance}" style="width:7%" />
+              <p:column headerText="#{msg['digitalbooking.booking.theater.totalIncomeHeader']}"
+                rendered="#{!theaterBookingBean.displayAttendance}" style="width:7%" />
+              <p:column headerText="#{msg['digitalbooking.booking.theater.fridayHeader']}"
+                rendered="#{theaterBookingBean.displayAttendance}" style="width:7%" />
+              <p:column headerText="#{msg['digitalbooking.booking.theater.saturdayHeader']}"
+                rendered="#{theaterBookingBean.displayAttendance}" style="width:7%" />
+              <p:column headerText="#{msg['digitalbooking.booking.theater.sundayHeader']}"
+                rendered="#{theaterBookingBean.displayAttendance}" style="width:7%" />
+              <p:column headerText="#{msg['digitalbooking.booking.theater.totalTicketsHeader']}"
+                rendered="#{theaterBookingBean.displayAttendance}" style="width:7%" />
+            </p:row>
+          </p:columnGroup>
+          <p:column>
+
+            <p:selectOneMenu id="movieNuScreen" value="#{movie.screenTO.nuScreen}" style="width: 45px;"
+              disabled="#{movie.fgSpecialEvent or movie.inRemoval}" rendered="#{!movie.available and !movie.fgPresaleSelected}">
+              <p:ajax event="change" listener="#{theaterBookingBean.handleChangeScreen}" update="movieListTable"
+                process="movieListTable" onstart="start()" oncomplete="stop()" />
+              <f:selectItems value="#{movie.nuScreens}" var="nuScreen" itemLabel="#{nuScreen}" itemValue="#{nuScreen}" />
+            </p:selectOneMenu>
+            <h:outputText value="#{movie.screenTO.nuScreen}" rendered="#{movie.available or movie.fgPresaleSelected}" />
+          </p:column>
+          <p:column style="#{movie.inRemoval ? movie.removalStyle : movie.normalStyle}">#{movie.format}</p:column>
+          <p:column style="#{movie.inRemoval ? movie.removalStyle : movie.normalStyle}">#{movie.capacity}</p:column>
+          <p:column rendered="#{theaterBookingBean.displayShows}">
+            <p:selectManyCheckbox id="movieShows" value="#{movie.selectedShowings}" layout="grid" columns="2"
+              disabled="#{movie.fgSpecialEvent ? movie.fgSpecialEvent : movie.inRemoval}" style="color:#222222; width:120px;">
+              <f:selectItems value="#{movie.showings}" var="show" itemLabel="#{show.name}" itemValue="#{show.id}" />
+            </p:selectManyCheckbox>
+          </p:column>
+          <p:column style="#{movie.inRemoval ? movie.removalStyle : movie.normalStyle}">
+            <div style="width: 298px">
+              <h:outputText value="#{movie.concatName}" rendered="#{!movie.available}" />
+            </div>
+            <p:selectOneMenu id="eventMovie" value="#{movie.selectedEventId}" style="width: 298px;" filterMatchMode="contains"
+              filter="true" rendered="#{movie.available}">
+              <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+              <f:selectItems value="#{movie.events}" var="event" itemLabel="#{event.dsEventName}" itemValue="#{event.idEvent}" />
+            </p:selectOneMenu>
+          </p:column>
+          <p:column style="#{movie.inRemoval ? movie.removalStyle : movie.normalStyle}">#{movie.distributor}</p:column>
+          <p:column style="#{movie.inRemoval ? movie.removalStyle : movie.normalStyle};text-align:center;">#{movie.week}</p:column>
+          <p:column style="#{movie.inRemoval ? movie.removalStyle : movie.normalStyle};text-align:center;"
+            rendered="#{!theaterBookingBean.displayAttendance}">
+            <h:outputText value="#{movie.fridayIncome}">
+              <f:convertNumber pattern="###,##0.00" />
+            </h:outputText>
+          </p:column>
+          <p:column style="#{movie.inRemoval ? movie.removalStyle : movie.normalStyle};text-align:center;"
+            rendered="#{!theaterBookingBean.displayAttendance}">
+            <h:outputText value="#{movie.saturdayIncome}">
+              <f:convertNumber pattern="###,##0.00" />
+            </h:outputText>
+          </p:column>
+          <p:column style="#{movie.inRemoval ? movie.removalStyle : movie.normalStyle};text-align:center;"
+            rendered="#{!theaterBookingBean.displayAttendance}">
+            <h:outputText value="#{movie.sundayIncome}">
+              <f:convertNumber pattern="###,##0.00" />
+            </h:outputText>
+          </p:column>
+          <p:column style="#{movie.inRemoval ? movie.removalStyle : movie.normalStyle};text-align:center;"
+            rendered="#{!theaterBookingBean.displayAttendance}">
+            <h:outputText value="#{movie.totalIncome}">
+              <f:convertNumber pattern="###,##0.00" />
+            </h:outputText>
+          </p:column>
+
+          <p:column style="#{movie.inRemoval ? movie.removalStyle : movie.normalStyle};text-align:center;"
+            rendered="#{theaterBookingBean.displayAttendance}">
+            <h:outputText value="#{movie.fridayTickets}">
+              <f:convertNumber pattern="###,##0" />
+            </h:outputText>
+          </p:column>
+          <p:column style="#{movie.inRemoval ? movie.removalStyle : movie.normalStyle};text-align:center;"
+            rendered="#{theaterBookingBean.displayAttendance}">
+            <h:outputText value="#{movie.saturdayTickets}">
+              <f:convertNumber pattern="###,##0" />
+            </h:outputText>
+          </p:column>
+          <p:column style="#{movie.inRemoval ? movie.removalStyle : movie.normalStyle};text-align:center;"
+            rendered="#{theaterBookingBean.displayAttendance}">
+            <h:outputText value="#{movie.sundayTickets}">
+              <f:convertNumber pattern="###,##0" />
+            </h:outputText>
+          </p:column>
+          <p:column style="#{movie.inRemoval ? movie.removalStyle : movie.normalStyle};text-align:center;"
+            rendered="#{theaterBookingBean.displayAttendance}">
+            <h:outputText value="#{movie.totalTickets}">
+              <f:convertNumber pattern="###,##0" />
+            </h:outputText>
+          </p:column>
+
+          <p:column style="#{movie.inRemoval ? movie.removalStyle : movie.normalStyle}">
+            <p:selectOneMenu id="statusMovie" value="#{movie.statusIdSelected}" style="width: 90px;"
+              disabled="#{movie.fgPresaleSelected}">
+              <p:ajax update="movieListTable" event="change" listener="#{theaterBookingBean.handleChangeStatus}"
+                process="movieListTable" onstart="start()" oncomplete="stop()" />
+              <f:selectItems value="#{movie.statusTOs}" var="status" itemLabel="#{status.name}" itemValue="#{status.id}" />
+            </p:selectOneMenu>
+          </p:column>
+          <p:column>
+            <p:inputTextarea id="notes" value="#{movie.bookingObservationTO.observation}" rows="1" cols="10" scrollHeight="2"
+              autoResize="false" readonly="#{movie.fgSpecialEvent or movie.fgPresaleSelected}" style="width: 87px; height: 35px;" />
+            <p:tooltip id="toolTipFadeForNotes" for="notes" value="#{movie.bookingObservationTO.observation}" />
+          </p:column>
+          <p:column style="text-align: center;" rendered="#{theaterBookingBean.displayPresale}">
+            <p:selectBooleanCheckbox id="flgPresale" value="#{movie.fgPresaleSelected}" style="margin: 0 auto;"
+              disabled="#{movie.inRemoval}" rendered="#{movie.fgPresaleSelected}" />
+          </p:column>
+
+          <f:facet name="footer">
+            <p:commandButton id="addMovieBtn2" value="#{msg['digitalbooking.booking.theater.addMovieBtnText']}"
+              action="#{theaterBookingBean.addMovie}" update=":addMovieForm:addMovieDialog"
+              rendered="#{theaterBookingBean.sameOrBeforeWeek}"
+              oncomplete=" if(!args.fail){PF('addMovieDialog').show();} if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+
+            <cdb:commandButton id="editBtn2" value="#{msg['digitalbooking.common.saveBtnText']}"
+              rendered="#{theaterBookingBean.sameOrBeforeWeek and theaterBookingBean.currentWeek}"
+              action="#{theaterBookingBean.editBookingTheater}" update="movieListTable"
+              oncomplete="if(!args.fail){PF('downloadButton').enable();PF('downloadButton2').enable();}else {PF('downloadButton').disable();PF('downloadButton2').disable();}">
+              <cdb:success />
+            </cdb:commandButton>
+            <p:commandButton id="editPreviousWeekBtn2" value="#{msg['digitalbooking.common.saveBtnText']}"
+              rendered="#{theaterBookingBean.sameOrBeforeWeek and !theaterBookingBean.currentWeek}"
+              oncomplete="PF('editPreviousWeekDialog').show()">
+            </p:commandButton>
+
+            <p:commandButton id="cancelPresaleBtn2" value="#{msg['digitalbooking.booking.theater.cancelPresaleBtn']}"
+              action="#{theaterBookingBean.cancelBookingTheaterInPresale}" rendered="#{theaterBookingBean.existPresaleToCancel}"
+              update="movieListTable"
+              oncomplete="if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+            <p:commandButton id="cancelSpecialEventBtn2" value="#{msg['digitalbooking.booking.theater.cancelSpecialEventBtn']}"
+              action="#{theaterBookingBean.cancelBookingTheaterSpecialEvent}"
+              rendered="#{theaterBookingBean.existSpecialEventToCancel}" update="movieListTable"
+              oncomplete="if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+
+            <p:commandButton id="displayShowsBtn2" value="#{msg['digitalbooking.booking.theater.displayShows']}"
+              action="#{theaterBookingBean.updateShows}" rendered="#{!theaterBookingBean.displayShows}" update="movieListTable"
+              oncomplete="if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+            <p:commandButton id="hideShowsBtn2" value="#{msg['digitalbooking.booking.theater.hideShows']}"
+              action="#{theaterBookingBean.updateShows}" rendered="#{theaterBookingBean.displayShows}" update="movieListTable"
+              oncomplete="if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+
+            <p:commandButton value="#{msg['digitalbooking.booking.theater.displayAttendanceBtn.label']}"
+              action="#{theaterBookingBean.toogleDisplayAttendance}" update="movieListTable"
+              rendered="#{theaterBookingBean.consulted and !theaterBookingBean.displayAttendance}" />
+            <p:commandButton value="#{msg['digitalbooking.booking.theater.displayIncomeBtn.label']}"
+              action="#{theaterBookingBean.toogleDisplayAttendance}" update="movieListTable"
+              rendered="#{theaterBookingBean.consulted and theaterBookingBean.displayAttendance}" />
+
+            <p:commandButton id="displayPresaleBtn2" value="#{msg['digitalbooking.booking.theater.displayPresale']}"
+              action="#{theaterBookingBean.updatePresaleColumn}" rendered="#{!theaterBookingBean.displayPresale}"
+              update="movieListTable"
+              oncomplete="if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+            <p:commandButton id="hidePresaleBtn2" value="#{msg['digitalbooking.booking.theater.hidePresale']}"
+              action="#{theaterBookingBean.updatePresaleColumn}" rendered="#{theaterBookingBean.displayPresale}"
+              update="movieListTable"
+              oncomplete="if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}" />
+
+            <p:commandButton id="showIncomeDetailBtn2" widgetVar="showIncomeDetailBtn2"
+              rendered="#{theaterBookingBean.sameOrBeforeWeek and theaterBookingBean.sameOrBeforeWeek}"
+              value="#{msg['digitalbooking.booking.theater.showIncomeDetailBtn.label']}"
+              actionListener="#{theaterBookingBean.openIncomesWindow}" onsuccess="openIncomeWindow()" />
+            <p:commandButton id="downloadButton2" widgetVar="downloadButton2"
+              value="#{msg['digitalbooking.common.downloadBtnText']}" ajax="false"
+              onclick="PrimeFaces.monitorDownload(start, stop);" icon="ui-icon-arrowthickstop-1-s"
+              oncomplete="if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();}">
+              <p:fileDownload value="#{bookingTheaterDocumentController.file}" />
+            </p:commandButton>
+            <p:commandButton id="sendTheaterBookingBtn2" value="#{msg['digitalbooking.common.sendBtnText']}"
+              icon="ui-icon-arrowthickstop-1-e"
+              oncomplete="if(!args.validationandp;&amp; !args.notValid) {PF('confirmSendBooking').show();};  if(args.fail || PF('movieListTable').isEmpty()  || PF('validPreviewDocument').jq.val() === 'false' ) { PF('downloadButton').disable();PF('downloadButton2').disable(); } else { PF('downloadButton').enable();PF('downloadButton2').enable();} "
+              rendered="#{theaterBookingBean.sameOrBeforeWeek}" />
+            <h:outputText rendered="#{theaterBookingBean.consulted}" style="padding-left: 8px;"
+              value="#{msg['digitalbooking.booking.theater.theaterBookingStatus']}" />
+
+            <p:graphicImage rendered="#{theaterBookingBean.consulted}" style="top: 4px; padding-left: 8px; position: relative;"
+              value="/images/#{theaterBookingBean.imageSemaphore}.png" />
+
+            <h:outputText rendered="#{theaterBookingBean.emailSent}" style="padding-left: 8px;"
+              value="#{msg['digitalbooking.booking.theater.emailSent']}" />
+          </f:facet>
+        </p:dataTable>
+
+        <p:panelGrid id="filters" style="width:100%;border-style:none;margin-top:20px;" bgcolor="#FFFFFF">
+          <f:facet name="header">
+            <p:row>
+              <p:column style="text-align: center;">
+                <p:outputLabel value="#{msg['digitalbooking.booking.theater.addMoviesFieldsetText']}" />
+              </p:column>
+            </p:row>
+          </f:facet>
+          <p:row>
+            <p:column style="border-style:none;width:100%;">
+              <p:dataTable id="addMovieTable" var="booking" value="#{theaterBookingBean.newBookingTheaters}"
+                selection="#{theaterBookingBean.selectedBookingTheater}" rowKey="#{movie.id}" editable="true" editMode="cell"
+                widgetVar="addMovieTable">
+                <f:facet name="header">
+                </f:facet>
+                <p:columnGroup type="header">
+                  <p:row>
+                    <p:column headerText="#{msg['digitalbooking.booking.theater.addMovieTable.movieHeader']}" />
+                    <p:column headerText="#{msg['digitalbooking.booking.theater.addMovieTable.copiesHeader']}" />
+                    <p:column headerText="#{msg['digitalbooking.booking.theater.addMovieTable.screensHeader']}" />
+                  </p:row>
+                </p:columnGroup>
+                <p:column>
+                  <p:selectOneMenu id="addMovieTable" value="#{booking.selectedEventId}" required="false" style="width:300px;"
+                    panelStyle="width:280px;" filterMatchMode="contains" filter="true">
+                    <p:ajax listener="#{theaterBookingBean.setTheaterScreensForAddMovieTable}"
+                      update="screensManyButton,numCopies" />
+                    <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                    <f:selectItems value="#{booking.events}" var="movie" itemLabel="#{movie.dsEventName}"
+                      itemValue="#{movie.idEvent}" />
+                  </p:selectOneMenu>
+                </p:column>
+                <p:column>
+                  <p:inputText id="numCopies" value="#{booking.copies}" maxlength="3" required="false"
+                    validatorMessage="#{msg['digitalbooking.booking.movie.copiesMessageError']}"
+                    label="#{msg['digitalbooking.booking.theater.addmovie.copiesOutputLabel']}" disabled="#{!booking.available}">
+                    <f:validateLongRange minimum="0" maximum="100" />
+                  </p:inputText>
+                </p:column>
+                <p:column>
+                  <p:selectManyButton id="screensManyButton" value="#{booking.selectedScreens}"
+                    label="#{msg['digitalbooking.booking.theater.addmovie.screensOutputLabel']}"
+                    valueChangeListener="#{theaterBookingBean.changeValue}">
+                    <p:ajax update="screensManyButton" listener="#{theaterBookingBean.loadScreensForAddMovieTable}" />
+                    <f:selectItems value="#{booking.screens}" var="screen" itemLabel="#{screen.nuScreen}" itemValue="#{screen.id}"
+                      itemDisabled="#{screen.disabled}" />
+                  </p:selectManyButton>
+                </p:column>
+                <f:facet name="footer">
+                  <p:commandButton id="addMultipleMovies" widgetVar="addMultipleMovies"
+                    value="#{msg['digitalbooking.booking.theater.addMoviesBtnText']}"
+                    action="#{theaterBookingBean.saveListOfMovies}"
+                    update=":filterPanelForm:movieListTable, :filterPanelForm:addMovieTable" onstart="start();"
+                    oncomplete="stop();">
+                  </p:commandButton>
+                </f:facet>
+              </p:dataTable>
+            </p:column>
+          </p:row>
+        </p:panelGrid>
+      </div>
+    </h:form>
+
+    <script type="text/javascript">
+                    $(document).ready(function() {
+                        if (PF('validPreviewDocument').jq.val() === 'false') {
+                            PF('downloadButton').disable();
+                            PF('downloadButton2').disable();
+                        } else {
+                            PF('downloadButton').enable();
+                            PF('downloadButton2').enable();
+                        }
+                    });
+                    function start() {
+                        PF('statusDialog').show();
+                    }
+                    function stop() {
+                        PF('statusDialog').hide();
+                    }
+
+                    var openIncomeWindow = function() {
+                        var width, height, left, top, url, target, toolbar;
+                        width = 1200;
+                        height = 820;
+                        left = (screen.width / 2) - (width / 2);
+                        top = (screen.height / 2) - (height / 2);
+
+                        url = "../income/income.do";
+                        target = "_blank";
+                        toolbar = "toolbar=no, scrollbars=yes, resizable=yes, top=" + top + ", left=" + left
+                                + ", width=" + width + ", height=" + height;
+
+                        window.open(url, target, toolbar);
+                    };
+                </script>
+    <p:dialog modal="true" widgetVar="statusDialog" header="#{msg['digitalbooking.common.waitingText']}" draggable="false"
+      closable="false" resizable="false">
+      <p:graphicImage value="/images/ajaxloadingbar.gif" />
+    </p:dialog>
+    <h:form id="addMovieForm">
+      <p:dialog id="addMovieDialog" header="#{msg['digitalbooking.booking.theater.addmovie.addMovieBtnDialogTitle']}"
+        widgetVar="addMovieDialog" modal="true" resizable="false" width="500">
+        <p:ajax event="close" listener="#{theaterBookingBean.handleCloseAddMovie}" update="addMoviePanelGrid" resetValues="true"
+          immediate="true" />
+        <p:messages id="addMovieMsgError" autoUpdate="true" closable="true" />
+        <h:panelGrid columns="2" id="addMoviePanelGrid" styleClass="components-dialog">
+          <p:outputLabel for="movieSelectOne" style="color:#000000;"
+            value="#{msg['digitalbooking.booking.theater.addmovie.movieOutputLabel']}" />
+          <p:selectOneMenu id="movieSelectOne" value="#{theaterBookingBean.newMovieId}" required="true" style="width:300px;"
+            panelStyle="width:280px;" filterMatchMode="contains" filter="true"
+            label="#{msg['digitalbooking.booking.theater.addmovie.movieOutputLabel']}">
+            <p:ajax listener="#{theaterBookingBean.setTheaterScreens}" update="screensManyButton, numCopies" />
+            <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+            <f:selectItems value="#{theaterBookingBean.moviesTOs}" var="movie" itemLabel="#{movie.name}" itemValue="#{movie.id}" />
+          </p:selectOneMenu>
+          <p:outputLabel for="numCopies" style="color:#000000;"
+            value="#{msg['digitalbooking.booking.theater.addmovie.copiesOutputLabel']}" />
+          <p:inputText id="numCopies" value="#{theaterBookingBean.copies}" maxlength="3" required="true"
+            validatorMessage="#{msg['digitalbooking.booking.movie.copiesMessageError']}"
+            label="#{msg['digitalbooking.booking.theater.addmovie.copiesOutputLabel']}"
+            disabled="#{!theaterBookingBean.movieSelected}">
+            <f:validateLongRange minimum="1" maximum="100" />
+          </p:inputText>
+          <p:outputLabel for="screensManyButton" style="color:#000000;"
+            value="#{msg['digitalbooking.booking.theater.addmovie.screensRequieredOutputLabel']}" />
+          <p:selectManyButton id="screensManyButton" value="#{theaterBookingBean.screensSelected}"
+            valueChangeListener="#{theaterBookingBean.changeValue}"
+            label="#{msg['digitalbooking.booking.theater.addmovie.screensOutputLabel']}">
+            <p:ajax update="screensManyButton" listener="#{theaterBookingBean.loadScreens}" />
+            <f:selectItems value="#{theaterBookingBean.screens}" var="screen" itemLabel="#{screen.nuScreen}"
+              itemValue="#{screen.id}" itemDisabled="#{screen.disabled}" />
+          </p:selectManyButton>
+        </h:panelGrid>
+        <p:commandButton id="closeBtn" value="#{msg['digitalbooking.common.closeBtnText']}" onclick="PF('addMovieDialog').hide();"
+          style="float: right" process="@this">
+          <p:ajax update="addMoviePanelGrid" resetValues="true" immediate="true" />
+          <p:resetInput target="addMoviePanelGrid" />
+        </p:commandButton>
+        <p:commandButton id="saveOkBtn" value="#{msg['digitalbooking.common.addBtnText']}" style="float: right"
+          action="#{theaterBookingBean.saveNewMovie}" update=":filterPanelForm:movieListTable, addMoviePanelGrid"
+          onstart="start();" oncomplete="stop();if(!args.validationFailed &amp;&amp; !args.notValid) { addMovieDialog.hide(); }">
+        </p:commandButton>
+      </p:dialog>
+    </h:form>
+
+    <h:form id="editPreviousWeekForm">
+      <p:confirmDialog id="editPreviousWeekDialog"
+        message="#{msg['digitalbooking.booking.theater.previous.week.warning.message']}"
+        header="#{msg['digitalbooking.booking.theater.previous.week.warning.header']}" severity="warning" width="300"
+        widgetVar="editPreviousWeekDialog" modal="true">
+        <cdb:commandButton id="editPreviousWeekBtn" value="#{msg['digitalbooking.common.yesBtnText']}"
+          action="#{theaterBookingBean.editBookingTheater}" update=":filterPanelForm:movieListTable"
+          oncomplete="if(!args.fail){PF('editPreviousWeekDialog').hide();PF('downloadButton').enable();PF('downloadButton2').enable();}else {PF('editPreviousWeekDialog').hide();PF('downloadButton').disable();PF('downloadButton2').disable();}">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="editPreviousWeekDialog.hide();" type="button" />
+      </p:confirmDialog>
+    </h:form>
+
+    <h:form id="confirmSendBookingForm">
+      <p:confirmDialog id="confirmSendBookingDialog" message="#{msg['digitalbooking.booking.theater.confirmSendMessageText']}"
+        header="#{msg['digitalbooking.booking.theater.confirmSaveMessageTitle']}" severity="alert" widgetVar="confirmSendBooking"
+        modal="true">
+        <cdb:commandButton id="bookingOkBtn" value="#{msg['digitalbooking.common.yesBtnText']}"
+          action="#{theaterBookingBean.sendTheaterBooking}" onclick="PF('statusDialog').show();"
+          oncomplete="confirmSendBooking.hide(); PF('statusDialog').hide();" update=":filterPanelForm:movieListTable">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmSendBooking.hide();" type="button" />
+      </p:confirmDialog>
+    </h:form>
+
+    <h:form id="confirmSaveBookingForm">
+      <p:confirmDialog id="confirmSaveBookingDialog" widgetVar="confirmSaveBooking" width="300"
+        message="#{msg['digitalbooking.booking.theater.confirmSaveBookingsText']}"
+        header="#{msg['digitalbooking.booking.theater.confirmSaveBookingsTitle']}" severity="warning" modal="true">
+        <cdb:commandButton id="saveBookingOkBtn" value="#{msg['digitalbooking.common.yesBtnText']}"
+          action="#{theaterBookingBean.editBookingTheater}"
+          oncomplete="if(!args.fail){PF('downloadButton').enable();PF('downloadButton2').enable();}else {PF('downloadButton').disable();PF('downloadButton2').disable();}confirmSaveBooking.hide();"
+          update=":filterPanelForm:movieListTable">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmSaveBooking.hide();" type="button" />
+      </p:confirmDialog>
+    </h:form>
+
+    <h:form id="confirmSaveBookingFormAlternative">
+      <p:confirmDialog id="confirmSaveBookingAlternativeDialog" widgetVar="confirmSaveBookingAlternative"
+        message="#{msg['digitalbooking.booking.movie.confirmSaveMessageText']}"
+        header="#{msg['digitalbooking.booking.movie.confirmSaveMessageTitle']}" severity="warning" modal="true">
+        <cdb:commandButton id="saveBookingOkBtn2" value="#{msg['digitalbooking.common.yesBtnText']}"
+          action="#{theaterBookingBean.editBookingTheater}"
+          oncomplete="if(!args.fail){PF('downloadButton').enable();PF('downloadButton2').enable();}else {PF('downloadButton').disable();PF('downloadButton2').disable();}confirmSaveBookingAlternative.hide();"
+          update=":filterPanelForm:movieListTable">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmSaveBookingAlternative.hide();"
+          type="button" />
+      </p:confirmDialog>
+    </h:form>
+
+    <script>
+                    jQuery(document).ready(function() {
+                        var resetBtn = document.getElementById('filterPanelForm:resetBtn');
+                        if (resetBtn) {
+                            resetBtn.click();
+                        }
+                    });
+                </script>
+  </ui:define>
+</ui:composition>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+  xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+  <ui:define name="content_title">#{msg['digitalbooking.administration.users.user.title']}</ui:define>
+  <ui:define name="content">
+    <h:form id="form" >
+      <h:panelGrid columns="1">
+        <p:dataTable id="usersTable" var="user" value="#{adminUserBean.users}" lazy="true" paginator="true" rows="10"
+          paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+          rowsPerPageTemplate="10,50,100" paginatorPosition="bottom" scrollable="true" scrollHeight="255"
+          rowKey="#{user.id}" selection="#{adminUserBean.userSelected}" selectionMode="single" style="width:100%; align: center;">
+          <p:ajax event="rowSelect" update=":form2:editUserPanel" />
+          <p:ajax event="rowUnselect" update=":form2:editUserPanel" />
+          <p:ajax event="rowDblselect" update=":form2:editUserPanel" oncomplete="editUser.show()" />
+          <f:facet name="header">
+            <p:commandButton id="addButton" value="#{msg['digitalbooking.common.addBtnText']}" icon="ui-icon-plus"
+              onclick="PF('addUser').show()" />
+            <p:commandButton id="modifyButton" value="#{msg['digitalbooking.common.modifyBtnText']}"
+              icon="ui-icon-pencil" action="#{adminUserBean.validateSelection}"
+              oncomplete="if(!args.fail){PF('editUser').show()} else {PF('validationErrorDialog').show()}" />
+            <p:commandButton id="removeButton" value="#{msg['digitalbooking.common.removeBtnText']}"
+              icon="ui-icon-close" action="#{adminUserBean.validateSelection}"
+              oncomplete="if(!args.fail){PF('confirmDelete').show()} else {PF('validationErrorDialog').show()}" />
+          </f:facet>
+          <p:column headerText="#{msg['digitalbooking.administration.users.idHeaderTable']}" width="15%">
+					            #{user.id}  
+				</p:column>
+          <p:column headerText="#{msg['digitalbooking.administration.users.name']}" width="70%">
+					            #{user.personTO.fullName}  
+				</p:column>
+          <p:column headerText="#{msg['digitalbooking.administration.users.userName']}" width="15%">
+					            #{user.name}  
+				</p:column>
+        </p:dataTable>
+
+        <f:facet name="footer">
+          <p:column style="border-style:none;">
+            <p:commandButton id="backBtn" value="#{msg['digitalbooking.common.backBtnText']}"
+              action="#{adminUserBean.back}" immediate="true" style="float: right" />
+          </p:column>
+        </f:facet>
+      </h:panelGrid>
+
+    </h:form>
+    <h:form id="form1">
+      <p:dialog id="addUserDialog" header="#{msg['digitalbooking.administration.users.addUserWindowTitle']}"
+        modal="true" widgetVar="addUser" width="500" resizable="false">
+        <p:ajax event="close" listener="#{adminUserBean.handleClose}" update="addUserPanel" />
+        <p:panel id="userPanelAdd" style="display:block;">
+          <p:messages autoUpdate="true" closable="true" />
+          <h:panelGrid id="addUserPanel" columns="2" styleClass="components-dialog">
+            <p:outputLabel for="username" style="color:#000000;"
+              value="#{msg['digitalbooking.administration.users.userName']}" />
+            <p:inputText id="username" value="#{adminUserBean.newUser.name}" required="true"
+              label="#{msg['digitalbooking.users.administration.userNameHeaderTable']}" maxlength="64"
+              styleClass="components-dialog" />
+
+            <p:outputLabel for="name" style="color:#000000;" value="#{msg['digitalbooking.administration.users.name']}" />
+            <p:inputText id="name" value="#{adminUserBean.newUser.personTO.name}" required="true"
+              label="#{msg['digitalbooking.users.administration.nameHeaderTable']}" maxlength="50"
+              styleClass="components-dialog" />
+
+            <p:outputLabel for="lastname" style="color:#000000;"
+              value="#{msg['digitalbooking.administration.users.lastName']}" />
+            <p:inputText id="lastname" value="#{adminUserBean.newUser.personTO.dsLastname}" required="true"
+              label="#{msg['digitalbooking.administration.users.lastNameHeaderTable']}" maxlength="50"
+              styleClass="components-dialog" />
+
+            <p:outputLabel for="secondLastname" style="color:#000000;"
+              value="#{msg['digitalbooking.administration.users.secondLastName']}" />
+            <p:inputText id="secondLastname" value="#{adminUserBean.newUser.personTO.dsMotherLastname}" required="false"
+              label="#{msg['digitalbooking.administration.users.secondLastNameHeaderTable']}" maxlength="50"
+              styleClass="components-dialog" />
+
+            <p:outputLabel for="email" style="color:#000000;"
+              value="#{msg['digitalbooking.administration.users.email']}" />
+            <p:inputText id="email" value="#{adminUserBean.newEmail}" required="true"
+              label="#{msg['digitalbooking.administration.users.emailHeaderTable']}" maxlength="160"
+              styleClass="components-dialog" />
+
+            <p:outputLabel for="roles" style="color:#000000;" value="#{msg['digitalbooking.administration.users.rolRequired']}" />
+            <p:selectManyButton id="roles" widgetVar="roles" value="#{adminUserBean.newUser.rolesSelected}"
+              converter="javax.faces.Long" label="#{msg['digitalbooking.administration.users.rolHeaderTable']}"
+              styleClass="components-dialog" showCheckbox="true">
+              <f:selectItems value="#{adminUserBean.roles}" var="rol" itemLabel="#{rol.name}" itemValue="#{rol.id}"></f:selectItems>
+            </p:selectManyButton>
+
+          </h:panelGrid>
+          <h:panelGrid columns="2" styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+          <p:commandButton id="closeBtn" value="#{msg['digitalbooking.common.closeBtnText']}"
+            onclick="PF('addUser').hide()" style="float: right" process="@this">
+            <p:ajax update="userPanelAdd" resetValues="true" immediate="true" />
+            <p:resetInput target="userPanelAdd" />
+          </p:commandButton>
+          <cdb:commandButton id="saveBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+            action="#{adminUserBean.saveUser}" style="float: right"
+            oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) { addUser.hide(); }"
+            update=":form:usersTable, addUserPanel, userPanelAdd">
+            <cdb:success />
+          </cdb:commandButton>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+    <h:form id="form2">
+      <p:dialog id="editUserDialog" header="#{msg['digitalbooking.administration.users.updateUserWindowTitle']}"
+        widgetVar="editUser" resizable="false" width="500" modal="true">
+        <p:panel id="userPanelModify">
+          <p:messages id="modifyMsgs" autoUpdate="true" closable="true" />
+          <h:panelGrid id="editUserPanel" columns="2" styleClass="components-dialog">
+            <p:outputLabel for="usernameModify" style="color:#000000;"
+              value="#{msg['digitalbooking.administration.users.userName']}" />
+            <p:inputText id="usernameModify" value="#{adminUserBean.userSelected.name}" required="true"
+              label="#{msg['digitalbooking.users.administration.userNameHeaderTable']}" maxlength="64"
+              styleClass="components-dialog" disabled="true" />
+
+            <p:outputLabel for="nameModify" style="color:#000000;"
+              value="#{msg['digitalbooking.administration.users.name']}" />
+            <p:inputText id="nameModify" value="#{adminUserBean.userSelected.personTO.name}" required="true"
+              label="#{msg['digitalbooking.users.administration.nameHeaderTable']}" maxlength="50"
+              styleClass="components-dialog" />
+
+            <p:outputLabel for="lastnameModify" style="color:#000000;"
+              value="#{msg['digitalbooking.administration.users.lastName']}" />
+            <p:inputText id="lastnameModify" value="#{adminUserBean.userSelected.personTO.dsLastname}" required="true"
+              label="#{msg['digitalbooking.administration.users.lastNameHeaderTable']}" maxlength="50"
+              styleClass="components-dialog" />
+
+            <p:outputLabel for="secondLastnameModify" style="color:#000000;"
+              value="#{msg['digitalbooking.administration.users.secondLastName']}" />
+            <p:inputText id="secondLastnameModify" value="#{adminUserBean.userSelected.personTO.dsMotherLastname}"
+              required="false" label="#{msg['digitalbooking.administration.users.secondLastNameHeaderTable']}"
+              maxlength="50" styleClass="components-dialog" />
+
+            <p:outputLabel for="emailModify" style="color:#000000;"
+              value="#{msg['digitalbooking.administration.users.email']}" />
+            <p:inputText id="emailModify" value="#{adminUserBean.userSelected.emailToUpdate}" required="true"
+              label="#{msg['digitalbooking.administration.users.emailHeaderTable']}" maxlength="160"
+              styleClass="components-dialog" />
+
+            <p:outputLabel for="rolesModify" style="color:#000000;"
+              value="#{msg['digitalbooking.administration.users.rol']}" />
+            <p:selectManyButton id="rolesModify" required="true" widgetVar="roles"
+              value="#{adminUserBean.userSelected.rolesSelected}" converter="javax.faces.Long"
+              label="#{msg['digitalbooking.administration.users.rolHeaderTable']}" styleClass="components-dialog"
+              showCheckbox="true">
+              <f:selectItems value="#{adminUserBean.roles}" var="rol" itemLabel="#{rol.name}" itemValue="#{rol.id}" />
+            </p:selectManyButton>
+          </h:panelGrid>
+          <h:panelGrid columns="2" styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+          <p:commandButton id="closeModifyBtn" value="#{msg['digitalbooking.common.closeBtnText']}"
+            oncomplete="PF('editUser').hide()" style="float: right">
+
+          </p:commandButton>
+          <cdb:commandButton id="saveModifyBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+            action="#{adminUserBean.updateUser}" style="float: right"
+            oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) {editUser.hide();}"
+            update=":form:usersTable, userPanelModify">
+            <cdb:success />
+          </cdb:commandButton>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+    <h:form id="form3">
+      <p:confirmDialog id="confirmDialog" message="#{msg['digitalbooking.common.removeMsgConfirmationText']}"
+        header="#{msg['digitalbooking.common.removeRecordTitle']}" severity="alert" widgetVar="confirmDelete"
+        modal="true">
+        <cdb:commandButton id="deleteOkBtn" value="#{msg['digitalbooking.common.yesBtnText']}"
+          action="#{adminUserBean.deleteUser}" update=":form:usersTable, :form2:editUserPanel"
+          oncomplete="confirmDelete.hide();">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmDelete.hide();" type="button" />
+      </p:confirmDialog>
+    </h:form>
+    <h:form id="validationDialogForm">
+      <p:dialog id="validationErrorDialog" header="#{msg['digitalbooking.common.validationErrorTitle']}"
+        widgetVar="validationErrorDialog" modal="true" resizable="false">
+        <h:panelGrid id="validationErrorPanel" columns="1" style="text-align:center">
+          <h:panelGrid columns="2" style="text-align:center">
+            <span class="ui-dialog-message ui-messages-error-icon" />
+            <h:outputText value="#{msg['digitalbooking.common.validationErrorText']}" />
+          </h:panelGrid>
+          <p:commandButton id="acceptBtn" value="#{msg['digitalbooking.common.acceptBtnText']}"
+            oncomplete="validationErrorDialog.hide();" />
+        </h:panelGrid>
+      </p:dialog>
+    </h:form>
+  </ui:define>
+</ui:composition>

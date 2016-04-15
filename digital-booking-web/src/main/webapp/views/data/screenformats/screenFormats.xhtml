@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+  xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+  <ui:define name="content_title">#{msg['digitalbooking.screenformats.screenFormatsTitle']}</ui:define>
+  <ui:define name="content">
+    <cdb:waitingDialog components=":addForm:saveBtn, :editForm:saveBtnModify, :confirmDialogform:deleteOkBtn" />
+    <h:form id="screenFormatListForm" style="width:100%;">
+      <p:dataTable id="screenFormatTable" var="screenFormat" value="#{screenFormatsBean.screenFormatsList}" lazy="true"
+        paginator="true" rows="10"
+        paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+        rowsPerPageTemplate="10,50,100" paginatorPosition="bottom" scrollable="true" scrollHeight="255"
+        rowKey="#{screenFormat.id}" selection="#{screenFormatsBean.selectedScreenFormat}" selectionMode="single" style="width: 100%;">
+        <p:ajax event="rowSelect" update=":editForm:editScreenFormatPanel" />
+        <p:ajax event="rowUnselect" update=":editForm:editScreenFormatPanel" />
+        <p:ajax event="rowDblselect" update=":editForm:editScreenFormatPanel" oncomplete="editScreenFormat.show()" />
+        <f:facet name="header">
+          <p:commandButton id="addButton" value="Add" icon="ui-icon-plus" onclick="PF('addScreenFormat').show()" />
+          <p:commandButton id="modifyButton" value="Modify" icon="ui-icon-pencil"
+            action="#{screenFormatsBean.validateSelection}"
+            oncomplete="if(!args.fail){PF('editScreenFormat').show()} else {PF('validationErrorDialog').show()}" />
+          <p:commandButton id="removeButton" value="Remove" icon="ui-icon-close"
+            action="#{screenFormatsBean.validateSelection}"
+            oncomplete="if(!args.fail){PF('confirmDelete').show()} else {PF('validationErrorDialog').show()}" />
+        </f:facet>
+        <p:column headerText="#{msg['digitalbooking.screenformats.idHeader']}" width="30%">
+					            #{screenFormat.id}  
+				</p:column>
+        <p:column headerText="#{msg['digitalbooking.screenformats.nameHeader']}" width="70%">
+					            #{screenFormat.name}  
+				</p:column>
+      </p:dataTable>
+    </h:form>
+    <h:form id="addForm">
+      <p:dialog id="addScreenFormatDialog" header="#{msg['digitalbooking.screenformats.add.addScreenWindowTitle']}"
+        modal="true" widgetVar="addScreenFormat" resizable="false" width="500">
+        <p:ajax event="close" listener="#{screenFormatsBean.handleClose}" update="addScreenFormatPanel"
+          resetValues="true" immediate="true" />
+        <p:panel id="screenFormatPanelAdd">
+          <p:messages id="msgs" autoUpdate="true" closable="true" />
+          <h:panelGrid id="addScreenFormatPanel" columns="2" styleClass="components-dialog">
+            <p:outputLabel for="name" style="color:#000000;"
+              value="#{msg['digitalbooking.screenformats.add.nameOutputText']}" cellpadding="4" />
+            <p:inputText id="name" value="#{screenFormatsBean.addedName}" required="true"
+              label="#{msg['digitalbooking.screenformats.add.nameOutputText']}" maxlength="160"
+              styleClass="components-dialog" />
+          </h:panelGrid>
+          <h:panelGrid styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+          <p:panelGrid>
+            <p:row>
+              <p:column colspan="2"
+                style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <cdb:commandButton id="saveBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+                  action="#{screenFormatsBean.saveScreenFormat}" style="float: right"
+                  oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) {addScreenFormat.hide()}"
+                  update=":screenFormatListForm:screenFormatTable, addScreenFormatPanel, screenFormatPanelAdd">
+                  <cdb:success />
+                </cdb:commandButton>
+              </p:column>
+              <p:column colspan="1"
+                style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <p:commandButton id="closeBtn" value="#{msg['digitalbooking.common.closeBtnText']}"
+                  oncomplete="PF('addScreenFormat').hide()" style="float: right" process="@this">
+                  <p:ajax update="screenFormatPanelAdd" resetValues="true" immediate="true" />
+                  <p:resetInput target="screenFormatPanelAdd" />
+                </p:commandButton>
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+    <h:form id="editForm">
+      <p:dialog id="editScreenFormatDialog" header="#{msg['digitalbooking.screenformats.edit.editScreenWindowTitle']}"
+        widgetVar="editScreenFormat" resizable="false" width="500" modal="true">
+        <p:ajax event="close" listener="#{screenFormatsBean.handleClose}" update="screenFormatPanelModify"
+          resetValues="true" immediate="true" />
+        <p:panel id="screenFormatPanelModify">
+          <p:messages id="modifyMsgs" autoUpdate="true" closable="true" />
+          <h:panelGrid id="editScreenFormatPanel" columns="2" styleClass="components-dialog">
+            <p:outputLabel for="addedName" style="color:#000000;"
+              value="#{msg['digitalbooking.screenformats.add.nameOutputText']}" cellpadding="4" />
+            <p:inputText id="addedName" value="#{screenFormatsBean.selectedScreenFormat.name}" required="true"
+              label="#{msg['digitalbooking.screenformats.add.nameOutputText']}" maxlength="160"
+              styleClass="components-dialog" />
+          </h:panelGrid>
+          <h:panelGrid styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+          <p:panelGrid>
+            <p:row>
+              <p:column colspan="2"
+                style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <cdb:commandButton id="saveBtnModify" value="#{msg['digitalbooking.common.saveBtnText']}"
+                  action="#{screenFormatsBean.updateScreenFormat}" style="float: right"
+                  oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) {editScreenFormat.hide();}"
+                  update=":screenFormatListForm:screenFormatTable, screenFormatPanelModify">
+                  <cdb:success />
+                </cdb:commandButton>
+              </p:column>
+              <p:column colspan="1"
+                style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <p:commandButton id="closeBtnModify" value="#{msg['digitalbooking.common.closeBtnText']}"
+                  oncomplete="PF('editScreenFormat').hide()" style="float: right" resetValues="true" immediate="true"
+                  process="@this">
+                  <p:ajax update="screenFormatPanelModify" resetValues="true" immediate="true" />
+                  <p:resetInput target="screenFormatPanelModify" />
+                </p:commandButton>
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+    <h:form id="confirmDialogform">
+      <p:confirmDialog id="confirmDialog" message="#{msg['digitalbooking.common.removeMsgConfirmationText']}"
+        header="#{msg['digitalbooking.common.removeRecordTitle']}" severity="alert" widgetVar="confirmDelete"
+        modal="true">
+        <cdb:commandButton id="deleteOkBtn" value="#{msg['digitalbooking.common.yesBtnText']}"
+          action="#{screenFormatsBean.deleteScreenFormat}"
+          update=":screenFormatListForm:screenFormatTable, :editForm:editScreenFormatPanel"
+          oncomplete="confirmDelete.hide();">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmDelete.hide();" type="button" />
+      </p:confirmDialog>
+    </h:form>
+    <h:form id="validationDialogForm">
+      <p:dialog id="validationErrorDialog" header="#{msg['digitalbooking.common.validationErrorTitle']}"
+        widgetVar="validationErrorDialog" modal="true" resizable="false">
+        <h:panelGrid id="validationErrorPanel" columns="1" style="text-align:center">
+          <h:panelGrid columns="2" style="text-align:center">
+            <span class="ui-dialog-message ui-messages-error-icon" />
+            <h:outputText value="#{msg['digitalbooking.common.validationErrorText']}" />
+          </h:panelGrid>
+          <p:commandButton id="acceptBtn" value="#{msg['digitalbooking.common.acceptBtnText']}"
+            oncomplete="validationErrorDialog.hide();" />
+        </h:panelGrid>
+      </p:dialog>
+    </h:form>
+  </ui:define>
+</ui:composition>

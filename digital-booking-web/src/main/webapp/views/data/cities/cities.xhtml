@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:p="http://primefaces.org/ui" xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+
+  <ui:define name="content_title">#{msg['digitalbooking.cities.administration.cityTitle']}</ui:define>
+  <ui:define name="content">
+    <cdb:waitingDialog
+      components=":form:citiesTable:addButton, :form:citiesTable:modifyButton, :form3:deleteOkBtn, form:citiesTable:searchButton, form:citiesTable:resetButton,
+      :form:citiesTable:countryIdFilter, :form:citiesTable:stateIdFilter" />
+
+    <h:form id="form" style="width:100%">
+      <p:messages id="modifyMsgs" autoUpdate="true" closable="true" />
+      <p:focus />
+
+      <p:dataTable id="citiesTable" var="city" value="#{citiesBean.cities}" lazy="true" paginator="true" rows="10" widgetVar="citiesTable"
+        paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+        rowsPerPageTemplate="10,50,100" paginatorPosition="bottom" scrollable="true" scrollHeight="255" rowKey="#{city.id}"
+        selection="#{citiesBean.citySelected}" selectionMode="single">
+        <p:ajax event="rowSelect" listener="#{citiesBean.setCityData}" update=":form1:addCityPanel, :form1:addCityDialog" />
+        <p:ajax event="rowUnselect" listener="#{citiesBean.setCityData}" update=":form1:addCityPanel, :form1:addCityDialog" />
+        <p:ajax event="rowDblselect" listener="#{citiesBean.setCityData}" update=":form1:addCityPanel, :form1:addCityDialog"
+          oncomplete="PF('addCity').show()" />
+
+        <f:facet name="header">
+          <p:toolbar style="border:'none';">
+            <p:toolbarGroup align="left" style="margin-top: 0cm 0cm 0cm 5cm;">
+              <p:commandButton id="addButton" value="#{msg['digitalbooking.common.addBtnText']}" icon="ui-icon-plus"
+                action="#{citiesBean.resetCityData}" oncomplete="PF('citiesTable').unselectAllRows();PF('addCity').show();" update=":form1:addCityPanel, :form1:addCityDialog" />
+              <p:commandButton id="modifyButton" value="#{msg['digitalbooking.common.modifyBtnText']}" icon="ui-icon-pencil"
+                action="#{citiesBean.validateSelection}"
+                oncomplete="if(!args.fail){PF('addCity').show();} else {PF('validationErrorDialog').show();}">
+              </p:commandButton>
+              <p:commandButton id="removeButton" value="#{msg['digitalbooking.common.removeBtnText']}" icon="ui-icon-close"
+                action="#{citiesBean.validateSelection}"
+                oncomplete="if(!args.fail){PF('confirmDelete').show();} else {PF('validationErrorDialog').show();}" />
+            </p:toolbarGroup>
+
+            <p:toolbarGroup>
+              <p:fieldset id="filters" legend="#{msg['digitalbooking.common.applyFilters']}" style="width: 700px;" align="center">
+                <p:ajax event="toggle" listener="#{citiesBean.handleToggleFilters}" update="filters, citiesTable" />
+                <p:panelGrid cellpadding="10" style="border-style:none;" bgcolor="#FFFFFF">
+                  <p:row>
+                    <p:column style="border-style:none;width:120px">
+                      <p:outputLabel for="cityNameFilter" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.cities.administration.cityNameFilterLabel']}" />
+                    </p:column>
+                    <p:column style="border-style:none; width: 340px !important;">
+                      <p:inputText id="cityNameFilter" value="#{citiesBean.cityNameFilter}" maxlength="160" size="30"
+                        style="width:300px" />
+                    </p:column>
+                  </p:row>
+                  <p:row>
+                    <p:column style="border-style:none;width:120px">
+                      <p:outputLabel for="liquidationIdFilter" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.cities.administration.liquidationIdFilterLabel']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:inputText id="liquidationIdFilter" value="#{citiesBean.liquidationIdFilter}" maxlength="160" size="30"
+                        style="width:300px" />
+                    </p:column>
+                  </p:row>
+                  <p:row>
+                    <p:column style="border-style:none;width:120px">
+                      <p:outputLabel for="countryIdFilter" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.cities.administration.countryIdFilterLabel']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:selectOneMenu id="countryIdFilter" widgetVar="countryIdFilter" value="#{citiesBean.countryIdFilter}"
+                        panelStyle="width:180px" style="width:300px">
+                        <p:ajax update="stateIdFilter" listener="#{citiesBean.loadStatesFilter}" />
+                        <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                        <f:selectItems value="#{citiesBean.countryTOList}" var="country" itemLabel="#{country.name}"
+                          itemValue="#{country.id}" />
+                      </p:selectOneMenu>
+                    </p:column>
+                  </p:row>
+                  <p:row>
+                    <p:column style="border-style:none;width:120px">
+                      <p:outputLabel for="stateIdFilter" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.cities.administration.stateIdFilterLabel']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:selectOneMenu id="stateIdFilter" style="width:300px" value="#{citiesBean.stateIdFilter}" immediate="true"
+                        filterMatchMode="contains" filter="true" panelStyle="width:180px" update="citiesTable">
+                        <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                        <f:selectItems value="#{citiesBean.stateTOListFilter}" var="state" itemLabel="#{state.catalogState.name}"
+                          itemValue="#{state.catalogState.id}" />
+                      </p:selectOneMenu>
+                    </p:column>
+                  </p:row>
+                  <p:row>
+                    <p:column colspan="2" style="border-style:none;text-align:right;">
+                      <p:commandButton id="resetButton" value="#{msg['digitalbooking.common.resetBtnText']}"
+                        icon="ui-icon-arrowrefresh-1-s" update="filters, :form:citiesTable" action="#{citiesBean.resetFilters}">
+                        <p:ajax update="filters, :form:citiesTable" resetValues="true" />
+                      </p:commandButton>
+                      <p:commandButton id="searchButton" value="#{msg['digitalbooking.common.searchBtnText']}"
+                        icon="ui-icon-search" update=":form:citiesTable" action="#{citiesBean.setFilters}" />
+                    </p:column>
+                  </p:row>
+                </p:panelGrid>
+              </p:fieldset>
+            </p:toolbarGroup>
+          </p:toolbar>
+        </f:facet>
+        <p:column headerText="#{msg['digitalbooking.cities.administration.liquidationIdHeaderTable']}" style="width:10%;">
+					            #{city.idVista}
+				</p:column>
+        <p:column headerText="#{msg['digitalbooking.cities.administration.cityNameHeaderTable']}" style="width:30%;">
+					            #{city.name}  
+				</p:column>
+        <p:column headerText="#{msg['digitalbooking.cities.administration.stateNameHeaderTable']}" style="width:30%;">
+                      #{city.state.catalogState.name}  
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.cities.administration.countryNameHeaderTable']}" style="width:30%;">
+                      #{city.country.name}  
+        </p:column>
+      </p:dataTable>
+
+      <p:defaultCommand target=":form:citiesTable:searchButton"></p:defaultCommand>
+    </h:form>
+
+    <!-- ############### ADD/EDIT - MODAL WINDOW ###############  -->
+    <h:form id="form1">
+      <p:dialog id="addCityDialog" header="#{citiesBean.cityHeader}" modal="true" widgetVar="addCity" resizable="false"
+        width="50%">
+        <p:ajax event="close" update="addCityDialog" resetValues="true" immediate="true" listener="#{citiesBean.resetCityData}" />
+        <p:panel id="addCityPanel">
+          <p:messages id="modifyMsgs" autoUpdate="true" closable="true" />
+
+          <p:panelGrid id="dataCityPanel" style="width:100%; border-style:none;" bgcolor="#FFFFFF" headerClass="ui-widget-header"
+            styleClass="ui-widget-content" footerClass="ui-widget-header" title="#{citiesBean.cityHeader}">
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="cityName" style="color:#000000;"
+                  value="#{msg['digitalbooking.cities.administration.cityNameLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:inputText id="cityName" value="#{citiesBean.cityName}" required="true" maxlength="160" size="30"
+                  style="width:200px" />
+              </p:column>
+            </p:row>
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="liquidationId" style="color:#000000;"
+                  value="#{msg['digitalbooking.cities.administration.liquidationIdLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:inputText id="liquidationId" value="#{citiesBean.liquidationId}" required="true" maxlength="12" size="30"
+                  style="width:200px" />
+              </p:column>
+            </p:row>
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="countryId" style="color:#000000;"
+                  value="#{msg['digitalbooking.cities.administration.countryIdLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:selectOneMenu id="countryId" value="#{citiesBean.countryId}" required="true" panelStyle="width:180px"
+                  style="width:300px">
+                  <p:ajax update="stateId" listener="#{citiesBean.loadStates}" />
+                  <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                  <f:selectItems value="#{citiesBean.countryTOList}" var="country" itemLabel="#{country.name}"
+                    itemValue="#{country.id}" />
+                </p:selectOneMenu>
+              </p:column>
+            </p:row>
+
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="stateId" style="color:#000000;"
+                  value="#{msg['digitalbooking.cities.administration.stateIdLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:selectOneMenu id="stateId" widgetVar="stateId" value="#{citiesBean.stateId}" required="true" panelStyle="width:180px"
+                  style="width:300px">
+                  <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                  <f:selectItems value="#{citiesBean.stateTOList}" var="state" itemLabel="#{state.catalogState.name}"
+                    itemValue="#{state.catalogState.id}" />
+                </p:selectOneMenu>
+              </p:column>
+            </p:row>
+
+          </p:panelGrid>
+          <br></br>
+          <p:panelGrid>
+            <p:row>
+              <p:column colspan="2" style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <cdb:commandButton id="saveBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+                  action="#{citiesBean.saveCity}" style="float: right"
+                  oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid){PF('addCity').hide();}"
+                  update="addCityPanel, :form:citiesTable">
+                  <cdb:success />
+                </cdb:commandButton>
+              </p:column>
+              <p:column colspan="1" style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <p:commandButton id="closeBtn" value="#{msg['digitalbooking.common.closeBtnText']}"
+                  action="#{citiesBean.resetCityData}" oncomplete="PF('addCity').hide();" style="float: right" process="@this">
+                  <p:ajax update="addCityPanel, :form:citiesTable" resetValues="true" immediate="true" />
+                  <p:resetInput target="addCityPanel" />
+                </p:commandButton>
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+
+    <h:form id="form3">
+      <p:confirmDialog id="confirmDialog" message="#{msg['digitalbooking.common.removeMsgConfirmationText']}"
+        header="#{msg['digitalbooking.common.removeRecordTitle']}" severity="alert" widgetVar="confirmDelete" modal="true"
+        resizable="false">
+        <cdb:commandButton id="deleteOkBtn" value="#{msg['digitalbooking.common.yesBtnText']}" action="#{citiesBean.deleteMovie}"
+          update=":form:citiesTable" oncomplete="confirmDelete.hide();">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmDelete.hide();" type="button" />
+      </p:confirmDialog>
+    </h:form>
+
+    <h:form id="validationDialogForm">
+      <p:dialog id="validationErrorDialog" header="#{msg['digitalbooking.common.validationErrorTitle']}"
+        widgetVar="validationErrorDialog" modal="true" resizable="false">
+        <h:panelGrid id="validationErrorPanel" columns="1" style="text-align:center">
+          <h:panelGrid columns="2" style="text-align:center">
+            <span class="ui-dialog-message ui-messages-error-icon" />
+            <h:outputText value="#{msg['digitalbooking.common.validationErrorText']}" />
+          </h:panelGrid>
+          <p:commandButton id="acceptBtn" value="#{msg['digitalbooking.common.acceptBtnText']}"
+            oncomplete="validationErrorDialog.hide();" />
+        </h:panelGrid>
+      </p:dialog>
+    </h:form>
+    <script>
+                    jQuery(document).ready(function() {
+                        var resetBtn = document.getElementById('form:citiesTable:resetButton');
+                        if (resetBtn) {
+                            resetBtn.click();
+                        }
+                    });
+                </script>
+  </ui:define>
+</ui:composition>

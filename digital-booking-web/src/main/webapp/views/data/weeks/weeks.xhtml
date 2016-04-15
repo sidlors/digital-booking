@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+  xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+  <ui:define name="content_title">#{msg['digitalbooking.weeks.administration.weeksTitle']}</ui:define>
+  <ui:define name="content">
+    <cdb:waitingDialog
+      components=":form:movieTable:weeksTable, :form:weeksTable:modifyButton, form:movieTable:searchButton, :form3:deleteOkBtn" />
+    <h:form id="form" style="width:100%">
+     <p:messages id="modifyMsgs" autoUpdate="true" closable="true" />
+      <p:focus />
+      <p:dataTable id="weeksTable" var="week" value="#{weeksBean.weeksTOs}" lazy="true" paginator="true" rows="10"
+        paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+        rowsPerPageTemplate="10,50,100" paginatorPosition="bottom" scrollable="true" scrollHeight="255"
+        rowKey="#{week.idWeek}" selection="#{weeksBean.selectedWeek}" selectionMode="single" >
+        <p:ajax event="rowDblselect" update=":form2:editWeekPanel" oncomplete="editWeek.show()" />
+        <f:facet name="header">
+        
+        <p:toolbar style="border:'none';">
+	        <p:toolbarGroup align="left" style="margin-top: 0cm 0cm 0cm 5cm;">
+	          <p:commandButton id="addButton" value="#{msg['digitalbooking.common.addBtnText']}" icon="ui-icon-plus"
+	            update=":form1:addWeekDialog" action="#{weeksBean.getNextNumWeek}" oncomplete="PF('addWeek').show()" />
+	          <p:commandButton id="modifyButton" value="#{msg['digitalbooking.common.modifyBtnText']}" icon="ui-icon-pencil"
+	            action="#{weeksBean.validateSelection}"
+	            oncomplete="if(!args.fail){PF('editWeek').show()} else {PF('validationErrorDialog').show()}" />
+	          <p:commandButton id="removeButton" value="#{msg['digitalbooking.common.removeBtnText']}" icon="ui-icon-close"
+	            action="#{weeksBean.validateSelection}"
+	            oncomplete="if(!args.fail){PF('confirmDelete').show()} else {PF('validationErrorDialog').show()}" />
+	        </p:toolbarGroup>
+            
+            <p:toolbarGroup>
+              <p:fieldset id="filters" legend="#{msg['digitalbooking.common.applyFilters']}" style="width:600px;" align="center">
+                <p:ajax event="toggle" listener="#{weeksBean.handleToggleFilters}" update="filters, weeksTable" />
+                <p:panelGrid cellpadding="10" style="border-style:none;" bgcolor="#FFFFFF">
+                 <p:row>
+                    <p:column style="border-style:none;width:120px">
+                      <p:outputLabel for="filterYear" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.weeks.administration.yearFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:inputText id="filterYear" value="#{weeksBean.filterYear}" maxlength="160"
+                        size="30" style="width:300px" />
+                    </p:column>
+                  </p:row>
+                  <p:row>
+                    <p:column style="border-style:none;width:120px">
+                      <p:outputLabel for="filterNumWeek" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.weeks.administration.numWeekFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:inputText id="filterNumWeek" value="#{weeksBean.filterNumWeek}" maxlength="160"
+                        size="30" style="width:300px" />
+                    </p:column>
+                  </p:row>
+                  <p:row>
+                    <p:column style="border-style:none;width:120px">
+                      <p:outputLabel for="filterSpecialWeek" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.weeks.administration.specialWeekFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                    	<p:selectBooleanCheckbox  id="filterSpecialWeek" value="#{weeksBean.filterSpecialWeek}" />
+                    </p:column>
+                  </p:row>
+                  <p:row>
+                    <p:column colspan="2" style="border-style:none;text-align:right;">
+                      <p:commandButton id="resetButton" value="#{msg['digitalbooking.common.resetBtnText']}"
+                        icon="ui-icon-arrowrefresh-1-s" update="weeksTable" action="#{weeksBean.resetFilters}">
+                        <p:ajax update="filters" resetValues="true" />
+                      </p:commandButton>
+                      <p:commandButton id="searchButton" value="#{msg['digitalbooking.common.searchBtnText']}"
+                        icon="ui-icon-search" update="weeksTable" action="#{weeksBean.searchFilters}" />
+                    </p:column>
+                  </p:row>
+                </p:panelGrid>
+              </p:fieldset>
+            </p:toolbarGroup>
+          </p:toolbar>  
+        </f:facet>
+        
+        <p:column headerText="#{msg['digitalbooking.weeks.administration.numWeekHeaderTable']}" width="15%">
+					#{week.nuWeek}
+				</p:column>
+        <p:column headerText="#{msg['digitalbooking.weeks.administration.numYearHeaderTable']}" width="15%">
+					#{week.nuYear}
+	       		</p:column>
+        <p:column headerText="#{msg['digitalbooking.weeks.administration.startingDayWeekHeaderTable']}"
+          width="30%">
+          <h:outputText value="#{week.startingDayWeek}">
+            <f:convertDateTime pattern="dd/MM/yyyy" />
+          </h:outputText>
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.weeks.administration.finalDayWeekHeaderTable']}" width="30%">
+          <h:outputText value="#{week.finalDayWeek}">
+            <f:convertDateTime pattern="dd/MM/yyyy" />
+          </h:outputText>
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.weeks.administration.specialWeekHeaderTable']}"
+          style="text-align:center;" width="10%">
+          <p:graphicImage value="/images/tick.png" rendered="#{week.specialWeek}" />
+        </p:column>
+      </p:dataTable>
+      <p:defaultCommand target=":form:weeksTable:searchButton"></p:defaultCommand>
+    </h:form>
+    <h:form id="form1">
+      <p:dialog id="addWeekDialog" header="#{msg['digitalbooking.weeks.administration.addWeekWindowTitle']}"
+        modal="true" widgetVar="addWeek" width="500" resizable="false">
+        <p:ajax event="close" listener="#{weeksBean.handleClose}" update="addWeekPanel"
+          resetValues="true" immediate="true" />
+        <p:panel id="weekPanelAdd" style="display:block;">
+          <p:messages autoUpdate="true" closable="true" />
+          <h:panelGrid id="addWeekPanel" columns="2" styleClass="components-dialog">
+            <p:outputLabel for="weeks" style="color:#000000;"
+              value="#{msg['digitalbooking.weeks.add.numWeeOutputLabel']}" />
+            <p:inputText id="weeks" value="#{weeksBean.nuWeek}" required="true"
+              label="#{msg['digitalbooking.weeks.administration.numWeekHeaderTable']}" maxlength="50"
+              styleClass="components-dialog" />
+
+            <p:outputLabel for="years" style="color:#000000;"
+              value="#{msg['digitalbooking.weeks.add.numYearOutputLabel']}" cellpadding="4" />
+            <p:inputText id="years" value="#{weeksBean.nuYear}" required="true" maxlength="12"
+              styleClass="components-dialog" label="#{msg['digitalbooking.weeks.administration.numYearHeaderTable']}">
+              <f:validateLongRange minimum="0" maximum="999999999999" />
+            </p:inputText>
+
+            <p:outputLabel for="startDate" style="color:#000000;"
+              value="#{msg['digitalbooking.weeks.add.startingDayWeekOutputLabel']}" />
+            <p:calendar id="startDate" value="#{weeksBean.startingDayWeek}" showOn="button" pattern="dd/MM/yyyy"
+              required="true" />
+
+            <p:outputLabel for="endDate" style="color:#000000;"
+              value="#{msg['digitalbooking.weeks.add.finalDayWeekOutputLabel']}" />
+            <p:calendar id="endDate" value="#{weeksBean.finalDayWeek}" showOn="button" pattern="dd/MM/yyyy"
+              required="true" />
+
+            <p:outputLabel for="specialWeeks" style="color:#000000;"
+              value="#{msg['digitalbooking.weeks.add.specialWeekOutputLabel']}" />
+            <p:selectBooleanCheckbox id="specialWeeks" value="#{weeksBean.specialWeek}" />
+
+          </h:panelGrid>
+          <h:panelGrid columns="1" styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+          <p:commandButton id="closeBtn" value="#{msg['digitalbooking.common.closeBtnText']}"
+            onclick="PF('addWeek').hide()" style="float: right" process="@this">
+            <p:ajax update="weekPanelAdd" resetValues="true" immediate="true" />
+            <p:resetInput target="weekPanelAdd" />
+          </p:commandButton>
+          <cdb:commandButton id="saveBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+            action="#{weeksBean.saveWeek}" style="float: right"
+            oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) { addWeek.hide(); }"
+            update=":form:weeksTable, addWeekPanel, weekPanelAdd">
+            <cdb:success />
+          </cdb:commandButton>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+    <h:form id="form2">
+      <p:dialog id="editWeekDialog" header="#{msg['digitalbooking.weeks.administration.modifyWeekWindowTitle']}"
+        modal="true" widgetVar="editWeek" width="500" resizable="false">
+        <p:ajax event="close" listener="#{weeksBean.handleClose}" update="weekPanelModify"
+          resetValues="true" immediate="true" />
+        <p:panel id="weekPanelModify">
+          <p:messages id="modifyMsgs" autoUpdate="true" closable="true" />
+          <h:panelGrid id="editWeekPanel" columns="2" styleClass="components-dialog">
+            <p:outputLabel for="weeksModify" style="color:#000000;"
+              value="#{msg['digitalbooking.weeks.add.numWeeOutputLabel']}" />
+            <p:inputText id="weeksModify" value="#{weeksBean.selectedWeek.nuWeek}" required="true"
+              label="#{msg['digitalbooking.weeks.administration.numWeekHeaderTable']}" maxlength="50"
+              styleClass="components-dialog" />
+
+            <p:outputLabel for="yearsModify" style="color:#000000;"
+              value="#{msg['digitalbooking.weeks.add.numYearOutputLabel']}" cellpadding="4" />
+            <p:inputText id="yearsModify" value="#{weeksBean.selectedWeek.nuYear}" required="true" maxlength="12"
+              styleClass="components-dialog" label="#{msg['digitalbooking.weeks.administration.numYearHeaderTable']}">
+              <f:validateLongRange minimum="0" maximum="999999999999" />
+            </p:inputText>
+
+            <p:outputLabel for="startDateModify" style="color:#000000;"
+              value="#{msg['digitalbooking.weeks.add.startingDayWeekOutputLabel']}" />
+            <p:calendar id="startDateModify" value="#{weeksBean.selectedWeek.startingDayWeek}" showOn="button"
+              pattern="dd/MM/yyyy" required="true" />
+
+            <p:outputLabel for="endDateModify" style="color:#000000;"
+              value="#{msg['digitalbooking.weeks.add.finalDayWeekOutputLabel']}" />
+            <p:calendar id="endDateModify" value="#{weeksBean.selectedWeek.finalDayWeek}" showOn="button"
+              pattern="dd/MM/yyyy" required="true" />
+
+            <p:outputLabel for="specialWeeksModify" style="color:#000000;"
+              value="#{msg['digitalbooking.weeks.add.specialWeekOutputLabel']}" />
+            <p:selectBooleanCheckbox id="specialWeeksModify" value="#{weeksBean.selectedWeek.specialWeek}" />
+          </h:panelGrid>
+          <h:panelGrid columns="1" styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+          <p:commandButton id="closeModifyBtn" value="#{msg['digitalbooking.common.closeBtnText']}"
+            oncomplete="PF('editWeek').hide()" style="float: right" resetValues="true" immediate="true">
+            <p:ajax update="weekPanelModify" resetValues="true" />
+          </p:commandButton>
+          <cdb:commandButton id="saveModifyBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+            action="#{weeksBean.updateWeek}" style="float: right"
+            oncomplete="console.log(args);if(!args.validationFailed &amp;&amp; !args.notValid) {editWeek.hide();}"
+            update=":form:weeksTable, weekPanelModify">
+            <cdb:success />
+          </cdb:commandButton>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+    <h:form id="form3">
+      <p:confirmDialog id="confirmDialog" message="#{msg['digitalbooking.common.removeMsgConfirmationText']}"
+        header="#{msg['digitalbooking.common.removeRecordTitle']}" severity="alert" widgetVar="confirmDelete"
+        modal="true">
+        <cdb:commandButton id="deleteOkBtn" value="#{msg['digitalbooking.common.yesBtnText']}"
+          action="#{weeksBean.deleteWeek}" update=":form:weeksTable, :form2:editWeekPanel"
+          oncomplete="confirmDelete.hide();">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmDelete.hide();" type="button" />
+      </p:confirmDialog>
+    </h:form>
+    <h:form id="validationDialogForm">
+      <p:dialog id="validationErrorDialog" header="#{msg['digitalbooking.common.validationErrorTitle']}"
+        widgetVar="validationErrorDialog" modal="true" resizable="false">
+        <h:panelGrid id="validationErrorPanel" columns="1" style="text-align:center">
+          <h:panelGrid columns="2" style="text-align:center">
+            <span class="ui-dialog-message ui-messages-error-icon" />
+            <h:outputText value="#{msg['digitalbooking.common.validationErrorText']}" />
+          </h:panelGrid>
+          <p:commandButton id="acceptBtn" value="#{msg['digitalbooking.common.acceptBtnText']}"
+            oncomplete="validationErrorDialog.hide();" />
+        </h:panelGrid>
+      </p:dialog>
+    </h:form>
+  </ui:define>
+</ui:composition>

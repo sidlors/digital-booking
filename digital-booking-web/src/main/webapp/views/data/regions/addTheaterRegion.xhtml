@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:p="http://primefaces.org/ui" xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+  <ui:define name="content_title">#{msg['digitalbooking.theaterregions.administration.addTheaterRegionWindowTitle']}</ui:define>
+  <ui:define name="content">
+    <h:form id="addtheaterRegionsForm" style="width:100%">
+      <p:messages id="msgs" autoUpdate="true" closable="true" redisplay="false" />
+      <p:panelGrid id="addTheaterRegionPanel" style="width:100%; border-style:none;" bgcolor="#FFFFFF"
+        headerClass="ui-widget-header" styleClass="ui-widget-content" footerClass="ui-widget-header"
+        title="#{msg['digitalbooking.theaterregions.administration.addTheaterRegionTitle']}">
+        <f:facet name="header">
+          <p:row>
+            <p:column style="border-style:none;" colspan="3">
+	      	#{msg['digitalbooking.theaterregions.administration.addTheaterRegionTitle']}</p:column>
+          </p:row>
+        </f:facet>
+        <p:row>
+          <p:column style="border-style:none;">
+            <p:outputLabel for="territoryName" style="color:#000000;"
+              value="#{msg['digitalbooking.theaterregions.add.nameOutputText']}" cellpadding="4" />
+          </p:column>
+          <p:column style="border-style:none;">
+            <p:inputText id="territoryName" value="#{addTheaterRegionBean.addTerritoryName}" required="true"
+              label="#{msg['digitalbooking.theaterregions.administration.nameHeaderTable']}" maxlength="160"
+              styleClass="components-dialog" style="width: 35%" />
+          </p:column>
+        </p:row>
+        <p:row>
+          <p:column style="border-style:none;">
+            <p:outputLabel for="territory" style="color:#000000;"
+              value="#{msg['digitalbooking.theaterregions.add.territoryOutputText']}" />
+          </p:column>
+          <p:column style="border-style:none;">
+            <p:selectOneMenu id="territory" value="#{addTheaterRegionBean.addTerritoryId}" required="true"
+              label="#{msg['digitalbooking.theaterregions.administration.territoryHeaderTable']}" style="width:35%"
+              panelStyle="width: 25%">
+              <f:selectItem itemLabel="Select One" itemValue="" />
+              <f:selectItems value="#{addTheaterRegionBean.addTerritoryTOs}" var="territories" itemLabel="#{territories.name}"
+                itemValue="#{territories.id}" />
+            </p:selectOneMenu>
+          </p:column>
+        </p:row>
+
+        <p:row>
+          <p:column style="border-style:none;" colspan="3">
+
+
+            <p:panel id="personsEmailPanel" header="#{msg['digitalbooking.theaterregions.add.personHeaderPanel']}"
+              style="margin-bottom:10px; width: 100%; text-align: center;">
+              <p:dataTable id="personsEmailTable" widgetVar="personsEmailTable" var="personsEmail"
+                value="#{addTheaterRegionBean.personEmailDataModel}" lazy="true" paginator="true" rows="10"
+                paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                rowsPerPageTemplate="10,50,100" paginatorPosition="bottom" scrollable="true" scrollHeight="255"
+                rowKey="#{personsEmail.email}" selection="#{addTheaterRegionBean.selectedPersonEmail}" selectionMode="single"
+                style="width:100%">
+
+                <p:ajax event="rowSelect" listener="#{addTheaterRegionBean.seEdittPersonData}"
+                  update=":editPersonEmailForm:editPersonEmailPanelGrid" />
+                <p:ajax event="rowUnselect" update=":editPersonEmailForm:editPersonEmailPanelGrid" />
+                <p:ajax event="rowDblselect" listener="#{addTheaterRegionBean.seEdittPersonData}"
+                  update=":editPersonEmailForm:editPersonEmailPanelGrid" oncomplete="editPersonEmail.show()" />
+
+                <f:facet name="header">
+                  <p:commandButton id="addButton" value="#{msg['digitalbooking.common.addBtnText']}" icon="ui-icon-plus"
+                    update=":addPersonEmailForm:addPersonEmailDialog" action="#{addTheaterRegionBean.addNewPerson}"
+                    oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid){ PF('addPersonEmail').show(); }" />
+                  <p:commandButton id="modifyButton" value="#{msg['digitalbooking.common.modifyBtnText']}" icon="ui-icon-pencil"
+                    action="#{addTheaterRegionBean.validatePersonSelection}"
+                    oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid){ PF('editPersonEmail').show();} else if(PF('personsEmailTable').getSelectedRowsCount() === 0 ) { PF('validationErrorDialog').show();}" />
+                  <p:commandButton id="removeButton" value="#{msg['digitalbooking.common.removeBtnText']}" icon="ui-icon-close"
+                    action="#{addTheaterRegionBean.validatePersonSelection}"
+                    oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid){PF('confirmDeletePerson').show()} else if(PF('personsTable').getSelectedRowsCount() === 0 ) {PF('validationErrorDialog').show();}" />
+                </f:facet>
+                <p:column headerText="#{msg['digitalbooking.theaterregions.person.nameHeaderTable']}" width="200">#{personsEmail.name}</p:column>
+                <p:column headerText="#{msg['digitalbooking.theaterregions.person.lastnameHeaderTable']}" width="200">#{personsEmail.dsLastname}</p:column>
+                <p:column headerText="#{msg['digitalbooking.theaterregions.person.motherlastnameHeaderTable']}" width="200">#{personsEmail.dsMotherLastname}</p:column>
+                <p:column headerText="#{msg['digitalbooking.theaterregions.person.emailHeaderTable']}" width="200">#{personsEmail.email}</p:column>
+              </p:dataTable>
+            </p:panel>
+
+          </p:column>
+        </p:row>
+
+        <p:row>
+          <p:column style="border-style:none" colspan="2">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </p:column>
+        </p:row>
+        <p:row>
+          <p:column colspan="2" style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+            <cdb:commandButton id="saveBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+              action="#{addTheaterRegionBean.saveTheaterRegion}" style="float: right">
+              <cdb:success successurl="/views/data/regions/theaterRegions.do" />
+            </cdb:commandButton>
+          </p:column>
+          <p:column colspan="1" style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+            <p:commandButton id="closeBtn" value="#{msg['digitalbooking.common.cancelBtnText']}" style="float: right"
+              action="#{addTheaterRegionBean.goTheaterRegions}" immediate="true" />
+          </p:column>
+        </p:row>
+
+      </p:panelGrid>
+    </h:form>
+    <!-- ############### ADD PERSON - MODAL WINDOW ###############  -->
+    <h:form id="addPersonEmailForm">
+      <p:dialog id="addPersonEmailDialog" header="#{msg['digitalbooking.theaterregions.person.addPersonWindowTitle']}"
+        modal="true" widgetVar="addPersonEmail" width="460px" resizable="false">
+        <p:ajax event="close" listener="#{addTheaterRegionBean.closeModalWindow}" update="addPersonEmailPanel" resetValues="true"
+          immediate="true" />
+        <p:panel id="addPersonEmailPanel" style="display:block;">
+          <p:messages autoUpdate="true" closable="true" />
+          <h:panelGrid id="addPersonEmailPanelGrid" columns="2" styleClass="components-dialog">
+
+            <p:outputLabel for="personName" style="color:#000000;"
+              value="#{msg['digitalbooking.theaterregions.person.addPerson.name']}" cellpadding="4" />
+            <p:inputText id="personName" value="#{addTheaterRegionBean.newPersonEmail.name}" required="true" size="50"
+              label="#{msg['digitalbooking.theaterregions.person.addPerson.name']}" maxlength="50" styleClass="components-dialog" />
+
+            <p:outputLabel for="personLastname" style="color:#000000;"
+              value="#{msg['digitalbooking.theaterregions.person.editPerson.personLastname']}" cellpadding="4" />
+            <p:inputText id="personLastname" value="#{addTheaterRegionBean.newPersonEmail.dsLastname}" required="true" size="50"
+              label="#{msg['digitalbooking.theaterregions.person.editPerson.personLastname']}" maxlength="50"
+              styleClass="components-dialog" />
+
+            <p:outputLabel for="personMotherLastname" style="color:#000000;"
+              value="#{msg['digitalbooking.theaterregions.person.addPerson.personMotherLastname']}" cellpadding="4" />
+            <p:inputText id="personMotherLastname" value="#{addTheaterRegionBean.newPersonEmail.dsMotherLastname}"
+              required="false" size="50" label="#{msg['digitalbooking.theaterregions.person.addPerson.personLastname']}"
+              maxlength="50" styleClass="components-dialog" />
+
+            <p:outputLabel for="personEmail" style="color:#000000;"
+              value="#{msg['digitalbooking.theaterregions.person.addPerson.personEmail']}" cellpadding="4" />
+            <p:inputText id="personEmail" value="#{addTheaterRegionBean.personEmail}" required="true" size="50"
+              label="#{msg['digitalbooking.theaterregions.person.addPerson.personEmail']}" maxlength="160"
+              styleClass="components-dialog" />
+          </h:panelGrid>
+          <h:panelGrid columns="1" styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+          <p:panelGrid>
+            <p:row>
+              <p:column colspan="2" style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <cdb:commandButton id="saveBtnAddPerson" value="#{msg['digitalbooking.common.saveBtnText']}"
+                  action="#{addTheaterRegionBean.addPersonDataModel}" style="float: right"
+                  onclick="PF('personsEmailTable').getPaginator().setPage(0);"
+                  oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) { addPersonEmail.hide(); }"
+                  update=":addtheaterRegionsForm:personsEmailTable, addPersonEmailPanelGrid, addPersonEmailPanel">
+                  <cdb:success />
+                </cdb:commandButton>
+              </p:column>
+              <p:column colspan="1" style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <p:commandButton id="closeBtn" value="#{msg['digitalbooking.common.closeBtnText']}"
+                  onclick="PF('addPersonEmail').hide()" style="float: right" immediate="true">
+                  <p:ajax update="addPersonEmailPanel" resetValues="true" immediate="true" />
+                  <p:resetInput target="addPersonEmailPanel" />
+                </p:commandButton>
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+          <br></br>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+    <!-- ############### EDIT PERSON - MODAL WINDOW ###############  -->
+    <h:form id="editPersonEmailForm">
+      <p:dialog id="editPersonEmailDialog" header="#{msg['digitalbooking.theaterregions.person.editPersonWindowTitle']}"
+        modal="true" widgetVar="editPersonEmail" width="460px" resizable="false">
+        <p:panel id="editPersonEmailPanel" style="display:block;">
+          <p:messages autoUpdate="true" closable="true" />
+          <h:panelGrid id="editPersonEmailPanelGrid" columns="2" styleClass="components-dialog">
+            <p:outputLabel for="editPersonName" style="color:#000000;"
+              value="#{msg['digitalbooking.theaterregions.person.addPerson.name']}" cellpadding="4" />
+            <p:inputText id="editPersonName" value="#{addTheaterRegionBean.editPersonEmailTO.name}" required="true" size="50"
+              label="#{msg['digitalbooking.theaterregions.person.addPerson.name']}" maxlength="50" styleClass="components-dialog" />
+
+            <p:outputLabel for="editPersonLastname" style="color:#000000;"
+              value="#{msg['digitalbooking.theaterregions.person.editPerson.personLastname']}" cellpadding="4" />
+            <p:inputText id="editPersonLastname" value="#{addTheaterRegionBean.editPersonEmailTO.dsLastname}" required="true"
+              size="50" label="#{msg['digitalbooking.theaterregions.person.editPerson.personLastname']}" maxlength="50"
+              styleClass="components-dialog" />
+
+            <p:outputLabel for="editPersonMotherLastname" style="color:#000000;"
+              value="#{msg['digitalbooking.theaterregions.person.addPerson.personMotherLastname']}" cellpadding="4" />
+            <p:inputText id="editPersonMotherLastname" value="#{addTheaterRegionBean.editPersonEmailTO.dsMotherLastname}"
+              required="false" size="50" label="#{msg['digitalbooking.theaterregions.person.addPerson.personLastname']}"
+              maxlength="50" styleClass="components-dialog" />
+
+            <p:outputLabel for="editEmailPerson" style="color:#000000;"
+              value="#{msg['digitalbooking.theaterregions.person.addPerson.personEmail']}" cellpadding="4" />
+            <p:inputText id="editEmailPerson" value="#{addTheaterRegionBean.personEmail}" required="true" size="50"
+              label="#{msg['digitalbooking.theaterregions.person.addPerson.personEmail']}" maxlength="160"
+              styleClass="components-dialog" />
+          </h:panelGrid>
+          <h:panelGrid columns="1" styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+          <p:panelGrid>
+            <p:row>
+              <p:column colspan="2" style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <cdb:commandButton id="saveBtnEditPerson" value="#{msg['digitalbooking.common.saveBtnText']}"
+                  action="#{addTheaterRegionBean.editPerson}" style="float: right"
+                  onclick="PF('personsEmailTable').getPaginator().setPage(0);"
+                  oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) { editPersonEmail.hide(); }"
+                  update=":addtheaterRegionsForm:personsEmailTable, editPersonEmailPanelGrid, editPersonEmailPanel">
+                  <cdb:success />
+                </cdb:commandButton>
+              </p:column>
+              <p:column colspan="1" style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <p:commandButton id="closeBtnEditPerson" value="#{msg['digitalbooking.common.closeBtnText']}"
+                  onclick="PF('editPersonEmail').hide()" style="float: right" immediate="true">
+                  <p:ajax update="editPersonEmailPanel" resetValues="true" immediate="true" />
+                  <p:resetInput target="editPersonEmailPanel" />
+                </p:commandButton>
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+          <br></br>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+    <h:form id="confirmDeleteForm">
+      <p:confirmDialog id="confirmDeleteDialog" message="#{msg['digitalbooking.common.removeMsgConfirmationText']}"
+        header="#{msg['digitalbooking.common.removeRecordTitle']}" severity="alert" widgetVar="confirmDeletePerson" modal="true">
+        <cdb:commandButton id="deletePersonBtn" value="#{msg['digitalbooking.common.yesBtnText']}"
+          oncomplete="confirmDeletePerson.hide();" action="#{addTheaterRegionBean.deletePersonFromDataModel}"
+          update=":addtheaterRegionsForm:personsEmailTable"
+          onclick="PF('personsEmailTable').getPaginator().setPage(0);">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmDeletePerson.hide();" />
+      </p:confirmDialog>
+    </h:form>
+    <h:form id="validationDialogForm">
+      <p:dialog id="validationErrorDialog" header="#{msg['digitalbooking.common.validationErrorTitle']}"
+        widgetVar="validationErrorDialog" modal="true" resizable="false">
+        <h:panelGrid id="validationErrorPanel" columns="1" style="text-align:center">
+          <h:panelGrid columns="2" style="text-align:center">
+            <span class="ui-dialog-message ui-messages-error-icon" />
+            <h:outputText value="#{msg['digitalbooking.common.validationErrorText']}" />
+          </h:panelGrid>
+          <p:commandButton id="acceptBtn" value="#{msg['digitalbooking.common.acceptBtnText']}"
+            oncomplete="validationErrorDialog.hide();" />
+        </h:panelGrid>
+      </p:dialog>
+    </h:form>
+  </ui:define>
+</ui:composition>

@@ -1,0 +1,706 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:p="http://primefaces.org/ui" xmlns:cdb="http://cinepolis/digital-booking/custom-tags"
+  xmlns:pe="http://primefaces.org/ui/extensions">
+  <ui:define name="content_title">#{msg['digitalbooking.theaters.administration.theaterTitle']}</ui:define>
+  <ui:define name="content">
+    <cdb:waitingDialog
+      components=":form1:saveBtn, :form1:selectTerritory, :form1:selectCountry, :form1:selectState, :form2:saveBtn, :formEditScreenDialog:saveBtnEdit, 
+      :form4:deleteScreenBtn, :form1:saveBtn, :form:theatersTable:searchButton, :form3:deleteOkBtn, :form:theatersTable:resetButton,
+      :form:theatersTable:selectFilterRegion, :form:theatersTable:synchronizeViewButton" />
+    <h:form id="form" style="width:100%">
+      <p:focus for=":form:theatersTable:filterNameTheater" />
+      <p:dataTable id="theatersTable" var="theater" value="#{theatersBean.theaterTOs}" lazy="true" rowKey="#{theater.id}"
+        selection="#{theatersBean.selectedTheater}" selectionMode="single" paginator="true" rows="10" widgetVar="theatersTable"
+        paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+        rowsPerPageTemplate="10,50,100" paginatorPosition="bottom" scrollable="true" scrollHeight="255">
+        <p:ajax event="rowSelect" update=":form1:addTheaterDialog" listener="#{theatersBean.setTheaterData}" />
+        <p:ajax event="rowUnselect" update=":form1:addTheaterDialog" listener="#{theatersBean.addNewTheater}" />
+        <p:ajax event="rowDblselect" listener="#{theatersBean.setTheaterData}"
+          update=":form1:addTheaterPanel, :form1:addTheaterDialog" oncomplete="PF('addTheater').show()" />
+        <f:facet name="header">
+          <p:toolbar style="border:'none';">
+            <p:toolbarGroup align="left">
+              <p:commandButton id="addButton" value="Add" icon="ui-icon-plus" update=":form1:addTheaterDialog"
+                action="#{theatersBean.addNewTheater}" oncomplete="PF('theatersTable').unselectAllRows();PF('addTheater').show();" />
+              <p:commandButton id="modifyButton" value="#{msg['digitalbooking.common.modifyBtnText']}" icon="ui-icon-pencil"
+                action="#{theatersBean.validateTheaterSelection}"
+                oncomplete="if(!args.fail){ PF('addTheater').show();} else {PF('validationErrorDialog').show()}" />
+              <cdb:commandButton id="synchronizeViewButton" value="#{msg['digitalbooking.common.synchronizeViewBtnText']}"
+                action="#{theatersBean.synchronizeWithView}" rendered="false">
+                <cdb:success />
+              </cdb:commandButton>
+            </p:toolbarGroup>
+            <p:toolbarGroup>
+              <p:fieldset id="filters" legend="#{msg['digitalbooking.common.applyFilters']}" style="width:600px;">
+                <p:ajax event="toggle" listener="#{theatersBean.handleToggleFilters}" update="filters, theatersTable" />
+                <p:panelGrid cellpadding="10" style="border-style:none;" bgcolor="#FFFFFF">
+                  <p:row>
+                    <p:column style="border-style:none;width:120px">
+                      <p:outputLabel for="filterNameTheater" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.theaters.administration.theaterNameFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:inputText id="filterNameTheater" value="#{theatersBean.filterNameTheater}" maxlength="160" size="30"
+                        style="width:300px" />
+                    </p:column>
+                  </p:row>
+                  <p:row>
+                    <p:column style="border-style:none;width:120px">
+                      <p:outputLabel for="selectFilterRegion" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.theaters.administration.regionFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:selectOneMenu id="selectFilterRegion" value="#{theatersBean.selectedFilterRegion}"
+                        label="#{msg['digitalbooking.theaters.administration.territoryWindowLabel']}" panelStyle="width:180px"
+                        style="width:300px">
+                        <p:ajax update="theatersTable" listener="#{theatersBean.searchFilters}" />
+                        <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                        <f:selectItems value="#{theatersBean.filterRegions}" var="filterRegion" itemLabel="#{filterRegion.name}"
+                          itemValue="#{filterRegion.id}" />
+                      </p:selectOneMenu>
+                    </p:column>
+                  </p:row>
+                  <p:row>
+                    <p:column style="border-style:none;">
+                      <p:outputLabel for="filterFgActive" style="color:#000000; font-weight: normal;"
+                        value="#{msg['digitalbooking.theaters.administration.statustheaterFilter']}" />
+                    </p:column>
+                    <p:column style="border-style:none;">
+                      <p:selectBooleanCheckbox id="filterFgActive" value="#{theatersBean.filterFgActive}"
+                        widgetVar="filterFgActive" />
+                    </p:column>
+                  </p:row>
+                  <p:row>
+                    <p:column colspan="2" style="border-style:none;text-align:right;">
+                      <p:commandButton id="resetButton" value="#{msg['digitalbooking.common.resetBtnText']}"
+                        icon="ui-icon-arrowrefresh-1-s" update="theatersTable" action="#{theatersBean.resetFilters}">
+                        <p:ajax update="filters" resetValues="true" />
+                      </p:commandButton>
+                      <p:commandButton id="searchButton" value="#{msg['digitalbooking.common.searchBtnText']}"
+                        icon="ui-icon-search" update="theatersTable" action="#{theatersBean.searchFilters}" />
+                    </p:column>
+                  </p:row>
+                </p:panelGrid>
+              </p:fieldset>
+            </p:toolbarGroup>
+          </p:toolbar>
+        </f:facet>
+        <p:column headerText="#{msg['digitalbooking.theaters.administration.idHeaderTable']}" style="width:10%;">
+					            #{theater.id}  
+				</p:column>
+        <p:column headerText="#{msg['digitalbooking.theaters.administration.idVistaHeaderTable']}" style="width:10%;">
+                      #{theater.idVista}  
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.theaters.administration.theaterNameHeaderTable']}" >
+					            #{theater.name}
+				</p:column>
+        <p:column headerText="#{msg['digitalbooking.theaters.administration.regionHeaderTable']}">
+					            #{theater.region.catalogRegion.name}
+				</p:column>
+        <p:column headerText="#{msg['digitalbooking.theaters.administration.screensHeaderTable']}">
+					            #{theater.screensNamesTheater}
+				</p:column>
+				
+	    <p:column headerText="#{msg['digitalbooking.theaters.administration.theaterStatusHeaderTable']}" style="width:8%; 
+          text-align:center;">
+          <p:graphicImage value="/images/tick.png" rendered="#{theater.fgActive}" />
+        </p:column>
+      </p:dataTable>
+      <p:defaultCommand target=":form:theatersTable:searchButton"></p:defaultCommand>
+    </h:form>
+
+    <!-- ############### ADD THEATER - MODAL WINDOW ###############  -->
+    <h:form id="form1">
+
+      <p:dialog id="addTheaterDialog" header="#{theatersBean.theaterHeader}" modal="true" widgetVar="addTheater" resizable="false"
+        width="990" style="position: absolute;">
+        <p:ajax event="close" listener="#{theatersBean.handleCloseAddTheater}" update="addTheaterDialog" resetValues="true"
+          immediate="true" />
+        <p:panel id="addTheaterPanel">
+          <p:messages id="modifyMsgs" autoUpdate="true" closable="true" />
+
+          <p:panelGrid id="dataTheaterPanel" style="width:100%; border-style:none;" bgcolor="#FFFFFF"
+            headerClass="ui-widget-header" styleClass="ui-widget-content" footerClass="ui-widget-header"
+            title="#{theatersBean.theaterHeader}">
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="nameTheater" style="color:#000000;"
+                  value="#{msg['digitalbooking.theaters.administration.nameWindowLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:inputText id="nameTheater" value="#{theatersBean.nameTheater}" required="true"
+                  label="#{msg['digitalbooking.theaters.administration.nameWindowLabel']}" maxlength="160" size="30"
+                  style="width:200px" />
+              </p:column>
+
+              <p:column style="border-style:none;">
+                <p:outputLabel for="selectTerritory" style="color:#000000;"
+                  value="#{msg['digitalbooking.theaters.administration.territoryWindowLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:selectOneMenu id="selectTerritory" value="#{theatersBean.selectedTerritory}" required="true"
+                  label="#{msg['digitalbooking.theaters.administration.territoryWindowLabel']}" panelStyle="width:180px"
+                  style="width:200px">
+                  <p:ajax update="selectRegion" listener="#{theatersBean.loadRegions}" />
+                  <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                  <f:selectItems value="#{theatersBean.territories}" var="territory" itemLabel="#{territory.name}"
+                    itemValue="#{territory.id}" />
+                </p:selectOneMenu>
+              </p:column>
+
+              <p:column style="border-style:none;">
+                <p:outputLabel for="selectRegion" style="color:#000000;"
+                  value="#{msg['digitalbooking.theaters.administration.regionWindowLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:selectOneMenu id="selectRegion" value="#{theatersBean.selectedRegion}" required="true"
+                  label="#{msg['digitalbooking.theaters.administration.regionWindowLabel']}" panelStyle="width:180px"
+                  style="width:200px">
+                  <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                  <f:selectItems value="#{theatersBean.regions}" var="region" itemLabel="#{region.catalogRegion.name}"
+                    itemValue="#{region.catalogRegion.id}" />
+                </p:selectOneMenu>
+              </p:column>
+            </p:row>
+
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="selectCountry" style="color:#000000;"
+                  value="#{msg['digitalbooking.theaters.administration.countryWindowLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:selectOneMenu id="selectCountry" value="#{theatersBean.selectedCountry}" required="true"
+                  label="#{msg['digitalbooking.theaters.administration.countryWindowLabel']}" panelStyle="width:180px"
+                  style="width:200px">
+                  <p:ajax update="selectState" listener="#{theatersBean.loadStates}" />
+                  <f:selectItem itemLabel="Select One" itemValue="" />
+                  <f:selectItems value="#{theatersBean.countries}" var="country" itemLabel="#{country.name}"
+                    itemValue="#{country.id}" />
+                  <p:ajax update="selectCountry" actionListener="#{theatersBean.loadStates}" />
+                </p:selectOneMenu>
+              </p:column>
+
+              <p:column style="border-style:none;">
+                <p:outputLabel for="selectState" style="color:#000000;"
+                  value="#{msg['digitalbooking.theaters.administration.stateWindowLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:selectOneMenu id="selectState" value="#{theatersBean.selectedState}" required="true"
+                  label="#{msg['digitalbooking.theaters.administration.stateWindowLabel']}" panelStyle="width:180px"
+                  style="width:200px">
+                  <p:ajax update="selectCity" listener="#{theatersBean.loadCities}" />
+                  <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                  <f:selectItems value="#{theatersBean.states}" var="state" itemLabel="#{state.catalogState.name}"
+                    itemValue="#{state.catalogState.id}" />
+                </p:selectOneMenu>
+              </p:column>
+
+              <p:column style="border-style:none;">
+                <p:outputLabel for="selectCity" style="color:#000000;"
+                  value="#{msg['digitalbooking.theaters.administration.cityWindowLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:selectOneMenu id="selectCity" value="#{theatersBean.selectedCity}" panelStyle="width:180px" style="width:200px"
+                  required="true">
+                  <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+                  <f:selectItems value="#{theatersBean.cities}" var="city" itemLabel="#{city.name}" itemValue="#{city.id}" />
+                </p:selectOneMenu>
+              </p:column>
+            </p:row>
+
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="telephoneTheater" style="color:#000000;"
+                  value="#{msg['digitalbooking.theaters.administration.telephoneWindowLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:inputText id="telephoneTheater" value="#{theatersBean.telephoneTheater}" maxlength="50" size="30"
+                  label="#{msg['digitalbooking.theaters.administration.telephoneWindowLabel']}" style="width:200px">
+                  <pe:keyFilter regEx="/[0-9]/i" />
+                </p:inputText>
+              </p:column>
+
+              <p:column style="border-style:none;">
+                <p:outputLabel for="idVista" style="color:#000000;"
+                  value="#{msg['digitalbooking.theaters.administration.idVistaWindowLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:inputText id="idVista" value="#{theatersBean.idVistaTheater}" required="true"
+                  label="#{msg['digitalbooking.theaters.administration.idVistaWindowLabel']}" maxlength="12" style="width:200px">
+                </p:inputText>
+              </p:column>
+
+              <p:column style="border-style:none;">
+                <p:outputLabel for="nuTheater" style="color:#000000;"
+                  value="#{msg['digitalbooking.theaters.administration.nuTheaterWindowLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:inputText id="nuTheater" value="#{theatersBean.nuTheater}" required="true"
+                  label="#{msg['digitalbooking.theaters.administration.nuTheaterWindowLabel']}" maxlength="12" style="width:200px">
+                </p:inputText>
+              </p:column>
+            </p:row>
+
+            <p:row>
+              <p:column style="border-style:none;">
+                <p:outputLabel for="email" style="color:#000000;"
+                  value="#{msg['digitalbooking.theaters.administration.emailWindowLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;">
+                <p:inputText id="email" value="#{theatersBean.email}" required="true"
+                  label="#{msg['digitalbooking.theaters.administration.emailWindowLabel']}" maxlength="160" style="width:200px">
+                </p:inputText>
+              </p:column>
+
+              <p:column style="border-style:none;">
+                <p:outputLabel for="email_cc" style="color:#000000;"
+                  value="#{msg['digitalbooking.theaters.administration.emailCCWindowLabel']}" cellpadding="4" />
+              </p:column>
+              <p:column style="border-style:none;" colspan="3">
+                <p:inputText id="email_cc" value="#{theatersBean.emailCC}"
+                  label="#{msg['digitalbooking.theaters.administration.emailCCWindowLabel']}" maxlength="350" style="width:98%">
+                </p:inputText>
+              </p:column>
+            </p:row>
+            
+            <p:row>
+	            <p:column style="border-style:none;">
+	              <p:outputLabel for="statusTheater" style="color:#000000;"
+	                value="#{msg['digitalbooking.theaters.administration.statusWindowLabel']}" />
+	            </p:column>
+	            <p:column style="border-style:none;">
+	              <p:selectBooleanCheckbox id="statusTheater" value="#{theatersBean.fgActive}" />
+	            </p:column>
+            </p:row>
+
+          </p:panelGrid>
+
+          <h:panelGrid styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+          <br></br>
+
+          <p:tabView id="theaterDetailsTabs" widgetVar="theaterDetailsTabs" cache="false">
+            <p:tab title="#{msg['digitalbooking.theaters.administration.screensHeaderPanel']}" id="tab1">
+              <p:panel id="pnl" header="#{msg['digitalbooking.theaters.administration.screensHeaderPanel']}"
+                style="margin-bottom:10px;width:940px">
+                <p:dataTable id="screensTable" widgetVar="screensTable" var="screen" value="#{theatersBean.screenTOs}" lazy="true"
+                  rowKey="#{screen.nuScreen}" selection="#{theatersBean.selectedScreen}" selectionMode="single" paginator="true"
+                  rows="20" paginatorPosition="bottom" scrollable="true" scrollHeight="250"
+                  paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}">
+                  <p:ajax event="rowSelect" listener="#{theatersBean.setScreenData}"
+                    update=":formEditScreenDialog:editScreenPanel" />
+                  <p:ajax event="rowUnselect" update=":formEditScreenDialog:editScreenPanel" />
+                  <p:ajax event="rowDblselect" listener="#{theatersBean.setScreenData}"
+                    update=":formEditScreenDialog:editScreenPanel" oncomplete="editScreen.show()" />
+
+                  <f:facet name="header">
+                    <p:commandButton id="addButton" value="Add" icon="ui-icon-plus" action="#{theatersBean.addNewScreen}"
+                      oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid){ PF('addScreen').show(); }" />
+                    <p:commandButton id="modifyButton" value="#{msg['digitalbooking.common.modifyBtnText']}" icon="ui-icon-pencil"
+                      action="#{theatersBean.validateScreenSelection}"
+                      oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid){ PF('editScreen').show();} else if(PF('screensTable').getSelectedRowsCount() === 0 ) { PF('validationErrorDialog').show();}" />
+                    <p:commandButton id="removeButton" value="#{msg['digitalbooking.common.removeBtnText']}" icon="ui-icon-close"
+                      action="#{theatersBean.validateScreenSelection}"
+                      oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid){PF('confirmDeleteScreen').show()} else if(PF('screensTable').getSelectedRowsCount() === 0 ) {PF('validationErrorDialog').show();}" />
+                  </f:facet>
+
+                  <p:column headerText="#{msg['digitalbooking.theaters.administration.nuScreenHeaderTable']}">
+							            #{screen.nuScreen}  
+			  </p:column>
+                  <p:column headerText="#{msg['digitalbooking.theaters.administration.idVistaScreenHeaderTable']}">
+                          #{screen.idVista}  
+                          </p:column>
+                  <p:column headerText="#{msg['digitalbooking.theaters.administration.capacityHeaderTable']}">
+							            #{screen.nuCapacity}
+						</p:column>
+                  <p:column headerText="#{msg['digitalbooking.theaters.administration.screenFormatHeaderTable']}">
+                          #{screen.screenFormat.name}
+              </p:column>
+                  <p:column headerText="#{msg['digitalbooking.theaters.administration.soundHeaderTable']}" style="width:20%">
+							            #{screen.soundFormatsLegend}
+						</p:column>
+                  <p:column headerText="#{msg['digitalbooking.theaters.administration.movieFormatHeaderTable']}">
+							            #{screen.movieFormatsLegend}
+			  </p:column>
+                </p:dataTable>
+              </p:panel>
+            </p:tab>
+
+            <p:tab title="#{msg['digitalbooking.theaters.incomeSettings.incomeStettingsPanel']}" id="tab2">
+              <p:panelGrid id="incomeSettingsPanel"
+                style="width:100%; border-collapse: inherit; border: 1px solid black !important; height: 375px;"
+                headerClass="ui-widget-header" styleClass="ui-widget-content" footerClass="ui-widget-header"
+                title="#{msg['digitalbooking.theaters.incomeSettings.incomeStettingsPanel']}">
+                <f:facet name="header">
+                  <p:row>
+                    <p:column style="border-style:none; height: 14px;" colspan="9">
+                        #{msg['digitalbooking.theaters.incomeSettings.incomeStettingsPanel']}
+                      </p:column>
+                  </p:row>
+                </f:facet>
+                <p:row>
+                  <p:column style="border-style:none; width: 25%;" colspan="2">
+                    <br />
+                  </p:column>
+                  <p:column style="border-style:none; width: 20%;" colspan="2">
+                    <h:outputText value="#{theatersBean.indicatorScreenOccupancyLabel}" />
+                  </p:column>
+                  <p:column style="border-style:none; width: 20%;" colspan="2">
+                    <h:outputText value="#{theatersBean.indicatorChgPreWeekLabel}" />
+                  </p:column>
+                  <p:column style="border-style:none; width: 15%;">
+                    <br />
+                  </p:column>
+                </p:row>
+                <p:row>
+                  <p:column style="border-style:none; width: 15%;">
+                    <br />
+                  </p:column>
+                  <p:column style="border-style:none; width: 10%; text-align: center;">
+                    <p:graphicImage style="top: 4px; padding-left: 8px; position: relative;"
+                      value="/images/#{theatersBean.semaphoreGreen}.png" width="25%" />
+                  </p:column>
+                  <p:column style="border-style:none; width: 5%;">
+                    <h:outputLabel value="#{msg['digitalbooking.theaters.incomeSettings.incomeStettingsGreaterEqual']}"
+                      for="screenOccupancyIndicatorGreenValue" />
+                  </p:column>
+                  <p:column style="border-style:none; width: 15%;">
+                    <pe:inputNumber id="screenOccupancyIndicatorGreenValue" widgetVar="screenOccupancyIndicatorGreenValue"
+                      value="#{theatersBean.screenOccupancyIndicatorGreenValue}" decimalPlaces="2" maxValue="100.0" minValue="0.0"
+                      symbol=" %" symbolPosition="right" styleClass="components-dialog" style="width:80px;">
+                    </pe:inputNumber>
+                  </p:column>
+                  <p:column style="border-style:none; width: 5%;">
+                    <h:outputLabel value="#{msg['digitalbooking.theaters.incomeSettings.incomeStettingsLessEqual']}"
+                      for="prewWeekIndicatorGreenValue" />
+                  </p:column>
+                  <p:column style="border-style:none; width: 15%; text-align: left;">
+                    <pe:inputNumber id="prewWeekIndicatorGreenValue" widgetVar="prewWeekIndicatorGreenValue"
+                      value="#{theatersBean.prewWeekIndicatorGreen}" decimalPlaces="2" maxValue="100.0" minValue="0.0" symbol=" %"
+                      symbolPosition="right" styleClass="components-dialog" style="width: 80px">
+                    </pe:inputNumber>
+                  </p:column>
+                  <p:column style="border-style:none; width: 15%;">
+                    <br />
+                  </p:column>
+                </p:row>
+
+
+                <p:row>
+                  <p:column style="border-style:none; width: 15%;">
+                    <br />
+                  </p:column>
+                  <p:column style="border-style:none; width: 10%; text-align: center;">
+                    <p:graphicImage style="top: 4px; padding-left: 8px; position: relative;"
+                      value="/images/#{theatersBean.semaphoreYellow}.png" width="30%" />
+                  </p:column>
+                  <p:column style="border-style:none; width: 5%;">
+                    <h:outputLabel value="#{msg['digitalbooking.theaters.incomeSettings.incomeStettingsGreaterEqual']}"
+                      for="screenOccupancyIndicatorYellowValue" />
+                  </p:column>
+                  <p:column style="border-style:none; width: 15%;">
+                    <pe:inputNumber id="screenOccupancyIndicatorYellowValue" widgetVar="screenOccupancyIndicatorYellowValue"
+                      value="#{theatersBean.screenOccupancyIndicatorYellow}" decimalPlaces="2" maxValue="100.0" minValue="0.0"
+                      symbol=" %" symbolPosition="right" styleClass="components-dialog" style="width: 80px">
+                    </pe:inputNumber>
+                  </p:column>
+                  <p:column style="border-style:none; width: 5%;">
+                    <h:outputLabel value="#{msg['digitalbooking.theaters.incomeSettings.incomeStettingsLessEqual']}"
+                      for="prewWeekIndicatorYellowValue" />
+                  </p:column>
+                  <p:column style="border-style:none; width: 15%;">
+                    <pe:inputNumber id="prewWeekIndicatorYellowValue" widgetVar="prewWeekIndicatorYellowValue"
+                      value="#{theatersBean.prewWeekIndicatorYellow}" decimalPlaces="2" maxValue="100.0" minValue="0.0"
+                      symbol=" %" symbolPosition="right" styleClass="components-dialog" style="width: 80px">
+                    </pe:inputNumber>
+                  </p:column>
+                  <p:column style="border-style:none; width: 15%;">
+                    <br />
+                  </p:column>
+                </p:row>
+
+                <p:row>
+                  <p:column style="border-style:none; width: 15%;">
+                    <br />
+                  </p:column>
+                  <p:column style="border-style:none; width: 10%; text-align: center;">
+                    <p:graphicImage style="top: 4px; padding-left: 8px; position: relative;"
+                      value="/images/#{theatersBean.semaphoreRed}.png" width="25%" />
+                  </p:column>
+                  <p:column style="border-style:none; width: 5%;">
+                    <h:outputLabel value="#{msg['digitalbooking.theaters.incomeSettings.incomeStettingsLessEqual']}"
+                      for="screenOccupancyIndicatorRedValue" />
+                  </p:column>
+                  <p:column style="border-style:none; width: 15%;">
+                    <pe:inputNumber id="screenOccupancyIndicatorRedValue" widgetVar="screenOccupancyIndicatorRedValue"
+                      value="#{theatersBean.screenOccupancyIndicatorRed}" decimalPlaces="2" maxValue="100.0" minValue="0.0"
+                      symbol=" %" symbolPosition="right" styleClass="components-dialog" style="width: 80px">
+                      <f:convertNumber pattern="###.##" locale="es_MX" />
+                    </pe:inputNumber>
+                  </p:column>
+                  <p:column style="border-style:none; width: 5%;">
+                    <h:outputLabel value="#{msg['digitalbooking.theaters.incomeSettings.incomeStettingsGreaterEqual']}"
+                      for="prewWeekIndicatorRedValue" />
+                  </p:column>
+                  <p:column style="border-style:none; width: 15%;">
+                    <pe:inputNumber id="prewWeekIndicatorRedValue" widgetVar="prewWeekIndicatorRedValue"
+                      value="#{theatersBean.prewWeekIndicatorRed}" decimalPlaces="2" maxValue="100.0" minValue="0.0" symbol=" %"
+                      symbolPosition="right" styleClass="components-dialog" style="width: 80px">
+                    </pe:inputNumber>
+                  </p:column>
+                  <p:column style="border-style:none; width: 15%;">
+                    <br />
+                  </p:column>
+                </p:row>
+              </p:panelGrid>
+            </p:tab>
+          </p:tabView>
+
+          <br></br>
+          <p:panelGrid>
+            <p:row>
+              <p:column colspan="2" style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <cdb:commandButton id="saveBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+                  action="#{theatersBean.saveTheater}" style="float: right" onclick="changeFirstTab(0);"
+                  oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) {addTheater.hide();changeFirstTab(1);}"
+                  update="addTheaterPanel, :form1:theaterDetailsTabs, :form:theatersTable">
+                  <cdb:success />
+                </cdb:commandButton>
+              </p:column>
+              <p:column colspan="1" style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <p:commandButton id="closeBtn" value="#{msg['digitalbooking.common.closeBtnText']}"
+                  oncomplete="PF('addTheater').hide();changeFirstTab(0);" style="float: right" process="@this">
+                  <p:ajax update="addTheaterPanel, :form1:theaterDetailsTabs" resetValues="true" immediate="true" />
+                  <p:resetInput target="addTheaterPanel" />
+                </p:commandButton>
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+        </p:panel>
+      </p:dialog>
+
+    </h:form>
+
+    <!-- ############### ADD SCREEN - MODAL WINDOW ###############  -->
+    <h:form id="form2">
+      <p:focus for=":form2:nuScreen" />
+      <p:dialog id="addScreenDialog" header="#{msg['digitalbooking.theaters.administration.addScreenWindowTitle']}" modal="true"
+        widgetVar="addScreen" resizable="false" width="460px" height="500px">
+        <p:ajax event="close" listener="#{theatersBean.handleCloseAddScreen}" update="addScreenDialog" resetValues="true"
+          immediate="true" />
+        <p:panel id="screenPanelAdd">
+          <p:messages id="addMsgs" autoUpdate="true" closable="true" />
+          <h:panelGrid id="addScreenPanel" columns="2">
+
+            <p:outputLabel for="nuScreen" style="color:#000000;"
+              value="#{msg['digitalbooking.theaters.administration.nuScreenWindowLabel']}" cellpadding="4" />
+            <p:inputText id="nuScreen" value="#{theatersBean.screen.nuScreen}" required="true" size="4"
+              label="#{msg['digitalbooking.theaters.administration.nuScreenWindowLabel']}" maxlength="3"
+              styleClass="components-dialog">
+              <f:validateLongRange minimum="1" maximum="100" />
+            </p:inputText>
+
+            <p:outputLabel for="idVista" style="color:#000000;"
+              value="#{msg['digitalbooking.theaters.administration.idVistaScreenWindowLabel']}" cellpadding="4" />
+            <p:inputText id="idVista" value="#{theatersBean.screen.idVista}" required="true"
+              label="#{msg['digitalbooking.theaters.administration.idVistaScreenWindowLabel']}" maxlength="12"
+              styleClass="components-dialog">
+            </p:inputText>
+
+            <p:outputLabel for="nuCapacity" style="color:#000000;"
+              value="#{msg['digitalbooking.theaters.administration.capacityWindowLabel']}" cellpadding="4" />
+            <p:inputText id="nuCapacity" value="#{theatersBean.screen.nuCapacity}" required="true" size="4"
+              label="#{msg['digitalbooking.theaters.administration.capacityWindowLabel']}" maxlength="4"
+              styleClass="components-dialog">
+              <f:validateLongRange minimum="1" maximum="9999" />
+            </p:inputText>
+
+            <p:outputLabel for="screenFormats" style="color:#000000;"
+              value="#{msg['digitalbooking.theaters.administration.screenFormatWindowLabel']}" cellpadding="4" />
+            <p:selectOneMenu id="screenFormats" value="#{theatersBean.screenFormatSelected}" required="true" style="width:200px;">
+              <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+              <f:selectItems value="#{theatersBean.screenFormats}" var="screenFormat" itemLabel="#{screenFormat.name}"
+                itemValue="#{screenFormat.id}" />
+            </p:selectOneMenu>
+
+            <p:outputLabel for="soundFormats" style="color:#000000;"
+              value="#{msg['digitalbooking.theaters.administration.soundWindowLabel']}" cellpadding="4" />
+            <p:selectManyButton id="soundFormats" widgetVar="soundFormats" value="#{theatersBean.soundFormatsSelected}"
+              required="true">
+              <f:selectItems value="#{theatersBean.soundFormats}" var="soundFormat" itemLabel="#{soundFormat.name}"
+                itemValue="#{soundFormat.id}" />
+            </p:selectManyButton>
+
+            <p:outputLabel for="movieFormats" style="color:#000000;"
+              value="#{msg['digitalbooking.theaters.administration.movieFormatWindowLabel']}" cellpadding="4" />
+            <p:selectManyButton id="movieFormats" widgetVar="movieFormats" value="#{theatersBean.movieFormatsSelected}"
+              required="true">
+              <f:selectItems value="#{theatersBean.movieFormats}" var="movieFormat" itemLabel="#{movieFormat.name}"
+                itemValue="#{movieFormat.id}" />
+            </p:selectManyButton>
+          </h:panelGrid>
+          <h:panelGrid styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+          <br></br>
+          <p:panelGrid>
+            <p:row>
+              <p:column colspan="2" style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <cdb:commandButton id="saveBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+                  action="#{theatersBean.addScreen}"
+                  update=":form1:theaterDetailsTabs:screensTable, addScreenPanel, screenPanelAdd"
+                  oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) { addScreen.hide(); }" style="float: right">
+                  <cdb:success />
+                </cdb:commandButton>
+              </p:column>
+              <p:column colspan="1" style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <p:commandButton id="closeBtn" value="#{msg['digitalbooking.common.closeBtnText']}"
+                  onclick="PF('addScreen').hide();" style="float: right" resetValues="true" immediate="true">
+                  <p:resetInput target="addScreenPanel" />
+                </p:commandButton>
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+
+
+
+    <h:form id="formEditScreenDialog">
+      <p:dialog id="editScreenDialog" header="#{msg['digitalbooking.theaters.administration.editScreenWindowTitle']}" modal="true"
+        widgetVar="editScreen" resizable="false" width="460px" height="500px">
+        <p:ajax event="close" listener="#{theatersBean.handleCloseEditScreen}" update="editScreenDialog, editScreenPanel"
+          resetValues="true" immediate="true" />
+        <p:panel id="screenPanelEdit">
+          <p:messages id="editMsgs" autoUpdate="true" closable="true" />
+          <h:panelGrid id="editScreenPanel" columns="2">
+
+            <p:outputLabel for="nuScreenEdit" style="color:#000000;"
+              value="#{msg['digitalbooking.theaters.administration.nuScreenWindowLabel']}" cellpadding="4" />
+            <p:inputText id="nuScreenEdit" value="#{theatersBean.screen.nuScreen}" required="true" size="4"
+              label="#{msg['digitalbooking.theaters.administration.nuScreenWindowLabel']}" maxlength="3"
+              styleClass="components-dialog">
+              <f:validateLongRange minimum="1" maximum="100" />
+            </p:inputText>
+
+            <p:outputLabel for="idVistaEdit" style="color:#000000;"
+              value="#{msg['digitalbooking.theaters.administration.idVistaScreenWindowLabel']}" cellpadding="4" />
+            <p:inputText id="idVistaEdit" value="#{theatersBean.screen.idVista}" required="true"
+              label="#{msg['digitalbooking.theaters.administration.idVistaScreenWindowLabel']}" maxlength="12"
+              styleClass="components-dialog">
+            </p:inputText>
+
+            <p:outputLabel for="nuCapacityEdit" style="color:#000000;"
+              value="#{msg['digitalbooking.theaters.administration.capacityWindowLabel']}" cellpadding="4" />
+            <p:inputText id="nuCapacityEdit" value="#{theatersBean.screen.nuCapacity}" required="true" size="4"
+              label="#{msg['digitalbooking.theaters.administration.capacityWindowLabel']}" maxlength="4"
+              styleClass="components-dialog">
+              <f:validateLongRange minimum="1" maximum="9999" />
+            </p:inputText>
+
+            <p:outputLabel for="screenFormatsEdit" style="color:#000000;"
+              value="#{msg['digitalbooking.theaters.administration.screenFormatWindowLabel']}" cellpadding="4" />
+            <p:selectOneMenu id="screenFormatsEdit" widgetVar="screenFormats" value="#{theatersBean.screenFormatSelected}"
+              required="true" style="width:200px;">
+              <f:selectItem itemLabel="#{msg['digitalbooking.common.selectOne']}" itemValue="" />
+              <f:selectItems value="#{theatersBean.screenFormats}" var="screenFormat" itemLabel="#{screenFormat.name}"
+                itemValue="#{screenFormat.id}" />
+            </p:selectOneMenu>
+
+            <p:outputLabel for="soundFormatsEdit" style="color:#000000;"
+              value="#{msg['digitalbooking.theaters.administration.soundWindowLabel']}" cellpadding="4" />
+            <p:selectManyButton id="soundFormatsEdit" widgetVar="soundFormatsEdit" value="#{theatersBean.soundFormatsSelected}"
+              required="true">
+              <f:selectItems value="#{theatersBean.soundFormats}" var="soundFormat" itemLabel="#{soundFormat.name}"
+                itemValue="#{soundFormat.id}" />
+            </p:selectManyButton>
+
+            <p:outputLabel for="movieFormatsEdit" style="color:#000000;"
+              value="#{msg['digitalbooking.theaters.administration.movieFormatWindowLabel']}" cellpadding="4" />
+            <p:selectManyButton id="movieFormatsEdit" widgetVar="movieFormatsEdit" value="#{theatersBean.movieFormatsSelected}"
+              required="true">
+              <f:selectItems value="#{theatersBean.movieFormats}" var="movieFormat" itemLabel="#{movieFormat.name}"
+                itemValue="#{movieFormat.id}" />
+            </p:selectManyButton>
+          </h:panelGrid>
+          <h:panelGrid styleClass="components-dialog">
+            <p:outputLabel style="color:#000000; " value="#{msg['digitalbooking.common.fieldsRequired']}" />
+          </h:panelGrid>
+          <br></br>
+          <p:panelGrid>
+            <p:row>
+              <p:column colspan="2" style="width:95%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <p:commandButton id="saveBtnEdit" value="#{msg['digitalbooking.common.saveBtnText']}"
+                  action="#{theatersBean.addScreen}"
+                  update=":form1:theaterDetailsTabs:screensTable, editScreenPanel, screenPanelEdit"
+                  oncomplete="if(!args.validationFailed &amp;&amp; !args.notValid) { editScreen.hide(); }" style="float: right">
+                </p:commandButton>
+              </p:column>
+              <p:column colspan="1" style="width:5%; padding-left: 0; padding-right: 0; border-style:none; padding-bottom: 0;">
+                <p:commandButton id="closeBtnEdit" value="#{msg['digitalbooking.common.closeBtnText']}"
+                  onclick="PF('editScreen').hide()" style="float: right" resetValues="true" immediate="true">
+                  <p:resetInput target="editScreenPanel" />
+                </p:commandButton>
+              </p:column>
+            </p:row>
+          </p:panelGrid>
+        </p:panel>
+      </p:dialog>
+    </h:form>
+
+
+    <!-- ############### CONFIRMATION DIALOGS ###############  -->
+    <h:form id="form3">
+      <p:confirmDialog id="confirmDialog" message="#{msg['digitalbooking.common.removeMsgConfirmationText']}"
+        header="#{msg['digitalbooking.common.removeRecordTitle']}" severity="alert" widgetVar="confirmDelete" modal="true">
+        <cdb:commandButton id="deleteOkBtn" value="#{msg['digitalbooking.common.yesBtnText']}" oncomplete="confirmDelete.hide();"
+          action="#{theatersBean.deleteTheater}" update=":form:theatersTable">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmDelete.hide();" />
+      </p:confirmDialog>
+    </h:form>
+
+    <h:form id="form4">
+      <p:confirmDialog id="confirmDialog2" message="#{msg['digitalbooking.common.removeMsgConfirmationText']}"
+        header="#{msg['digitalbooking.common.removeRecordTitle']}" severity="alert" widgetVar="confirmDeleteScreen" modal="true">
+        <cdb:commandButton id="deleteScreenBtn" value="#{msg['digitalbooking.common.yesBtnText']}"
+          oncomplete="confirmDeleteScreen.hide();" action="#{theatersBean.deleteScreen}"
+          update=":form1:theaterDetailsTabs:screensTable">
+          <cdb:success />
+        </cdb:commandButton>
+        <p:commandButton value="#{msg['digitalbooking.common.noBtnText']}" onclick="confirmDeleteScreen.hide();" />
+      </p:confirmDialog>
+    </h:form>
+
+    <h:form id="validationDialogForm">
+      <p:dialog id="validationErrorDialog" header="#{msg['digitalbooking.common.validationErrorTitle']}"
+        widgetVar="validationErrorDialog" resizable="false" modal="true">
+        <h:panelGrid id="validationErrorPanel" columns="1" style="text-align:center">
+          <h:panelGrid columns="2" style="text-align:center">
+            <span class="ui-dialog-message ui-messages-error-icon" />
+            <h:outputText value="#{msg['digitalbooking.common.validationErrorText']}" />
+          </h:panelGrid>
+          <p:commandButton id="acceptBtn" value="#{msg['digitalbooking.common.acceptBtnText']}"
+            oncomplete="validationErrorDialog.hide();" />
+        </h:panelGrid>
+      </p:dialog>
+    </h:form>
+    <script>
+                    jQuery(document).ready(function() {
+                        var resetBtn = document.getElementById('form:theatersTable:resetButton');
+                        if (resetBtn) {
+                            resetBtn.click();
+                        }
+                    });
+                    function changeFirstTab(n) {
+                        PF('theaterDetailsTabs').select(n);
+                    }
+                </script>
+  </ui:define>
+</ui:composition>

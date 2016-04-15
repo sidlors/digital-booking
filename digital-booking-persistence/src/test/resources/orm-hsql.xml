@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
+  version="2.0">
+  <package>mx.com.cinepolis.digital.booking.model</package>
+  <entity class="DistributorDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idDistributor">
+        <column name="ID_DISTRIBUTOR" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="CategoryLanguageDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idCategoryLanguage">
+        <column name="ID_CATEGORY_LANGUAGE" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="CategoryDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idCategory">
+        <column name="ID_CATEGORY" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="TerritoryDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idTerritory">
+        <column name="ID_TERRITORY" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="TerritoryLanguageDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idTerritoryLanguage">
+        <column name="ID_TERRITORY_LANGUAGE" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="RegionDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idRegion">
+        <column name="ID_REGION" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="RegionLanguageDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idRegionLanguage">
+        <column name="ID_REGION_LANGUAGE" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="IncomeSettingsDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idIncomeSettings">
+        <column name="ID_INCOME_SETTINGS" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="IncomeSettingsTypeDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idIncomeSettingsType">
+        <column name="ID_INCOME_SETTINGS_TYPE" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="IncomeSettingsTypeLanguageDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idIncomeSettingsTypeLanguage">
+        <column name="ID_INCOME_SETTINGS_TYPE_LANGUAGE" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="ScreenDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idScreen">
+        <column name="ID_SCREEN" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="TheaterDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idTheater">
+        <column name="ID_THEATER" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="TheaterLanguageDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idTheaterLanguage">
+        <column name="ID_THEATER_LANGUAGE" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="StateDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idState">
+        <column name="ID_STATE" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="CountryDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idCountry">
+        <column name="ID_COUNTRY" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="CountryLanguageDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idCountryLanguage">
+        <column name="ID_COUNTRY_LANGUAGE" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="StateLanguageDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idStateLaguange">
+        <column name="ID_STATE_LANGUAGE" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="CityDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idCity">
+        <column name="ID_CITY" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="CityLanguageDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idCityInternationalization">
+        <column name="ID_CITY_INTERNATIONALIZATION" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+
+  <entity class="EventDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idEvent">
+        <column name="ID_EVENT" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+
+  <entity class="MovieImageDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idMovieImage">
+        <column name="ID_MOVIE_IMAGE" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="EventMovieDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idEventMovie">
+        <column name="ID_EVENT_MOVIE" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="RoleDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idRole">
+        <column name="ID_ROLE" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="BookingDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idBooking">
+        <column name="ID_BOOKING" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="UserDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idUser">
+        <column name="ID_USER" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="PersonDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idPerson">
+        <column name="ID_PERSON" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="EmailDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idEmail">
+        <column name="ID_EMAIl" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="BookingDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idBooking">
+        <column name="ID_BOOKING" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="ObservationDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idObservation">
+        <column name="ID_OBSERVATION" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="NewsFeedDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idNewsFeed">
+        <column name="ID_NEWS_FEED" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="WeekDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idWeek">
+        <column name="ID_WEEK" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="ConfigurationDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idConfiguration">
+        <column name="ID_CONFIGURATION" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="BookingWeekDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idBookingWeek">
+        <column name="ID_BOOKING_WEEK" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="BookingWeekScreenDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idBookingWeekScreen">
+        <column name="ID_BOOKING_WEEK_SCREEN" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="BookingWeekScreenShowDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idBookingWeekScreenShow">
+        <column name="ID_BOOKING_WEEK_SCREEN_SHOW" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="SpecialEventDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idSpecialEvent">
+        <column name="ID_SPECIAL_EVENT" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="BookingSpecialEventDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idBookingSpecialEvent">
+      <column name="ID_BOOKING_SPECIAL_EVENT"/>
+      <generated-value strategy="AUTO"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="BookingSpecialEventScreenDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idBookingSpecialEventScreen">
+      <column name="ID_BOOKING_SPECIAL_EVENT_SCREEN"/>
+      <generated-value strategy="AUTO"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="BookingSpecialEventScreenShowDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idBookingSpecialEventScreenShow">
+      <column name="ID_BOOKING_SPECIAL_EVENT_SCREEN_SHOW"/>
+      <generated-value strategy="AUTO"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="BookingTypeDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idBookingType">
+      <column name="ID_BOOKING_TYPE"/>
+      <generated-value strategy="AUTO"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="BookingTypeLanguageDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idBookingTypeLanguage">
+      <column name="ID_BOOKING_TYPE_LANGUAGE"/>
+      <generated-value strategy="AUTO"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="MovieFormatDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idMovieFormat">
+        <column name="ID_MOVIE_FORMAT" />
+        <generated-value strategy="AUTO" />
+      </id>
+    </attributes>
+  </entity>
+  <entity class="SpecialEventWeekDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idSpecialEventWeek">
+      <column name="ID_SPECIAL_EVENT_WEEK"/>
+      <generated-value strategy="AUTO"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="BookingIncomeDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idBookingIncome">
+      <column name="ID_BOOKING_INCOME"/>
+      <generated-value strategy="AUTO"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="PresaleDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idPresale">
+      <column name="ID_PRESALE"/>
+      <generated-value strategy="AUTO"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="TrailerDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idTrailer">
+      <column name="ID_TRAILER"/>
+      <generated-value strategy="AUTO"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="TrailerStatusDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idTrailerStatus">
+      <column name="ID_TRAILER_STATUS"/>
+      <generated-value strategy="AUTO"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="TrailerStatusLanguageDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idTrailerStatusLanguage">
+      <column name="ID_TRAILER_STATUS_LANGUAGE"/>
+      <generated-value strategy="AUTO"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="OperationDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idOperation">
+      <column name="ID_OPERATION"/>
+      <generated-value strategy="AUTO"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="OperationLanguageDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idOperationLanguage">
+      <column name="ID_OPERATION_LANGUAGE"/>
+      <generated-value strategy="AUTO"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="ProcessDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idProcess">
+      <column name="ID_PROCESS"/>
+      <generated-value strategy="AUTO"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="ProcessLanguageDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idProcessLanguage">
+      <column name="ID_PROCESS_LANGUAGE"/>
+      <generated-value strategy="AUTO"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="SystemLogDO" metadata-complete="false" access="FIELD">
+    <attributes>
+      <id name="idSystemLog">
+      <column name="ID_SYSTEM_LOG"/>
+      <generated-value strategy="AUTO"/>
+      </id>
+    </attributes>
+  </entity>
+</entity-mappings>

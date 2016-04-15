@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/login_template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions" xmlns:cdb="http://cinepolis/digital-booking/custom-tags">
+  <ui:define name="content_title">#{msg['digitalbooking.booking.movie.movieTitle']}</ui:define>
+  <ui:define name="content">
+    <cdb:waitingDialog
+      components=":loginForm:login" />
+    <h:form id="loginForm">
+      <p:panel id="loginPanelAdd" style="width:250px; text-align:center; position:relative;margin:auto; top:50px;">
+        <p:messages id="msgs" autoUpdate="true" closable="true" />
+        <p:panelGrid id="loginPanelGrid" styleClass="components-dialog" style="text-align:center;">
+          <p:row>
+            <p:column style="border-style:none;width:200px;text-align:left;">
+              <p:outputLabel for="username" style="color:#000000;" value="#{msg['digitalbooking.login.user']}" cellpadding="4" />
+            </p:column>
+          </p:row>
+          <p:row>
+            <p:column style="border-style:none;width:200px;text-align:left;">
+              <p:inputText id="username" value="#{loginBean.username}" required="true" maxlength="50"
+                styleClass="components-dialog" />
+            </p:column>
+          </p:row>
+          <p:row>
+            <p:column style="border-style:none;width:200px;text-align:left;">
+              <p:outputLabel for="password" style="color:#000000;" value="#{msg['digitalbooking.login.password']}" cellpadding="4" />
+            </p:column>
+          </p:row>
+          <p:row>
+            <p:column style="border-style:none;width:200px;text-align:left;">
+              <p:password id="password" value="#{loginBean.password}" required="true" maxlength="50"
+                styleClass="components-dialog" />
+            </p:column>
+          </p:row>
+          <p:row>
+            <p:column style="border-style:none;width:210px;text-align:center;">
+              <p:commandButton id="login" value="#{msg['digitalbooking.login.beginSession']}" icon="ui-icon-key" action="#{loginBean.logIn}" />
+            </p:column>
+          </p:row>
+
+        </p:panelGrid>
+      </p:panel>
+
+    </h:form>
+
+  </ui:define>
+</ui:composition>

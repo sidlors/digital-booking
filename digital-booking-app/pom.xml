@@ -1,0 +1,112 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>mx.com.cinepolis</groupId>
+    <artifactId>digital-booking</artifactId>
+    <version>1.3.1</version>
+  </parent>
+  <artifactId>digital-booking-app</artifactId>
+  <version>${project.parent.version}</version>
+
+  <packaging>ear</packaging>
+  <name>Cinepolis ::: Digital Booking ::: App</name>
+  <dependencies>
+    <dependency>
+      <groupId>mx.com.cinepolis</groupId>
+      <artifactId>digital-booking-persistence</artifactId>
+      <version>${project.parent.version}</version>
+      <type>ejb</type>
+    </dependency>
+    <dependency>
+      <groupId>mx.com.cinepolis</groupId>
+      <artifactId>digital-booking-services</artifactId>
+      <version>${project.parent.version}</version>
+      <type>ejb</type>
+    </dependency>
+    <dependency>
+      <groupId>mx.com.cinepolis</groupId>
+      <artifactId>digital-booking-web</artifactId>
+      <version>${project.parent.version}</version>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <artifactId>digital-booking-integration</artifactId>
+      <groupId>mx.com.cinepolis</groupId>
+      <version>${project.parent.version}</version>
+      <type>ejb</type>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-ear-plugin</artifactId>
+        <version>${maven-ear-plugin.version}</version>
+        <configuration>
+          <earSourceDirectory>src/main/resources</earSourceDirectory>
+          <filtering>true</filtering>
+          <modules>
+            <ejbModule>
+              <groupId>mx.com.cinepolis</groupId>
+              <artifactId>digital-booking-persistence</artifactId>
+            </ejbModule>
+            <ejbModule>
+              <groupId>mx.com.cinepolis</groupId>
+              <artifactId>digital-booking-services</artifactId>
+            </ejbModule>
+            <ejbModule>
+              <groupId>mx.com.cinepolis</groupId>
+              <artifactId>digital-booking-integration</artifactId>
+            </ejbModule>
+            <webModule>
+              <groupId>mx.com.cinepolis</groupId>
+              <artifactId>digital-booking-web</artifactId>
+              <contextRoot>/${project.final.name}</contextRoot>
+            </webModule>
+          </modules>
+        </configuration>
+      </plugin>
+    </plugins>
+    <pluginManagement>
+      <plugins>
+        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build 
+          itself. -->
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>${lifecycle-mapping.version}</version>
+          <configuration>
+
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>
+                      org.apache.maven.plugins
+                    </groupId>
+                    <artifactId>
+                      maven-ear-plugin
+                    </artifactId>
+                    <versionRange>
+                      [2.5,)
+                    </versionRange>
+                    <goals>
+                      <goal>
+                        generate-application-xml
+                      </goal>
+
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>

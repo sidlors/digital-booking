@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/views/layout/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+  xmlns:cdb="http://cinepolis/digital-booking/custom-tags" xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+  <ui:define name="content_title">#{msg['digitalbooking.booking.theater.edit.theaterTitle']}</ui:define>
+  <ui:define name="content">
+    <h:form>
+      <p:messages id="messagesError" autoUpdate="true" closable="true" />
+      <p:dataTable id="theatherListTable" var="movie" value="#{editTheaterBookingBean.bookingTOs}" lazy="true" rows="10"
+        selection="#{editTheaterBookingBean.bookingTOSelected}" rowKey="#{movie.id}" editable="true" scrollable="true"
+        scrollHeight="280" widgetVar="theatherListTable" style="width:100%; height:100%">
+        <p:ajax event="rowEdit" listener="#{editTheaterBookingBean.onEdit}" update="theatherListTable" />
+        <p:ajax event="rowEditInit" listener="#{editTheaterBookingBean.onRowEditInit}" />
+        <p:ajax event="rowEditCancel" listener="#{editTheaterBookingBean.onRowEditCancel}" />
+        <p:column headerText="#{msg['digitalbooking.booking.theater.edit.movieHeader']}" style="width:20%">
+          #{movie.event.dsEventName}
+        </p:column>
+
+        <p:column headerText="#{msg['digitalbooking.booking.theater.edit.copiesHeader']}" style="width:10%">
+          <p:cellEditor>
+            <f:facet name="output">
+              <h:outputText value="#{movie.copy}" />
+            </f:facet>
+            <f:facet name="input">
+              <p:inputText id="numCopies" value="#{movie.copy}" maxlength="10" required="true"
+                validatorMessage="#{msg['digitalbooking.booking.movie.copiesMessageError']}"
+                label="#{msg['digitalbooking.booking.movie.copiesHeader']}">
+                <f:validateLongRange minimum="1" maximum="999999999999" />
+              </p:inputText>
+            </f:facet>
+          </p:cellEditor>
+        </p:column>
+
+        <p:column headerText="#{msg['digitalbooking.booking.theater.edit.screensHeader']}" style="width:30%">
+          <p:cellEditor>
+            <f:facet name="output">
+              <p:selectManyButton value="#{movie.screensSelected}">
+                <f:selectItems value="#{movie.theater.screens}" var="screen" itemLabel="#{screen.nuScreen}"
+                  itemValue="#{screen.id}" itemDisabled="true" />
+              </p:selectManyButton>
+            </f:facet>
+            <f:facet name="input">
+              <p:selectManyButton id="screensManyButton" value="#{movie.screensSelected}"
+                valueChangeListener="#{editTheaterBookingBean.changeValue}">
+                <p:ajax update="screensManyButton" listener="#{editTheaterBookingBean.loadScreens}" />
+                <f:selectItems value="#{movie.theater.screens}" var="screen" itemLabel="#{screen.nuScreen}"
+                  itemValue="#{screen.id}" itemDisabled="#{screen.disabled}" />
+              </p:selectManyButton>
+            </f:facet>
+          </p:cellEditor>
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.booking.movie.statusHeaderTable']}" width="15%">
+          #{movie.status.name}
+        </p:column>
+        <p:column headerText="#{msg['digitalbooking.booking.movie.reasonHeaderTable']}" width="15%">
+          #{movie.bookingObservationTO.observation}
+        </p:column>
+        <p:column style="width:6%">
+          <p:rowEditor rendered="#{movie.isEditable}" />
+        </p:column>
+        <f:facet name="footer">
+          <p:commandButton id="backBtn" value="#{msg['digitalbooking.common.backBtnText']}"
+            action="#{editTheaterBookingBean.back}" immediate="true" />
+          <cdb:commandButton id="saveModifyBtn" value="#{msg['digitalbooking.common.saveBtnText']}"
+            action="#{editTheaterBookingBean.editBookingTheater}">
+            <cdb:success />
+          </cdb:commandButton>
+        </f:facet>
+      </p:dataTable>
+      <p:dialog id="infoDialog" header="#{msg['digitalbooking.common.msgInfoTitle']}" widgetVar="infoDialog"
+        modal="true">
+        <h:panelGrid id="infoDialogPanel" columns="1" style="text-align:center">
+          <h:outputText value="#{msg['digitalbooking.common.msgInfoText']}" />
+          <p:commandButton id="acceptBtn" value="#{msg['digitalbooking.common.acceptBtnText']}"
+            oncomplete="infoDialog.hide();" />
+        </h:panelGrid>
+      </p:dialog>
+    </h:form>
+    <h:form id="validationDialogForm">
+      <p:dialog id="validationErrorDialog" header="#{msg['digitalbooking.common.validationErrorTitle']}"
+        widgetVar="validationErrorDialog" modal="true">
+        <h:panelGrid id="validationErrorPanel" columns="1" style="text-align:center">
+          <h:panelGrid columns="2" style="text-align:center">
+            <span class="ui-dialog-message ui-messages-error-icon" />
+            <h:outputText value="#{msg['digitalbooking.common.validationErrorText']}" />
+          </h:panelGrid>
+          <p:commandButton id="acceptBtn" value="#{msg['digitalbooking.common.acceptBtnText']}"
+            oncomplete="validationErrorDialog.hide();" />
+        </h:panelGrid>
+      </p:dialog>
+    </h:form>
+  </ui:define>
+</ui:composition>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+  <persistence-unit name="DigitalBookingPU" transaction-type="JTA">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <jta-data-source>jndi/DigitalBookingPU</jta-data-source>
+    <mapping-file>native-queries.xml</mapping-file>
+    <class>mx.com.cinepolis.digital.booking.model.BookingDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingWeekDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingWeekScreenDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingWeekScreenShowDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingStatusDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingStatusLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CategoryDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CategoryLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CategoryTypeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CategoryTypeLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CityDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CityLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.ConfigurationDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CountryDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.CountryLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.DistributorDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EmailDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EventDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.SpecialEventDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EventMovieDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EventTypeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EventTypeLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.LanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.MovieImageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.NewsFeedDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.ObservationDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.PersonDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.RegionDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.RegionLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.IncomeSettingsDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.IncomeSettingsTypeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.IncomeSettingsTypeLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.RoleDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.ScreenDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.StateDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.StateLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.SystemMenuDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.SystemMenuLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TerritoryDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TerritoryLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TheaterDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TheaterLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.UserDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.WeekDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.MovieFormatDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingSpecialEventDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingSpecialEventScreenDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingSpecialEventScreenShowDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingTypeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingTypeLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.SpecialEventWeekDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.BookingIncomeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.PresaleDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TrailerDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TrailerStatusDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.TrailerStatusLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.OperationDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.OperationLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.ProcessDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.ProcessLanguageDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.SystemLogDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EmailTypeDO</class>
+    <class>mx.com.cinepolis.digital.booking.model.EmailTemplateDO</class>
+
+    <properties>
+      <property name="eclipselink.target-server" value="WebLogic_10" />
+      <property name="eclipselink.target-database" value="SQLServer" />
+      <property name="eclipselink.logging.level" value="WARNING" />
+      <property name="eclipselink.logging.logger" value="DefaultLogger" />
+    </properties>
+  </persistence-unit>
+
+</persistence>
